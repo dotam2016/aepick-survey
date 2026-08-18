@@ -18,8 +18,7 @@ import {
   type Scores,
 } from '@aepick/shared';
 import { db, now, todayPrefix } from './db.js';
-import { PRODUCTS, recommend } from './products.js';
-import { recommendBrands } from './brands.js';
+import { recommendBrands, recommendProducts, type CatalogProduct } from './catalog.js';
 
 const ok = (data: unknown) => ({ ok: true, data });
 const err = (code: string, message: string) => ({ ok: false, error: { code, message } });
@@ -105,7 +104,8 @@ export function registerRoutes(app: FastifyInstance) {
     const existing = db.prepare(`SELECT token FROM results WHERE session_id=?`).get(id) as { token: string } | undefined;
     const token = existing?.token ?? randomBytes(24).toString('base64url');
     const coupon = `AEPICK-${token.slice(0, 6).toUpperCase()}`;
-    const products = recommend(personaId, topAxes);
+    const brands = recommendBrands(personaId, topAxes);
+    const products = recommendProducts(brands);
     const expiresAt = new Date(Date.now() + RESULT_TTL_HOURS * 3600_000).toISOString();
 
     if (!existing) {
@@ -123,9 +123,13 @@ export function registerRoutes(app: FastifyInstance) {
     const qrPngUrl = await QRCode.toDataURL(resultUrl, { width: 480, margin: 1 });
     db.prepare(`INSERT INTO events (session_id, type, ts) VALUES (?, 'qr.issued', ?)`).run(id, now());
 
+    const brands_out = brands.map((b) => ({
+      id: b.id, name: b.name, tagline: b.tagline, emoji: b.emoji, logoUrl: b.logoUrl,
+    }));
     return ok({
       scores, persona: personaId, percentile, resultToken: token, qrPngUrl, resultUrl,
-      products: products.map((p) => ({ id: p.id, name: p.name, category: p.category, reasonKey: p.reasonKey })),
+      brands: brands_out,
+      products: products.map((p) => ({ id: p.id, name: p.name, price: p.price, brandId: p.brandId })),
     });
   });
 
@@ -195,23 +199,26 @@ export function registerRoutes(app: FastifyInstance) {
     }
     db.prepare(`UPDATE results SET scan_count=scan_count+1 WHERE token=?`).run(token);
 
-    const session = db.prepare(`SELECT nickname, language FROM sessions WHERE id=?`).get(row.session_id) as
-      { nickname: string | null; language: string } | undefined;
-    const ids = JSON.parse(row.product_ids) as string[];
-    const products = ids.map((pid) => PRODUCTS.find((p) => p.id === pid)).filter(Boolean).map((p) => ({
-      id: p!.id, name: p!.name, category: p!.category, reasonKey: p!.reasonKey, shopUrl: p!.shopUrl,
-    }));
-
+    const session = db.prepare(`SELECT language FROM sessions WHERE id=?`).get(row.session_id) as
+      { language: string } | undefined;
     const scores = JSON.parse(row.scores) as Scores;
     const { topAxes } = determinePersona(scores);
-    const brands = recommendBrands(row.persona, topAxes).map((b) => ({
-      id: b.id, name: b.name, tagline: b.tagline, emoji: b.emoji,
+    const recommended = recommendBrands(row.persona, topAxes);
+    const brands = recommended.map((b) => ({
+      id: b.id, name: b.name, tagline: b.tagline, emoji: b.emoji, logoUrl: b.logoUrl,
       products: b.products,
+    }));
+
+    // 체험 시점에 확정된 제품을 그대로 되살린다(그 사이 카탈로그가 바뀌어도 결과는 고정).
+    const byId = new Map<string, CatalogProduct>();
+    for (const b of recommended) for (const p of b.products) byId.set(p.id, p);
+    const ids = JSON.parse(row.product_ids) as string[];
+    const products = ids.map((pid) => byId.get(pid)).filter(Boolean).map((p) => ({
+      id: p!.id, name: p!.name, price: p!.price, shopUrl: p!.shopUrl, imageUrl: p!.imageUrl, brandId: p!.brandId,
     }));
 
     return ok({
       persona: row.persona,
-      nickname: session?.nickname ?? '',
       language: session?.language ?? 'vi',
       scores,
       products,

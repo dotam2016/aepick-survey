@@ -78,6 +78,30 @@ CREATE TABLE IF NOT EXISTS pairings (
   claimed_at TEXT
 );
 CREATE INDEX IF NOT EXISTS idx_pairings_device ON pairings(device_id, status);
+CREATE TABLE IF NOT EXISTS brands (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  tagline TEXT,          -- JSON {ko,en,vi}
+  emoji TEXT,
+  logo_url TEXT,         -- 디자이너가 로고 이미지를 넣는 자리
+  persona_tags TEXT,     -- JSON string[]
+  axis_affinity TEXT,    -- JSON { axis: 0~1 }
+  sort_order INTEGER NOT NULL DEFAULT 0,
+  active INTEGER NOT NULL DEFAULT 1,
+  updated_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS brand_products (
+  id TEXT PRIMARY KEY,
+  brand_id TEXT NOT NULL,
+  name TEXT NOT NULL,    -- JSON {ko,en,vi}
+  price TEXT,
+  shop_url TEXT,
+  image_url TEXT,        -- 디자이너가 제품 이미지를 넣는 자리
+  sort_order INTEGER NOT NULL DEFAULT 0,
+  active INTEGER NOT NULL DEFAULT 1,
+  updated_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_products_brand ON brand_products(brand_id, sort_order);
 CREATE INDEX IF NOT EXISTS idx_events_type_ts ON events(type, ts);
 CREATE INDEX IF NOT EXISTS idx_sessions_started ON sessions(started_at);
 `);

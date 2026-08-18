@@ -12,6 +12,8 @@ import { adminPageHtml, resultPageHtml } from './pages.js';
 import { detectLanIps, ensureCert } from './demoNet.js';
 import { ADMIN_KEY } from './adminKey.js';
 import { registerPairingRoutes, startPairingSweeper } from './pairingRoutes.js';
+import { registerCatalogRoutes } from './catalogRoutes.js';
+import { seedCatalogIfEmpty } from './catalogSeed.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PORT ?? 8787);
@@ -43,6 +45,7 @@ await app.register(fastifyStatic, { root: DATA_DIR, prefix: '/static/', decorate
 
 registerRoutes(app);
 registerPairingRoutes(app);
+registerCatalogRoutes(app);
 registerAdminRoutes(app);
 
 /* 모바일 결과 페이지 */
@@ -73,6 +76,8 @@ if (hasKioskBuild) {
 startExpiryScheduler();
 startPairingSweeper();
 
+const seeded = seedCatalogIfEmpty();
+
 await app.listen({ port: PORT, host: '0.0.0.0' });
 
 /*
@@ -89,6 +94,7 @@ for (const ip of lanIps) {
   console.log(`  KIOSK  (TABLET)    ${scheme}://${ip}:${PORT}/     <-- open on tablet`);
 }
 console.log(`  ADMIN  dashboard   ${scheme}://localhost:${PORT}/admin   (key: ${ADMIN_KEY})`);
+console.log(`  ADMIN  catalog     ${scheme}://localhost:${PORT}/admin/catalog   <-- brands & products`);
 console.log(bar);
 if (process.env.TUNNEL === '1') {
   console.log('  [i] TUNNEL mode: the public URL is printed in the cloudflared window.');
@@ -103,5 +109,5 @@ if (!hasKioskBuild) console.log('  [!] kiosk build missing  ->  npm run build -w
 if (!USE_HTTPS && process.env.TUNNEL !== '1')
   console.log('  [!] HTTP mode: camera is BLOCKED on tablet (LAN IP). Run with HTTPS=1');
 if (USE_HTTPS) console.log('  [i] First tablet visit shows a certificate warning -> Advanced -> Proceed (once)');
-console.log(`  [i] AI image: ${process.env.AI_PROVIDER === 'gemini' ? (process.env.GEMINI_API_KEY ? 'gemini (key set)' : 'gemini (NO KEY -> template fallback)') : 'template composite'}`);
+if (seeded > 0) console.log(`  [i] Seeded ${seeded} placeholder brands. Edit them at /admin/catalog`);
 console.log(`${bar}\n`);
