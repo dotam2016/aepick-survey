@@ -1,0 +1,29 @@
+{
+  "name": "aepick-beauty-dna",
+  "private": true,
+  "version": "0.1.0",
+  "description": "AEPICK BEAUTY DNA - 1-Device Interactive Experience",
+  "workspaces": [
+    "packages/*",
+    "apps/*",
+    "server"
+  ],
+  "scripts": {
+    "test": "vitest run",
+    "dev:server": "npm run dev -w server",
+    "dev:kiosk": "npm run dev -w @aepick/kiosk",
+    "build": "npm run build -w @aepick/kiosk && npm run build -w server",
+    "demo": "npm run demo:build && npm run demo:start",
+    "demo:build": "npm run build -w @aepick/kiosk",
+    "demo:start": "cross-env HTTPS=1 tsx server/src/index.ts",
+    "demo:tunnel": "npm run demo:build && cross-env TUNNEL=1 tsx server/src/index.ts",
+    "demo:seed": "node tools/seed-demo.mjs",
+    "demo:reset": "node tools/seed-demo.mjs --clear"
+  },
+  "devDependencies": {
+    "cross-env": "^10.1.0",
+    "tsx": "^4.23.8",
+    "typescript": "^5.6.0",
+    "vitest": "^2.1.0"
+  }
+}

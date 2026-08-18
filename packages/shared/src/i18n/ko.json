@@ -1,0 +1,446 @@
+{
+  "common": {
+    "next": "다음",
+    "start": "시작하기",
+    "confirm": "확인",
+    "retry": "다시 하기",
+    "done": "완료",
+    "skip": "건너뛰기",
+    "skipWarn": "이 단계는 건너뛸 수 없어요",
+    "timeoutTitle": "계속 진행할까요?",
+    "timeoutBody": "잠시 후 처음 화면으로 돌아갑니다",
+    "continue": "계속하기",
+    "restart": "처음으로 돌아가기",
+    "progressLabel": "{n} of 6 · Your Beauty DNA is blooming"
+  },
+  "attract": {
+    "headline": "5분 후, 나만의 Beauty DNA를 만나보세요.",
+    "sub": "Six Picks. One Beauty Identity.",
+    "participants": "지금까지 {n}명이 참여했어요",
+    "participantsLabel": "오늘의 참여자",
+    "bullets": [
+      "사진 촬영",
+      "6번의 선택",
+      "나만의 AI 이미지"
+    ],
+    "topDna": "오늘 가장 많이 나온 DNA · {persona}",
+    "topDnaLabel": "🔥 인기 DNA",
+    "startButton": "START"
+  },
+  "consent": {
+    "title": "체험을 시작하기 전에",
+    "required": "필수 동의",
+    "optional": "선택 동의",
+    "terms": "이용 약관에 동의합니다",
+    "photo": "사진 촬영과 AI 이미지 생성을 위한 사진 처리에 동의합니다",
+    "storage": "결과 이미지의 임시 저장(48시간 후 자동 삭제)에 동의합니다",
+    "analytics": "익명화된 선택 데이터의 분석 활용에 동의합니다",
+    "marketing": "AEPICK의 마케팅·소식 수신에 동의합니다",
+    "nickname": "닉네임 (선택)",
+    "nicknamePlaceholder": "결과 이미지에 표시돼요",
+    "ageGroup": "연령대 (선택)",
+    "ages": {
+      "teen": "10대",
+      "twenties": "20대",
+      "thirties": "30대",
+      "fortyPlus": "40대 이상",
+      "skip": "선택 안 함"
+    },
+    "avatarSuggest": "사진 없이 AEPICK 아바타로 체험할 수 있어요",
+    "avatarTitle": "아바타를 선택해주세요",
+    "startExperience": "체험 시작"
+  },
+  "camera": {
+    "title": "Show Us Your Beauty Mood",
+    "sub": "얼굴을 프레임 안에 맞춰주세요",
+    "guideNoFace": "얼굴을 프레임 안에 맞춰주세요",
+    "guideTooSmall": "조금 더 가까이 와주세요",
+    "guideMulti": "한 분씩 촬영할 수 있어요",
+    "guideDark": "조명이 어두워요. 밝은 곳을 바라봐주세요",
+    "guideReady": "좋아요! 준비되면 촬영 버튼을 눌러주세요",
+    "moods": {
+      "soft": "Soft",
+      "bright": "Bright",
+      "chic": "Chic"
+    },
+    "moodLabel": "오늘의 무드를 선택하세요",
+    "shutter": "촬영",
+    "flashMessage": "Your Beauty Journey Starts Here."
+  },
+  "quality": {
+    "title": "이 사진으로 진행할까요?",
+    "pass": "멋진 사진이에요!",
+    "eyesClosed": "눈을 감은 것 같아요",
+    "tooDark": "사진이 조금 어두워요",
+    "angleTooWide": "얼굴 각도가 커요. 정면을 봐주세요",
+    "tooSmall": "얼굴이 작게 나왔어요",
+    "multiFace": "얼굴이 여러 명 감지됐어요",
+    "use": "좋아요!",
+    "retake": "재촬영"
+  },
+  "intro": {
+    "title": "여섯 번의 선택으로\n당신만의 Beauty DNA를 찾아드려요",
+    "sub": "선택할 때마다 Beauty Gem이 하나씩 빛나고,\n마지막에 나만의 AI 결과를 만나보세요."
+  },
+  "core1": {
+    "title": "EMPTY BOTTLE CHALLENGE",
+    "question": "끝까지 쓰고 **다시 사고 싶은** 제품은?",
+    "hint": "카드를 넘겨 제품의 사용 스토리를 보고, 다시 사고 싶은 제품을 REPICK 존으로 드래그하세요.",
+    "tapStory": "탭하여 스토리 보기",
+    "footerNudge": "오래 만족할 제품을 골라보세요",
+    "repickZone": "REPICK",
+    "stageLabels": [
+      "첫 사용감",
+      "7일 후",
+      "한 달 후",
+      "빈 용기가 된 순간"
+    ],
+    "products": {
+      "A": {
+        "name": "Viral Glow Serum",
+        "stage1": "바르자마자 물광! SNS에서 본 그대로예요.",
+        "stage2": "화제만큼의 감동은 조금 줄어든 느낌이에요.",
+        "stage3": "특별한 변화는 잘 모르겠어요.",
+        "stage4": "예뻤지만… 다시 살지는 고민돼요."
+      },
+      "B": {
+        "name": "Steady Barrier Cream",
+        "stage1": "무난하고 순한 첫인상이에요.",
+        "stage2": "피부가 점점 편안해지는 게 느껴져요.",
+        "stage3": "오후에도 당김이 없어요. 확실히 달라졌어요.",
+        "stage4": "빈 용기가 뿌듯해요. 고민 없이 재구매!"
+      },
+      "C": {
+        "name": "Classic Daily Lotion",
+        "stage1": "늘 쓰던 그 안정감. 실패가 없죠.",
+        "stage2": "역시 익숙한 게 최고예요.",
+        "stage3": "변함없이 무난하게 좋아요.",
+        "stage4": "고민 없이 늘 담는 제품이에요."
+      }
+    },
+    "complete": {
+      "longterm": "당신은 순간적인 화제보다 오래 만족할 수 있는 제품을 선택하네요.",
+      "familiar": "당신은 검증된 익숙함에서 오는 안정감을 아는 사람이에요.",
+      "explorer": "당신은 꼼꼼히 살펴보고도 새로움에 도전하는 탐험가예요.",
+      "instant": "당신은 지금 이 순간의 반짝임을 놓치지 않는 사람이에요."
+    }
+  },
+  "core2": {
+    "title": "BEAUTY BUDGET",
+    "question": "10개의 Beauty Coin을 어디에 투자하시겠어요?",
+    "hint": "코인을 드래그해서 배분하세요 (한 곳에 최대 4개)",
+    "remaining": "남은 코인 {n}개",
+    "footerNudge": "가장 중요한 가치에 코인을 나눠보세요",
+    "slots": {
+      "effect": "효과",
+      "ingredient": "성분",
+      "price": "합리적인 가격",
+      "volume": "용량",
+      "gift": "사은품",
+      "brand": "브랜드",
+      "package": "패키지",
+      "kol": "KOL 추천"
+    },
+    "todayStat": "오늘 참여자들은 평균적으로 '{slot}'에 가장 많은 코인을 투자했어요",
+    "complete": {
+      "practical": "당신은 화려함보다 실질적인 가치를 정확히 아는 실용파예요.",
+      "premium": "당신은 좋은 것의 가치를 알아보는 프리미엄 감각의 소유자예요.",
+      "benefit": "당신은 같은 소비에서 더 많은 즐거움을 찾아내는 혜택 헌터예요.",
+      "balanced": "당신은 어느 하나에 치우치지 않는 균형 잡힌 안목을 가졌어요."
+    }
+  },
+  "core3": {
+    "title": "BEAUTY SHIELD",
+    "question": "믿을 수 있는 제품의 신호를 찾아주세요",
+    "hint": "10초 안에 신뢰할 수 있는 신호 3개를 선택하세요!",
+    "cards": {
+      "fullIngredients": "전성분 공개",
+      "realTest": "실제 사용 테스트",
+      "caution": "사용 주의사항",
+      "skinType": "피부 타입 안내",
+      "realReviews": "실제 구매 리뷰",
+      "bestSeller": "판매량 1위",
+      "celebrity": "유명인 추천",
+      "overclaim": "과도한 효과 표현"
+    },
+    "riskNudge": "화려해 보이지만, 확인할 수 있는 정보일까요?",
+    "footerNudge": "광고보다 확인 가능한 정보를 골라보세요",
+    "complete": {
+      "ingredient": "당신은 화려한 광고보다 확인할 수 있는 정보를 중요하게 생각해요.",
+      "expert": "당신은 전문적인 검증과 데이터를 믿는 신중한 타입이에요.",
+      "brand": "당신은 실제 경험자들의 목소리에서 신뢰를 찾는 사람이에요.",
+      "social": "당신은 많은 사람의 선택 속에서 안심을 얻는 타입이에요."
+    }
+  },
+  "core4": {
+    "title": "NEXT BEAUTY WAVE",
+    "question": "다음 Beauty Wave를 선택해주세요",
+    "hint": "카드를 스와이프해서 지금의 취향과 다음 트렌드를 표현해보세요",
+    "trendBadge": "TREND {n}",
+    "footerNudge": "당신의 Beauty DNA는 새로운 파도를 감지하고 있어요!",
+    "dirs": {
+      "notme": "관심 없어요",
+      "next": "다음에 해볼래요",
+      "love": "지금 좋아요"
+    },
+    "styles": {
+      "glassSkin": {
+        "name": "Glass Skin",
+        "desc": "유리처럼 맑고 촉촉한 광채 피부"
+      },
+      "softMatte": {
+        "name": "Soft Matte",
+        "desc": "보송하고 부드러운 세미 매트"
+      },
+      "naturalPeach": {
+        "name": "Natural Peach",
+        "desc": "생기 있는 복숭아빛 내추럴 톤"
+      },
+      "boldColor": {
+        "name": "Bold Color",
+        "desc": "시선을 사로잡는 대담한 컬러 포인트"
+      },
+      "minimalSkin": {
+        "name": "Minimal Skin",
+        "desc": "본연의 피부를 살린 미니멀리즘"
+      },
+      "y2k": {
+        "name": "Y2K Beauty",
+        "desc": "글리터와 유쾌함, 자유로운 Y2K 무드"
+      }
+    },
+    "resultStat": "당신은 참여자의 {p}%만 선택한 트렌드를 먼저 발견했어요",
+    "complete": {
+      "pioneer": "당신은 다음 웨이브를 먼저 알아보는 트렌드 개척자예요.",
+      "mainstream": "당신은 지금 사랑받는 무드를 정확히 읽는 공감형이에요.",
+      "stable": "당신은 유행보다 나에게 어울리는 것을 아는 취향 확고형이에요.",
+      "experimental": "당신은 남들이 주저하는 스타일도 즐기는 실험가예요."
+    }
+  },
+  "core5": {
+    "title": "HANOI BEAUTY WEATHER LAB",
+    "question": "오늘의 하노이에 가장 잘 맞는 조합은?",
+    "hint": "상황에 맞는 속성을 선택해 나만의 조합을 완성하세요",
+    "gauge": "오늘의 적합도",
+    "fitReady": "조합을 완성하면 적합도를 확인할 수 있어요",
+    "footerNudge": "상황에 맞는 뷰티 루틴을 찾아가고 있어요",
+    "chips": {
+      "hanoi-humid": [
+        "34°C",
+        "습도 높음",
+        "오토바이 30분",
+        "오후 실내"
+      ],
+      "rainy-commute": [
+        "29°C",
+        "습도 높음",
+        "오토바이 이동",
+        "오전 출근"
+      ],
+      "outdoor-date": [
+        "31°C",
+        "자외선 강함",
+        "야외 활동",
+        "사진 많음"
+      ],
+      "aircon-office": [
+        "24°C",
+        "건조함",
+        "실내 8시간",
+        "에어컨"
+      ],
+      "weekend-trip": [
+        "30°C",
+        "이동 많음",
+        "짐 최소화",
+        "1박 2일"
+      ],
+      "evening-party": [
+        "26°C",
+        "실내 조명",
+        "장시간",
+        "저녁 모임"
+      ]
+    },
+    "scenarios": {
+      "hanoi-humid": "34°C 높은 습도 · 오토바이 이동 30분 · 오후 실내 약속",
+      "rainy-commute": "비 오는 출근길 · 우산과 헬멧 사이",
+      "outdoor-date": "햇살 좋은 야외 데이트 · 사진 찍을 일이 많아요",
+      "aircon-office": "장시간 에어컨 사무실 · 건조함과의 싸움",
+      "weekend-trip": "주말 근교 여행 · 가방은 가볍게",
+      "evening-party": "저녁 파티 · 조명 아래 오래 빛나야 해요"
+    },
+    "attributes": {
+      "texture": {
+        "light": "가벼운 제형",
+        "rich": "리치한 제형"
+      },
+      "finish": {
+        "matte": "매트",
+        "glow": "글로우"
+      },
+      "priority": {
+        "lasting": "지속력",
+        "comfort": "편안함"
+      },
+      "hydration": {
+        "deepMoist": "강한 보습",
+        "fastAbsorb": "빠른 흡수"
+      },
+      "size": {
+        "portable": "휴대용",
+        "jumbo": "대용량"
+      }
+    },
+    "complete": {
+      "weatherAdaptive": "당신은 어떤 날씨에도 최적의 조합을 찾아내는 적응의 달인이에요.",
+      "lasting": "당신은 하루 끝까지 무너지지 않는 지속력을 최우선으로 생각해요.",
+      "comfort": "당신은 피부가 편안해야 진짜 아름답다고 믿는 사람이에요.",
+      "portable": "당신은 언제 어디서든 가볍게 아름다움을 챙기는 스마트파예요."
+    }
+  },
+  "core6": {
+    "title": "REVIEW DETECTIVE",
+    "question": "가장 믿을 수 있는 리뷰를 찾아주세요",
+    "hint": "돋보기를 눌러 단서를 확대해보세요",
+    "reviews": {
+      "A": {
+        "text": "완전 최고! 무조건 사세요!",
+        "meta": "★★★★★ · 어제 작성",
+        "clue1": "별점 5점 · 사용 정보 없음",
+        "clue2": "구매 인증 없음"
+      },
+      "B": {
+        "text": "복합성 피부입니다. 처음에는 약간 끈적였지만 일주일 후 오후 당김이 줄었습니다.",
+        "meta": "★★★★ · 사용 사진 2장",
+        "clue1": "피부 타입·사용 기간 명시",
+        "clue2": "실사용 사진 포함"
+      },
+      "C": {
+        "text": "SNS에서 유명해서 구매했어요.",
+        "meta": "♥ 2.4k · 인기 게시물",
+        "clue1": "좋아요 2,400개",
+        "clue2": "사용 후기 없음"
+      }
+    },
+    "resultStat": "참여자의 {p}%가 같은 리뷰를 신뢰했어요",
+    "complete": {
+      "detail": "당신은 다른 사람의 인기보다 나와 비슷한 사람의 실제 경험을 믿는 편이에요.",
+      "media": "당신은 말보다 눈으로 확인할 수 있는 증거를 믿는 타입이에요.",
+      "rating": "당신은 명확한 평가 점수에서 빠르게 답을 찾는 효율파예요.",
+      "popularity": "당신은 많은 사람들이 모이는 곳에 이유가 있다고 믿는 타입이에요."
+    }
+  },
+  "dna": {
+    "analyzing": "당신의 Beauty DNA를\n분석하고 있어요",
+    "analyzingSub": "6개의 선택을 조합해 나만의 결과를 만들고 있어요\n잠시만 기다려주세요",
+    "analyzingProgress": "분석 중",
+    "analyzingComing": "곧 AI Beauty Result가 공개됩니다",
+    "youAre": "You are a",
+    "resultBadge": "Beauty DNA Result",
+    "percentile": "오늘 참여자 중 {p}%만 가진 DNA예요",
+    "viewAura": "내 Beauty Aura 보기",
+    "personas": {
+      "loyalGlowKeeper": {
+        "desc": "오래 만족할 수 있는 제품을 알아보는 사람.\n한 번의 선택을 오래 빛나게 만들어요.",
+        "keywords": [
+          "오래보는안목",
+          "꾸준함",
+          "신뢰"
+        ]
+      },
+      "smartBeautyCurator": {
+        "desc": "꼼꼼히 비교하고 검증해서 고르는 사람.\n당신의 화장대에는 이유 있는 제품만 있어요.",
+        "keywords": [
+          "비교분석",
+          "가성비",
+          "검증"
+        ]
+      },
+      "trendMuse": {
+        "desc": "새로운 뷰티 웨이브를 먼저 발견하고\n나만의 방식으로 표현하는 사람.",
+        "keywords": [
+          "트렌드세터",
+          "감각",
+          "플레이풀"
+        ]
+      },
+      "localBeautyExpert": {
+        "desc": "나의 하루, 나의 도시에 꼭 맞는\n뷰티를 아는 현명한 사람.",
+        "keywords": [
+          "실용",
+          "라이프핏",
+          "현명함"
+        ]
+      },
+      "trustGuardian": {
+        "desc": "정보와 경험을 꼼꼼히 확인하는 사람.\n당신의 신중함이 피부를 지켜요.",
+        "keywords": [
+          "성분확인",
+          "신중함",
+          "안심"
+        ]
+      },
+      "beautyExplorer": {
+        "desc": "새로움과 지속성을 함께 찾는 탐험가.\n뷰티의 지도를 넓혀가는 사람이에요.",
+        "keywords": [
+          "호기심",
+          "도전",
+          "나만의길"
+        ]
+      }
+    },
+    "axes": {
+      "repick": "Repick",
+      "value": "Value",
+      "care": "Care",
+      "trend": "Trend",
+      "localFit": "Local Fit",
+      "trust": "Trust"
+    }
+  },
+  "reveal": {
+    "blooming": "Your Beauty Aura is blooming…",
+    "delayNotice": "완성된 이미지는 휴대폰에서 확인하실 수 있어요"
+  },
+  "qr": {
+    "scanTitle": "Scan to keep your Beauty DNA",
+    "retention": "결과 이미지는 48시간 동안 보관돼요",
+    "deleteNotice": "결과 페이지에서 언제든 즉시 삭제할 수 있어요",
+    "productsTitle": "{persona}를 위한 추천",
+    "finish": "체험 끝내기"
+  },
+  "resultWeb": {
+    "title": "My AEPICK Beauty DNA",
+    "download": "이미지 저장",
+    "story": "스토리용 9:16",
+    "feed": "피드용 4:5",
+    "card": "DNA 카드",
+    "share": "공유하기",
+    "couponTitle": "팝업 전용 쿠폰",
+    "couponDesc": "매장에서 이 화면을 보여주세요",
+    "productsTitle": "나의 DNA 맞춤 추천",
+    "brandsTitle": "나의 DNA와 잘 맞는 브랜드",
+    "brandsDesc": "AEPICK 입점 브랜드 중 당신의 선택 기준에 가장 가까운 곳이에요",
+    "shopButton": "Shopee에서 보기",
+    "deleteNow": "내 데이터 즉시 삭제",
+    "deleteConfirm": "결과 이미지와 데이터가 즉시 삭제됩니다. 계속할까요?",
+    "deleted": "삭제가 완료되었습니다",
+    "expired": "이 결과는 보관 기간이 지나 삭제되었어요",
+    "expiresIn": "남은 보관 시간 {h}시간"
+  },
+  "products": {
+    "reasons": {
+      "steady": "오래 만족하는 당신을 위한 스테디 아이템",
+      "clean": "성분을 확인하는 당신을 위한 저자극 포뮬러",
+      "climate": "하노이의 하루에 딱 맞는 현지 최적화",
+      "trend": "트렌드를 먼저 발견하는 당신을 위한 신상",
+      "value": "가치를 아는 당신을 위한 최고의 가성비",
+      "reviewed": "검증된 리뷰로 증명된 베스트",
+      "portable": "언제 어디서든 가볍게 챙기는 뷰티"
+    }
+  },
+  "end": {
+    "thanks": "Thank you!\n당신의 Beauty DNA를 잊지 마세요 ✨"
+  }
+}

@@ -1,0 +1,29 @@
+# 의존성
+node_modules/
+
+# 빌드 산출물
+dist/
+*.tsbuildinfo
+
+# 런타임 데이터 (세션 DB·업로드 사진·생성 이미지)
+server/data/
+*.db
+*.db-journal
+
+# 디자인 원본 (용량이 커서 저장소에 넣지 않음. 별도 보관)
+design-src/
+apps/kiosk/public/assets/**/src-*.png
+
+# 인증서 (자체 서명, 실행 시 자동 생성)
+server/certs/
+*.pem
+
+# 로컬 환경
+.env
+.env.local
+*.log
+
+# OS
+Thumbs.db
+desktop.ini
+.DS_Store
