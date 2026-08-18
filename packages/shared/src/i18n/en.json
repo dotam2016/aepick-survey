@@ -374,7 +374,11 @@
     "deleteConfirm": "Your result image and data will be deleted immediately. Continue?",
     "deleted": "Deleted successfully",
     "expired": "This result has expired and was deleted",
-    "expiresIn": "{h} hours of storage left"
+    "expiresIn": "{h} hours of storage left",
+    "voteTitle": "Product vote",
+    "voteDesc": "After trying the brands, pick your 3 favourite products.",
+    "voteCta": "Go to vote →",
+    "voteDone": "You have already voted"
   },
   "products": {
     "reasons": {

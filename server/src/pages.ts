@@ -81,24 +81,28 @@ async function main(){
   LANG=data.language||'vi';
   const p=PERSONAS[data.persona];
   const hoursLeft=Math.max(0,Math.round((new Date(data.expiresAt)-Date.now())/36e5));
-  const img=data.images?data.images.story916:null;
   const desc=(lookup(DICTS[LANG],'dna.personas.'+data.persona+'.desc')||'').replace(/\\n/g,'<br/>');
   const kw=lookup(DICTS[LANG],'dna.personas.'+data.persona+'.keywords')||[];
+
+  // 투표 여부에 따라 CTA 를 바꾼다. QR 은 한 번만 찍고 이 페이지에서 투표까지 간다.
+  let voted=false;
+  try{ const vs=await fetch('/api/vote/'+TOKEN+'/status'); if(vs.ok) voted=(await vs.json()).data.voted; }catch(e){}
+
   app.innerHTML=\`
     <div class="brand">aépick</div>
     <h1>\${t('resultWeb.title')}</h1>
-    \${img?'<div class="hero"><img src="'+img+'" alt="Beauty Aura"/></div>':'<div class="card center dim">'+t('reveal.blooming')+'</div>'}
     <div class="card center">
       <h2>\${p.name}</h2>
       <p class="dim" style="margin-top:8px">\${desc}</p>
       <p style="margin-top:8px;font-size:13px;color:\${p.primaryColor}">\${kw.map(k=>'#'+k).join(' &nbsp; ')}</p>
     </div>
-    <a class="btn" href="/api/results/\${TOKEN}/download/story">⬇ \${t('resultWeb.download')} · \${t('resultWeb.story')}</a>
-    <div class="row">
-      <a class="btn ghost" href="/api/results/\${TOKEN}/download/feed">\${t('resultWeb.feed')}</a>
-      <a class="btn ghost" href="/api/results/\${TOKEN}/download/plain">IMG</a>
-      <a class="btn ghost" href="/api/results/\${TOKEN}/download/card">\${t('resultWeb.card')}</a>
+
+    <div class="card">
+      <h2>\${t('resultWeb.voteTitle')}</h2>
+      <p class="dim" style="margin:6px 0 12px">\${voted?t('resultWeb.voteDone'):t('resultWeb.voteDesc')}</p>
+      <a class="btn" href="/v/\${TOKEN}\${voted?'/done':''}">\${voted?t('resultWeb.voteDone'):t('resultWeb.voteCta')}</a>
     </div>
+
     <button class="btn ghost" onclick="shareResult()">↗ \${t('resultWeb.share')}</button>
     <div class="card coupon">
       <div class="dim">\${t('resultWeb.couponTitle')}</div>
@@ -111,34 +115,21 @@ async function main(){
       \${(data.brands||[]).map(b=>\`
         <div class="brand">
           <div class="brand-head">
-            <div class="brand-logo">\${b.emoji}</div>
+            <div class="brand-logo">\${b.logoUrl?'<img src="'+b.logoUrl+'" alt="" style="width:100%;height:100%;border-radius:14px;object-fit:cover"/>':b.emoji}</div>
             <div style="flex:1">
               <div class="brand-name">\${b.name}</div>
-              <div class="dim" style="font-size:12px">\${b.tagline[LANG]||b.tagline.en}</div>
+              <div class="dim" style="font-size:12px">\${b.tagline[LANG]||b.tagline.en||''}</div>
             </div>
           </div>
           <div class="brand-items">
             \${b.products.map(p=>\`
               <div class="brand-item">
-                <span class="nm">\${p.name[LANG]||p.name.en}</span>
+                <span class="nm">\${p.name[LANG]||p.name.en||''}</span>
                 <span class="pr">\${p.price}</span>
                 <a target="_blank" rel="noopener" href="\${p.shopUrl}"
                    onclick="fetch('/api/events',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({events:[{type:'product.clicked',payload:{productId:'\${p.id}',brandId:'\${b.id}'},ts:new Date().toISOString()}]})})">SHOP</a>
               </div>\`).join('')}
           </div>
-        </div>\`).join('')}
-    </div>
-    <div class="card">
-      <h2 style="margin-bottom:6px">\${t('resultWeb.productsTitle')}</h2>
-      \${data.products.map(pr=>\`
-        <div class="prod">
-          <div class="emoji">🧴</div>
-          <div style="flex:1">
-            <div style="font-weight:700;font-size:14px">\${pr.name[LANG]||pr.name.en}</div>
-            <div class="dim" style="font-size:12px">\${t(pr.reasonKey)}</div>
-          </div>
-          <a class="btn" style="width:auto;padding:9px 14px;font-size:12px" target="_blank" rel="noopener"
-             href="\${pr.shopUrl}" onclick="fetch('/api/events',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({events:[{type:'product.clicked',payload:{productId:'\${pr.id}'},ts:new Date().toISOString()}]})})">Shopee</a>
         </div>\`).join('')}
     </div>
     <p class="dim center">\${t('resultWeb.expiresIn',{h:hoursLeft})} · \${t('qr.deleteNotice')}</p>

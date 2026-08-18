@@ -375,7 +375,11 @@
     "deleteConfirm": "Ảnh kết quả và dữ liệu sẽ bị xóa ngay lập tức. Tiếp tục?",
     "deleted": "Đã xóa thành công",
     "expired": "Kết quả này đã hết hạn lưu trữ và bị xóa",
-    "expiresIn": "Còn {h} giờ lưu trữ"
+    "expiresIn": "Còn {h} giờ lưu trữ",
+    "voteTitle": "Bình chọn sản phẩm",
+    "voteDesc": "Sau khi trải nghiệm các thương hiệu, hãy chọn 3 sản phẩm bạn thích nhất.",
+    "voteCta": "Đi bình chọn →",
+    "voteDone": "Bạn đã bình chọn xong"
   },
   "products": {
     "reasons": {

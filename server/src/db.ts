@@ -102,6 +102,21 @@ CREATE TABLE IF NOT EXISTS brand_products (
   updated_at TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_products_brand ON brand_products(brand_id, sort_order);
+CREATE TABLE IF NOT EXISTS votes (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  visitor_id TEXT NOT NULL,
+  session_id TEXT,
+  result_token TEXT,
+  product_ids TEXT NOT NULL,   -- JSON string[] (3개)
+  voted_at TEXT NOT NULL,
+  /*
+   * 사은품 지급 확인. 운영팀이 검증 방식을 정하기 전까지는 기록만 남긴다.
+   * 정해지면 여기에 직원 확인 시각·담당자를 채워 소진 처리한다.
+   */
+  reward_claimed_at TEXT,
+  reward_staff TEXT,
+  UNIQUE(visitor_id)           -- 계정당 1회
+);
 CREATE INDEX IF NOT EXISTS idx_events_type_ts ON events(type, ts);
 CREATE INDEX IF NOT EXISTS idx_sessions_started ON sessions(started_at);
 `);

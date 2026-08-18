@@ -374,7 +374,11 @@
     "deleteConfirm": "결과 이미지와 데이터가 즉시 삭제됩니다. 계속할까요?",
     "deleted": "삭제가 완료되었습니다",
     "expired": "이 결과는 보관 기간이 지나 삭제되었어요",
-    "expiresIn": "남은 보관 시간 {h}시간"
+    "expiresIn": "남은 보관 시간 {h}시간",
+    "voteTitle": "제품 투표",
+    "voteDesc": "브랜드를 체험하신 뒤, 가장 마음에 든 제품 3가지를 골라주세요.",
+    "voteCta": "투표하러 가기 →",
+    "voteDone": "투표를 완료하셨습니다"
   },
   "products": {
     "reasons": {

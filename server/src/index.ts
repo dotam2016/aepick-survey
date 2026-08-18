@@ -13,6 +13,7 @@ import { detectLanIps, ensureCert } from './demoNet.js';
 import { ADMIN_KEY } from './adminKey.js';
 import { registerPairingRoutes, startPairingSweeper } from './pairingRoutes.js';
 import { registerCatalogRoutes } from './catalogRoutes.js';
+import { registerVoteRoutes } from './voteRoutes.js';
 import { seedCatalogIfEmpty } from './catalogSeed.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -46,6 +47,7 @@ await app.register(fastifyStatic, { root: DATA_DIR, prefix: '/static/', decorate
 registerRoutes(app);
 registerPairingRoutes(app);
 registerCatalogRoutes(app);
+registerVoteRoutes(app);
 registerAdminRoutes(app);
 
 /* 모바일 결과 페이지 */
