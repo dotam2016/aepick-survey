@@ -1,18 +1,16 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import {
   AXES,
   PERSONAS,
   determinePersona,
   type Axis,
-  type Consents,
   type Language,
-  type Mood,
   type Scores,
 } from '@aepick/shared';
 import { screenAfterBridge, useStore } from '../state';
 import { makeT, makeTr } from '../i18n';
-import { api, type TodayStats } from '../api';
+import { api, type PairingIssued, type TodayStats } from '../api';
 import { ASSET, Deco, Logo, RadarChart, personaColors } from '../components';
 
 /* ────────────────────── S00. Attract ────────────────────── */
@@ -39,10 +37,15 @@ function CardFan() {
   );
 }
 
+/*
+ * 대기화면 3단계 안내.
+ * 아이콘 파일명은 v1(사진·AI) 시절 그대로다. 디자이너가 새 아이콘으로
+ * 교체할 때 같은 파일명을 쓰면 코드 수정 없이 반영된다(V2-7 가이드 참조).
+ */
 const STEP_ITEMS = [
-  { asset: 'step-photo', label: 'Photo' },
+  { asset: 'step-photo', label: 'Scan' },
   { asset: 'step-picks', label: '6 Picks' },
-  { asset: 'step-ai', label: 'AI Result' },
+  { asset: 'step-ai', label: 'Brands' },
 ];
 
 export function AttractScreen() {
@@ -136,16 +139,93 @@ export function AttractScreen() {
         ))}
       </div>
 
-      {/* START + 푸터 */}
-      <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '1.4vh', alignItems: 'center' }}>
-        <button className="btn pulse" style={{ padding: '24px 0', fontSize: 30, width: '92%', letterSpacing: '0.08em' }}
-          onClick={() => go('language')}>
-          {t('attract.startButton')}  →
-        </button>
-        <p className="hint" style={{ fontSize: 'clamp(11px, 1.5vh, 14px)' }}>
-          📱 One-device experience &nbsp;·&nbsp; ⏱ Approx. 5 min
-        </p>
+      {/* 페어링 QR — 고객이 폰으로 찍으면 체험이 시작된다 */}
+      <PairingPanel />
+    </div>
+  );
+}
+
+/**
+ * 대기화면의 페어링 QR.
+ *
+ * 체험 1회마다 일회용 코드를 발급해 QR로 띄우고, 폰이 스캔해 app 계정을
+ * 연결할 때까지 폴링한다. 연결되면 세션 정보를 받아 언어 선택으로 넘어간다.
+ * 코드가 만료되면 자동으로 새로 발급한다(PAD가 방치돼도 항상 유효한 QR 유지).
+ */
+const PAIRING_POLL_MS = 1500;
+
+function PairingPanel() {
+  const { s, update, go } = useStore();
+  const t = makeT(s.language);
+  const [qr, setQr] = useState<PairingIssued | null>(null);
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    let alive = true;
+    let pollTimer: ReturnType<typeof setTimeout>;
+
+    const issue = async () => {
+      const res = await api.issuePairing();
+      if (!alive) return;
+      if (!res) { setFailed(true); setTimeout(issue, 5000); return; }
+      setFailed(false);
+      setQr(res);
+      poll(res);
+    };
+
+    const poll = (issued: PairingIssued) => {
+      pollTimer = setTimeout(async () => {
+        if (!alive) return;
+        const r = await api.pollPairing(issued.code);
+        if (!alive) return;
+        if (r && r.status === 'claimed') {
+          update({
+            sessionId: r.sessionId,
+            visitCount: r.visitCount,
+            ...(r.language ? { language: r.language } : {}),
+          });
+          go('language');
+          return;
+        }
+        if (r && r.status === 'expired') { issue(); return; }
+        poll(issued);
+      }, PAIRING_POLL_MS);
+    };
+
+    issue();
+    return () => { alive = false; clearTimeout(pollTimer); };
+  }, [update, go]);
+
+  return (
+    <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '1.1vh', alignItems: 'center' }}>
+      <div className="card" style={{
+        padding: '14px 16px 12px', borderRadius: 24, display: 'flex', alignItems: 'center', gap: 18, width: '92%',
+      }}>
+        <div style={{
+          width: 128, height: 128, flex: 'none', borderRadius: 16, background: '#fff',
+          display: 'grid', placeItems: 'center', overflow: 'hidden',
+        }}>
+          {qr
+            ? <img src={qr.qrPngUrl} alt="" style={{ width: '100%', height: '100%' }} draggable={false} />
+            : <span className="hint" style={{ fontSize: 12 }}>{failed ? '· · ·' : ''}</span>}
+        </div>
+        <div style={{ textAlign: 'left', flex: 1 }}>
+          <p className="display" style={{ fontSize: 'clamp(17px, 2.4vh, 24px)', lineHeight: 1.3, marginBottom: 6 }}>
+            {t('attract.scanTitle')}
+          </p>
+          <p className="hint" style={{ fontSize: 'clamp(12px, 1.6vh, 15px)', lineHeight: 1.55 }}>
+            {t('attract.scanBody')}
+          </p>
+          {failed && (
+            <p style={{ fontSize: 12, color: 'var(--accent)', marginTop: 6, fontWeight: 700 }}>
+              {t('attract.scanRetry')}
+            </p>
+          )}
+        </div>
       </div>
+      <p className="hint" style={{ fontSize: 'clamp(11px, 1.5vh, 14px)' }}>
+        ⏱ Approx. 5 min
+      </p>
     </div>
   );
 }
@@ -167,11 +247,12 @@ export function LanguageScreen() {
     update({ language: code }); // 선택 즉시 전체 UI 언어 반영
   };
 
+  // 세션은 페어링 시점에 이미 만들어져 있다. 여기서는 언어만 확정한다.
   const next = async () => {
-    go('consent');
-    const res = await api.createSession(selected);
-    if (res) update({ sessionId: res.sessionId, offline: false });
-    else update({ offline: true });
+    go('intro');
+    if (!s.sessionId) { update({ offline: true }); return; }
+    const res = await api.setLanguage(s.sessionId, selected);
+    update({ offline: res === null });
   };
 
   return (
@@ -249,280 +330,6 @@ export function LanguageScreen() {
       <button className="btn" style={{ width: '72%', marginTop: '2.6vh', padding: '23px 0', letterSpacing: '0.14em' }} onClick={next}>
         NEXT
       </button>
-    </div>
-  );
-}
-
-/* ────────────────────── S02. 동의 ────────────────────── */
-
-const AVATARS = ['🌸', '🌙', '⭐', '🦋', '🌊', '🔥'];
-
-export function ConsentScreen() {
-  const { s, update, go } = useStore();
-  const t = makeT(s.language);
-  const [c, setC] = useState({ terms: false, photo: false, storage: false, analytics: false, marketing: false });
-  const [nickname, setNickname] = useState('');
-  const [ageGroup, setAgeGroup] = useState<string | null>(null);
-  const [avatarPick, setAvatarPick] = useState(false);
-  const [avatarId, setAvatarId] = useState<string | null>(null);
-
-  const requiredOk = c.terms && c.storage && (c.photo || avatarId !== null);
-
-  const toggle = (k: keyof typeof c) => setC((prev) => ({ ...prev, [k]: !prev[k] }));
-
-  const Row = ({ k, label, required }: { k: keyof typeof c; label: string; required?: boolean }) => (
-    <button className="card consent-row" style={{ color: 'var(--ink)', cursor: 'pointer' }} onClick={() => toggle(k)}>
-      <div className={`checkbox ${c[k] ? 'on' : ''}`}>✓</div>
-      <span>
-        {required && <span style={{ color: 'var(--pink)', fontWeight: 800 }}>[{t('consent.required')}] </span>}
-        {label}
-      </span>
-    </button>
-  );
-
-  const start = async () => {
-    const consents: Consents = { ...c };
-    update({ consents, nickname: nickname.trim(), avatarId: c.photo ? null : avatarId });
-    if (s.sessionId) {
-      api.setConsent(s.sessionId, consents, {
-        nickname: nickname.trim() || undefined,
-        ageGroup: ageGroup ?? undefined,
-        avatarId: c.photo ? undefined : (avatarId ?? undefined),
-      });
-      if (c.marketing) api.sendEvent('consent.marketing', s.sessionId, { granted: true });
-    }
-    go(c.photo ? 'camera' : 'intro');
-  };
-
-  if (avatarPick) {
-    return (
-      <div className="screen" style={{ justifyContent: 'center', gap: 24 }}>
-        <h1 className="display">{t('consent.avatarTitle')}</h1>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16, width: '100%' }}>
-          {AVATARS.map((a) => (
-            <button key={a} className="card" style={{
-              fontSize: 64, padding: '28px 0', cursor: 'pointer',
-              border: avatarId === a ? '3px solid var(--pink)' : '1px solid var(--card-border)',
-            }} onClick={() => setAvatarId(a)}>{a}</button>
-          ))}
-        </div>
-        <button className="btn" disabled={!avatarId} onClick={() => setAvatarPick(false)}>{t('common.confirm')}</button>
-      </div>
-    );
-  }
-
-  return (
-    <div className="screen" style={{ justifyContent: 'center', gap: 12 }}>
-      <h1 className="display" style={{ marginBottom: '2vh' }}>{t('consent.title')}</h1>
-      <Row k="terms" label={t('consent.terms')} required />
-      <Row k="photo" label={t('consent.photo')} required />
-      <Row k="storage" label={t('consent.storage')} required />
-      <div style={{ height: 8 }} />
-      <Row k="analytics" label={t('consent.analytics')} />
-      <Row k="marketing" label={t('consent.marketing')} />
-      {!c.photo && (
-        <button className="btn ghost small" onClick={() => setAvatarPick(true)}>
-          {avatarId ? `${avatarId} ` : ''}{t('consent.avatarSuggest')}
-        </button>
-      )}
-      <input className="text" placeholder={`${t('consent.nickname')} — ${t('consent.nicknamePlaceholder')}`}
-        value={nickname} maxLength={12} onChange={(e) => setNickname(e.target.value)} />
-      <div style={{ display: 'flex', gap: 8, width: '100%', justifyContent: 'center', flexWrap: 'wrap' }}>
-        {(['teen', 'twenties', 'thirties', 'fortyPlus', 'skip'] as const).map((a) => (
-          <button key={a} className="btn ghost small" style={{
-            border: ageGroup === a ? '2px solid var(--pink)' : '1px solid var(--card-border)',
-          }} onClick={() => setAgeGroup(a)}>{t(`consent.ages.${a}`)}</button>
-        ))}
-      </div>
-      <button className="btn" style={{ marginTop: '2vh' }} disabled={!requiredOk} onClick={start}>
-        {t('consent.startExperience')}
-      </button>
-    </div>
-  );
-}
-
-/* ────────────────────── S03. 촬영 ────────────────────── */
-
-export function CameraScreen() {
-  const { s, update, go } = useStore();
-  const t = makeT(s.language);
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const streamRef = useRef<MediaStream | null>(null);
-  const [ready, setReady] = useState(false);
-  const [guide, setGuide] = useState('camera.guideNoFace');
-  const [countdown, setCountdown] = useState<number | null>(null);
-  const [flash, setFlash] = useState(false);
-  const [camError, setCamError] = useState(false);
-
-  useEffect(() => {
-    let alive = true;
-    navigator.mediaDevices
-      .getUserMedia({ video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 1920 } } })
-      .then((stream) => {
-        if (!alive) { stream.getTracks().forEach((t) => t.stop()); return; }
-        streamRef.current = stream;
-        if (videoRef.current) videoRef.current.srcObject = stream;
-        setReady(true);
-        setGuide('camera.guideReady');
-      })
-      .catch(() => setCamError(true));
-    return () => {
-      alive = false;
-      streamRef.current?.getTracks().forEach((t) => t.stop());
-    };
-  }, []);
-
-  const capture = useCallback(() => {
-    const video = videoRef.current;
-    if (!video) return;
-    const canvas = document.createElement('canvas');
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    const ctx = canvas.getContext('2d')!;
-    // 미러링 반영
-    ctx.translate(canvas.width, 0);
-    ctx.scale(-1, 1);
-    ctx.drawImage(video, 0, 0);
-    const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
-    update({ photoDataUrl: dataUrl });
-    api.sendEvent('photo.captured', s.sessionId, { mood: s.mood });
-    setFlash(true);
-    setTimeout(() => go('confirm'), 1100);
-  }, [update, go, s.sessionId, s.mood]);
-
-  const startCountdown = () => {
-    setCountdown(3);
-    let n = 3;
-    const id = setInterval(() => {
-      n -= 1;
-      if (n <= 0) {
-        clearInterval(id);
-        setCountdown(null);
-        capture();
-      } else setCountdown(n);
-    }, 1000);
-  };
-
-  if (camError) {
-    return (
-      <div className="screen" style={{ justifyContent: 'center', gap: 24 }}>
-        <h1 className="display">📷</h1>
-        <p className="question">{t('camera.guideNoFace')}</p>
-        <p className="hint">Camera unavailable — continue with avatar</p>
-        <button className="btn" onClick={() => { update({ avatarId: '🌸' }); go('intro'); }}>{t('common.next')}</button>
-      </div>
-    );
-  }
-
-  return (
-    <div className="screen" style={{ gap: 14 }}>
-      <h2 className="title">{t('camera.title')}</h2>
-      <div className="cam-wrap">
-        <video ref={videoRef} autoPlay playsInline muted />
-        <div className="face-oval" />
-        {countdown !== null && (
-          <motion.div key={countdown} className="countdown" initial={{ scale: 1.6, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}>
-            {countdown}
-          </motion.div>
-        )}
-        <AnimatePresence>
-          {flash && (
-            <motion.div className="soft-flash" initial={{ opacity: 0 }} animate={{ opacity: [0, 1, 0.9] }} transition={{ duration: 0.5 }}>
-              <div style={{ position: 'absolute', inset: 0, display: 'grid', placeItems: 'center', color: '#241d1a', fontFamily: 'var(--serif)', fontWeight: 700, fontSize: 26, padding: 30, textAlign: 'center' }}>
-                {t('camera.flashMessage')}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-      <p className="hint">{t(guide)}</p>
-      <div>
-        <p className="hint" style={{ marginBottom: 8 }}>{t('camera.moodLabel')}</p>
-        <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }}>
-          {(['soft', 'bright', 'chic'] as Mood[]).map((m) => (
-            <button key={m} className="btn ghost small" style={{
-              border: s.mood === m ? '2px solid var(--pink)' : '1px solid var(--card-border)',
-            }} onClick={() => update({ mood: m })}>{t(`camera.moods.${m}`)}</button>
-          ))}
-        </div>
-      </div>
-      <button className="btn" disabled={!ready || countdown !== null} onClick={startCountdown}>
-        ● {t('camera.shutter')}
-      </button>
-    </div>
-  );
-}
-
-/* ────────────────────── S04. 촬영 확인 ────────────────────── */
-
-interface QualityCheck { key: string; pass: boolean }
-
-async function checkQuality(dataUrl: string): Promise<QualityCheck[]> {
-  const img = new Image();
-  await new Promise((res) => { img.onload = res; img.src = dataUrl; });
-  const canvas = document.createElement('canvas');
-  const w = (canvas.width = 160);
-  const h = (canvas.height = Math.round((img.height / img.width) * 160));
-  const ctx = canvas.getContext('2d')!;
-  ctx.drawImage(img, 0, 0, w, h);
-  const { data } = ctx.getImageData(0, 0, w, h);
-  let sum = 0;
-  for (let i = 0; i < data.length; i += 4) sum += 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
-  const brightness = sum / (data.length / 4);
-  const checks: QualityCheck[] = [{ key: 'quality.tooDark', pass: brightness >= 55 }];
-
-  // FaceDetector API가 있으면 얼굴 수·크기 확인 (개인 식별 아님)
-  const FD = (window as unknown as { FaceDetector?: new (o?: object) => { detect: (i: HTMLImageElement) => Promise<{ boundingBox: DOMRectReadOnly }[]> } }).FaceDetector;
-  if (FD) {
-    try {
-      const faces = await new FD({ fastMode: true }).detect(img);
-      checks.push({ key: 'quality.multiFace', pass: faces.length <= 1 });
-      if (faces.length === 1) {
-        const frac = faces[0].boundingBox.width / img.width;
-        checks.push({ key: 'quality.tooSmall', pass: frac >= 0.18 });
-      }
-    } catch { /* 미지원 시 통과 */ }
-  }
-  return checks;
-}
-
-export function ConfirmScreen() {
-  const { s, update, go } = useStore();
-  const t = makeT(s.language);
-  const [checks, setChecks] = useState<QualityCheck[] | null>(null);
-
-  useEffect(() => {
-    if (s.photoDataUrl) checkQuality(s.photoDataUrl).then(setChecks);
-  }, [s.photoDataUrl]);
-
-  const failed = (checks ?? []).filter((c) => !c.pass);
-  const use = () => {
-    if (s.sessionId && s.photoDataUrl) api.uploadPhoto(s.sessionId, s.photoDataUrl, s.mood);
-    go('intro');
-  };
-  const retake = () => {
-    api.sendEvent('photo.retake', s.sessionId);
-    update({ photoDataUrl: null, retakeCount: s.retakeCount + 1 });
-    go('camera');
-  };
-
-  return (
-    <div className="screen" style={{ gap: 16 }}>
-      <h1 className="display" style={{ fontSize: 'clamp(22px,3.4vh,34px)' }}>{t('quality.title')}</h1>
-      <div className="cam-wrap" style={{ flex: 1 }}>
-        {s.photoDataUrl && <img src={s.photoDataUrl} alt="" style={{ transform: 'none' }} />}
-      </div>
-      {checks === null ? (
-        <p className="hint">…</p>
-      ) : failed.length === 0 ? (
-        <p className="hint" style={{ color: 'var(--mint)', fontWeight: 700 }}>✓ {t('quality.pass')}</p>
-      ) : (
-        failed.map((c) => <p key={c.key} className="hint" style={{ color: 'var(--pink)' }}>⚠ {t(c.key)}</p>)
-      )}
-      <div style={{ display: 'flex', gap: 14 }}>
-        <button className="btn ghost" onClick={retake}>{t('quality.retake')}</button>
-        <button className="btn" onClick={use}>{t('quality.use')}</button>
-      </div>
     </div>
   );
 }
@@ -636,7 +443,7 @@ export function AnalyzingScreen() {
   useEffect(() => {
     const t0 = Date.now();
     const id = setInterval(() => {
-      setProgress((p) => (p >= 96 ? p : Math.min(96, Math.round(((Date.now() - t0) / 8000) * 96))));
+      setProgress((p) => (p >= 96 ? p : Math.min(96, Math.round(((Date.now() - t0) / 3500) * 96))));
     }, 120);
     return () => clearInterval(id);
   }, []);
@@ -651,7 +458,7 @@ export function AnalyzingScreen() {
     ) as Scores;
     const localPersona = determinePersona(localScores);
 
-    const minWait = new Promise((r) => setTimeout(r, 8000));
+    const minWait = new Promise((r) => setTimeout(r, 3500));
     const serverCall = s.sessionId ? api.complete(s.sessionId) : Promise.resolve(null);
 
     Promise.all([minWait, serverCall]).then(([, res]) => {
@@ -848,115 +655,9 @@ export function DnaResultScreen() {
         )}
       </div>
 
-      <button className="btn" style={{ width: '88%', padding: '22px 0', marginTop: '2.4vh' }} onClick={() => go('reveal')}>
+      <button className="btn" style={{ width: '88%', padding: '22px 0', marginTop: '2.4vh' }} onClick={() => go('qr')}>
         {t('dna.viewAura')} ✨
       </button>
-    </div>
-  );
-}
-
-/* ────────────────────── S14. AI 이미지 리빌 ────────────────────── */
-
-export function RevealScreen() {
-  const { s, update, go } = useStore();
-  const t = makeT(s.language);
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const [delayed, setDelayed] = useState(false);
-  const colors = personaColors(s.persona);
-
-  useEffect(() => {
-    if (!s.sessionId || s.offline) return; // 오프라인: 로컬 프레임 연출만
-    let alive = true;
-    const startAt = Date.now();
-    const poll = async () => {
-      if (!alive) return;
-      const res = await api.imageStatus(s.sessionId!);
-      if (!alive) return;
-      if (res && (res.status === 'completed' || res.status === 'failed_fallback') && res.imageUrl) {
-        setImageUrl(res.imageUrl);
-        update({ imageUrl: res.imageUrl });
-        return;
-      }
-      const elapsed = Date.now() - startAt;
-      if (elapsed > 35000) { setDelayed(true); return; } // QR 선발급 경로
-      if (elapsed > 20000) setDelayed(true);
-      setTimeout(poll, 2000);
-    };
-    poll();
-    return () => { alive = false; };
-  }, [s.sessionId, s.offline, update]);
-
-  const showLocal = s.offline || (delayed && !imageUrl);
-  const waiting = !imageUrl && !showLocal; // 생성 대기 중에는 다크 연출 (레퍼런스 06)
-
-  return (
-    <div className={`screen ${waiting ? 'dark-stage' : ''}`} style={{ justifyContent: 'center', gap: 24 }}>
-      {imageUrl ? (
-        <motion.div key="final"
-          initial={{ opacity: 0, scale: 0.88, filter: 'blur(18px)' }}
-          animate={{ opacity: 1, scale: 1, filter: 'blur(0)' }}
-          transition={{ duration: 1.4 }}
-          style={{
-            width: '88%', borderRadius: 36, padding: 8, position: 'relative',
-            background: 'linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,235,242,0.9))',
-            border: '2px solid rgba(255,255,255,0.95)',
-            boxShadow: `0 20px 60px ${colors.primary}55, 0 0 0 8px rgba(255,255,255,0.35)`,
-          }}>
-          <img src={imageUrl} alt="Beauty Aura" draggable={false}
-            style={{ width: '100%', display: 'block', borderRadius: 28 }} />
-        </motion.div>
-      ) : showLocal ? (
-        <LocalAuraFrame />
-      ) : (
-        <>
-          <motion.div animate={{ scale: [1, 1.06, 1], opacity: [0.8, 1, 0.8] }} transition={{ duration: 2.2, repeat: Infinity }}
-            style={{
-              width: 280, height: 280, borderRadius: '50%',
-              background: `radial-gradient(circle, ${colors.primary}66, transparent 70%)`,
-              display: 'grid', placeItems: 'center',
-            }}>
-            {s.photoDataUrl && (
-              <img src={s.photoDataUrl} alt="" style={{ width: 200, height: 200, borderRadius: '50%', objectFit: 'cover' }} />
-            )}
-          </motion.div>
-          <h1 className="display">{t('reveal.blooming')}</h1>
-        </>
-      )}
-      {(imageUrl || showLocal) && (
-        <>
-          {showLocal && !imageUrl && !s.offline && <p className="hint">{t('reveal.delayNotice')}</p>}
-          <button className="btn" onClick={() => go('qr')}>{t('common.next')}</button>
-        </>
-      )}
-    </div>
-  );
-}
-
-/** 오프라인/지연 시 로컬 프레임 연출 (Template Result의 클라이언트 버전) */
-function LocalAuraFrame() {
-  const { s } = useStore();
-  const colors = personaColors(s.persona);
-  const p = s.persona ? PERSONAS[s.persona] : null;
-  return (
-    <div style={{
-      width: '80%', aspectRatio: '9/16', borderRadius: 24, position: 'relative', overflow: 'hidden',
-      background: `linear-gradient(160deg, ${colors.primary}, ${colors.secondary})`,
-      display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 20,
-      boxShadow: `0 0 60px ${colors.primary}66`,
-    }}>
-      {s.photoDataUrl ? (
-        <img src={s.photoDataUrl} alt="" style={{
-          width: '58%', aspectRatio: '3/4', borderRadius: '50%', objectFit: 'cover',
-          border: '4px solid rgba(255,255,255,0.7)', boxShadow: '0 8px 40px rgba(0,0,0,0.35)',
-        }} />
-      ) : (
-        <div style={{ fontSize: 120 }}>{s.avatarId ?? '🌸'}</div>
-      )}
-      <div style={{ textAlign: 'center', color: '#fff', textShadow: '0 2px 12px rgba(0,0,0,0.4)' }}>
-        <div style={{ fontSize: 13, letterSpacing: '0.3em', opacity: 0.85 }}>AEPICK BEAUTY DNA</div>
-        <div style={{ fontSize: 30, fontWeight: 900, marginTop: 6 }}>{p?.name}</div>
-        {s.nickname && <div style={{ fontSize: 16, marginTop: 4, opacity: 0.9 }}>{s.nickname}</div>}
-      </div>
     </div>
   );
 }

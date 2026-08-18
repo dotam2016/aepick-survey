@@ -3,17 +3,14 @@ import { motion } from 'framer-motion';
 import { StateProvider, useStore, type ScreenId } from './state';
 import { ASSET, TimeoutGuard } from './components';
 import {
-  AttractScreen, LanguageScreen, ConsentScreen, CameraScreen, ConfirmScreen,
-  IntroScreen, BridgeScreen, AnalyzingScreen, DnaResultScreen, RevealScreen, QrScreen, EndScreen,
+  AttractScreen, LanguageScreen, IntroScreen, BridgeScreen,
+  AnalyzingScreen, DnaResultScreen, QrScreen, EndScreen,
 } from './screens/flow';
 import { Core1Screen, Core2Screen, Core3Screen, Core4Screen, Core5Screen, Core6Screen } from './screens/games';
 
 const SCREENS: Record<ScreenId, React.ComponentType> = {
   attract: AttractScreen,
   language: LanguageScreen,
-  consent: ConsentScreen,
-  camera: CameraScreen,
-  confirm: ConfirmScreen,
   intro: IntroScreen,
   core1: Core1Screen,
   core2: Core2Screen,
@@ -24,18 +21,17 @@ const SCREENS: Record<ScreenId, React.ComponentType> = {
   bridge: BridgeScreen,
   analyzing: AnalyzingScreen,
   dnaResult: DnaResultScreen,
-  reveal: RevealScreen,
   qr: QrScreen,
   end: EndScreen,
 };
 
 /** 타임아웃 정책 (기능정의서 1.2). null = 타임아웃 없음 */
 const TIMEOUTS: Record<ScreenId, number | null> = {
-  attract: null,
-  language: 60, consent: 60, camera: 60, confirm: 60, intro: 60,
+  attract: null, // 페어링 QR 대기 — 고객이 없는 상태이므로 타임아웃 없음
+  language: 60, intro: 60,
   core1: 90, core2: 90, core3: 90, core4: 90, core5: 90, core6: 90,
   bridge: null, // 자동 전환 화면 — 무입력 타임아웃 대상 아님
-  analyzing: null, dnaResult: 60, reveal: null, qr: 60, end: null,
+  analyzing: null, dnaResult: 60, qr: 60, end: null,
 };
 
 /** 운영자 히든 제스처: 좌상단 5회 연속 탭 → 세션 초기화 */

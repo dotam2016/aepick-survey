@@ -19,68 +19,19 @@
     "participants": "지금까지 {n}명이 참여했어요",
     "participantsLabel": "오늘의 참여자",
     "bullets": [
-      "사진 촬영",
+      "QR 연결",
       "6번의 선택",
-      "나만의 AI 이미지"
+      "맞춤 브랜드 추천"
     ],
     "topDna": "오늘 가장 많이 나온 DNA · {persona}",
     "topDnaLabel": "🔥 인기 DNA",
-    "startButton": "START"
-  },
-  "consent": {
-    "title": "체험을 시작하기 전에",
-    "required": "필수 동의",
-    "optional": "선택 동의",
-    "terms": "이용 약관에 동의합니다",
-    "photo": "사진 촬영과 AI 이미지 생성을 위한 사진 처리에 동의합니다",
-    "storage": "결과 이미지의 임시 저장(48시간 후 자동 삭제)에 동의합니다",
-    "analytics": "익명화된 선택 데이터의 분석 활용에 동의합니다",
-    "marketing": "AEPICK의 마케팅·소식 수신에 동의합니다",
-    "nickname": "닉네임 (선택)",
-    "nicknamePlaceholder": "결과 이미지에 표시돼요",
-    "ageGroup": "연령대 (선택)",
-    "ages": {
-      "teen": "10대",
-      "twenties": "20대",
-      "thirties": "30대",
-      "fortyPlus": "40대 이상",
-      "skip": "선택 안 함"
-    },
-    "avatarSuggest": "사진 없이 AEPICK 아바타로 체험할 수 있어요",
-    "avatarTitle": "아바타를 선택해주세요",
-    "startExperience": "체험 시작"
-  },
-  "camera": {
-    "title": "Show Us Your Beauty Mood",
-    "sub": "얼굴을 프레임 안에 맞춰주세요",
-    "guideNoFace": "얼굴을 프레임 안에 맞춰주세요",
-    "guideTooSmall": "조금 더 가까이 와주세요",
-    "guideMulti": "한 분씩 촬영할 수 있어요",
-    "guideDark": "조명이 어두워요. 밝은 곳을 바라봐주세요",
-    "guideReady": "좋아요! 준비되면 촬영 버튼을 눌러주세요",
-    "moods": {
-      "soft": "Soft",
-      "bright": "Bright",
-      "chic": "Chic"
-    },
-    "moodLabel": "오늘의 무드를 선택하세요",
-    "shutter": "촬영",
-    "flashMessage": "Your Beauty Journey Starts Here."
-  },
-  "quality": {
-    "title": "이 사진으로 진행할까요?",
-    "pass": "멋진 사진이에요!",
-    "eyesClosed": "눈을 감은 것 같아요",
-    "tooDark": "사진이 조금 어두워요",
-    "angleTooWide": "얼굴 각도가 커요. 정면을 봐주세요",
-    "tooSmall": "얼굴이 작게 나왔어요",
-    "multiFace": "얼굴이 여러 명 감지됐어요",
-    "use": "좋아요!",
-    "retake": "재촬영"
+    "scanTitle": "QR을 찍고 시작하세요",
+    "scanBody": "aepick 앱으로 옆의 QR을 찍어주세요.\n이 화면에서 바로 체험이 시작됩니다.",
+    "scanRetry": "다시 연결 중…"
   },
   "intro": {
     "title": "여섯 번의 선택으로\n당신만의 Beauty DNA를 찾아드려요",
-    "sub": "선택할 때마다 Beauty Gem이 하나씩 빛나고,\n마지막에 나만의 AI 결과를 만나보세요."
+    "sub": "선택할 때마다 Beauty Gem이 하나씩 빛나고,\n마지막에 나에게 맞는 브랜드를 추천받아요."
   },
   "core1": {
     "title": "EMPTY BOTTLE CHALLENGE",
@@ -335,7 +286,7 @@
     "analyzing": "당신의 Beauty DNA를\n분석하고 있어요",
     "analyzingSub": "6개의 선택을 조합해 나만의 결과를 만들고 있어요\n잠시만 기다려주세요",
     "analyzingProgress": "분석 중",
-    "analyzingComing": "곧 AI Beauty Result가 공개됩니다",
+    "analyzingComing": "곧 Beauty DNA 결과가 공개됩니다",
     "youAre": "You are a",
     "resultBadge": "Beauty DNA Result",
     "percentile": "오늘 참여자 중 {p}%만 가진 DNA예요",
@@ -399,13 +350,9 @@
       "trust": "Trust"
     }
   },
-  "reveal": {
-    "blooming": "Your Beauty Aura is blooming…",
-    "delayNotice": "완성된 이미지는 휴대폰에서 확인하실 수 있어요"
-  },
   "qr": {
     "scanTitle": "Scan to keep your Beauty DNA",
-    "retention": "결과 이미지는 48시간 동안 보관돼요",
+    "retention": "결과 페이지는 48시간 동안 열람할 수 있어요",
     "deleteNotice": "결과 페이지에서 언제든 즉시 삭제할 수 있어요",
     "productsTitle": "{persona}를 위한 추천",
     "finish": "체험 끝내기"

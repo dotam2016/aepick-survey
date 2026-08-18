@@ -1,15 +1,36 @@
 import type {
-  Consents,
   CoreKey,
   GameAnswer,
-  ImageStatus,
   Language,
-  Mood,
   PersonaId,
   Scores,
 } from '@aepick/shared';
 
-const DEVICE_ID = 'KIOSK-HN-01';
+/**
+ * 기기 식별자.
+ *
+ * PAD를 10대 규모로 운영하므로 기기마다 서로 다른 ID가 있어야 한다.
+ * 같은 ID를 쓰면 페어링 코드가 서로를 무효화해 체험이 끊긴다.
+ *
+ * 설정 방법: 최초 1회 주소창에 ?device=PAD-03 을 붙여 열면 저장된다.
+ * 이후에는 파라미터 없이 열어도 유지된다.
+ */
+function resolveDeviceId(): string {
+  const KEY = 'aepick.deviceId';
+  const fromUrl = new URLSearchParams(window.location.search).get('device');
+  if (fromUrl) {
+    localStorage.setItem(KEY, fromUrl);
+    return fromUrl;
+  }
+  const saved = localStorage.getItem(KEY);
+  if (saved) return saved;
+  // 미설정 기기도 최소한 서로 구분되도록 임의 ID를 부여한다.
+  const fallback = `PAD-${Math.random().toString(36).slice(2, 7).toUpperCase()}`;
+  localStorage.setItem(KEY, fallback);
+  return fallback;
+}
+
+export const DEVICE_ID = resolveDeviceId();
 
 async function req<T>(method: string, path: string, body?: unknown): Promise<T> {
   const res = await fetch(`/api${path}`, {
@@ -50,41 +71,35 @@ export interface TodayStats {
   reviewVotes: Record<string, number>;
 }
 
+export interface PairingIssued {
+  code: string;
+  url: string;
+  qrPngUrl: string;
+  expiresAt: string;
+  /** app 연동 전 목업으로 동작 중인지 */
+  mocked: boolean;
+}
+
+export type PairingPoll =
+  | { status: 'pending' | 'expired'; expiresAt?: string }
+  | { status: 'claimed'; sessionId: string; language?: Language; visitCount: number };
+
 export const api = {
-  createSession: (language: Language) =>
-    tryReq<{ sessionId: string }>('POST', '/sessions', { deviceId: DEVICE_ID, language }),
+  /* ── 페어링 (체험 시작) ── */
+  issuePairing: () => tryReq<PairingIssued>('POST', '/pairings', { deviceId: DEVICE_ID }),
 
-  setConsent: (
-    sessionId: string,
-    consents: Consents,
-    extra: { nickname?: string; ageGroup?: string; avatarId?: string },
-  ) => tryReq('PATCH', `/sessions/${sessionId}/consent`, { consents, ...extra }),
+  pollPairing: (code: string) => tryReq<PairingPoll>('GET', `/pairings/${code}`),
 
-  uploadPhoto: async (sessionId: string, dataUrl: string, mood: Mood): Promise<boolean> => {
-    try {
-      const blob = await (await fetch(dataUrl)).blob();
-      const form = new FormData();
-      form.append('photo', blob, 'photo.jpg');
-      form.append('mood', mood);
-      const res = await fetch(`/api/sessions/${sessionId}/photo`, {
-        method: 'POST',
-        headers: { 'X-Device-Id': DEVICE_ID },
-        body: form,
-      });
-      return res.ok;
-    } catch (e) {
-      console.warn('[api] photo upload failed:', e);
-      return false;
-    }
-  },
+  cancelPairing: () => tryReq<{ cancelled: number }>('POST', '/pairings/cancel', { deviceId: DEVICE_ID }),
 
+  /* ── 체험 ── */
   submitAnswer: (sessionId: string, coreKey: CoreKey, payload: GameAnswer) =>
     tryReq<{ score: number; subtype: string }>('POST', `/sessions/${sessionId}/answers/${coreKey}`, payload),
 
-  complete: (sessionId: string) => tryReq<CompleteResponse>('POST', `/sessions/${sessionId}/complete`, {}),
+  setLanguage: (sessionId: string, language: Language) =>
+    tryReq('PATCH', `/sessions/${sessionId}/language`, { language }),
 
-  imageStatus: (sessionId: string) =>
-    tryReq<{ status: ImageStatus; imageUrl?: string }>('GET', `/sessions/${sessionId}/image-status`),
+  complete: (sessionId: string) => tryReq<CompleteResponse>('POST', `/sessions/${sessionId}/complete`, {}),
 
   todayStats: () => tryReq<TodayStats>('GET', '/stats/today'),
 

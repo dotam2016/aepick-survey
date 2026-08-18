@@ -1,12 +1,9 @@
 import React, { createContext, useCallback, useContext, useMemo, useState } from 'react';
-import type { Axis, Consents, GameResult, Language, Mood, PersonaId, Scores } from '@aepick/shared';
+import type { Axis, GameResult, Language, PersonaId, Scores } from '@aepick/shared';
 
 export type ScreenId =
   | 'attract'
   | 'language'
-  | 'consent'
-  | 'camera'
-  | 'confirm'
   | 'intro'
   | 'core1'
   | 'core2'
@@ -17,7 +14,6 @@ export type ScreenId =
   | 'bridge'
   | 'analyzing'
   | 'dnaResult'
-  | 'reveal'
   | 'qr'
   | 'end';
 
@@ -25,12 +21,8 @@ export interface SessionState {
   screen: ScreenId;
   language: Language;
   sessionId: string | null;
-  consents: Consents | null;
-  nickname: string;
-  avatarId: string | null; // 사진 미동의 시 아바타 모드
-  mood: Mood;
-  photoDataUrl: string | null;
-  retakeCount: number;
+  /** app 계정 기준 몇 번째 방문인지. 첫 방문은 1. */
+  visitCount: number;
   results: Partial<Record<Axis, GameResult>>;
   scores: Scores | null;
   persona: PersonaId | null;
@@ -38,7 +30,6 @@ export interface SessionState {
   resultToken: string | null;
   qrPngUrl: string | null;
   resultUrl: string | null;
-  imageUrl: string | null;
   products: { id: string; name: Record<Language, string>; category: string; reasonKey: string }[];
   offline: boolean; // 백엔드 단절 시 로컬 전용 모드
   bridgeAxis: BridgeKey | null; // 브릿지 화면이 어느 게임 뒤인지 ('final' = 전체 마무리)
@@ -48,12 +39,7 @@ const initial: SessionState = {
   screen: 'attract',
   language: 'vi',
   sessionId: null,
-  consents: null,
-  nickname: '',
-  avatarId: null,
-  mood: 'soft',
-  photoDataUrl: null,
-  retakeCount: 0,
+  visitCount: 1,
   results: {},
   scores: null,
   persona: null,
@@ -61,7 +47,6 @@ const initial: SessionState = {
   resultToken: null,
   qrPngUrl: null,
   resultUrl: null,
-  imageUrl: null,
   products: [],
   offline: false,
   bridgeAxis: null,

@@ -1,7 +1,5 @@
 import type { FastifyInstance } from 'fastify';
 import { randomUUID, randomBytes } from 'node:crypto';
-import { createWriteStream, existsSync, readdirSync, rmSync, statSync } from 'node:fs';
-import { pipeline } from 'node:stream/promises';
 import path from 'node:path';
 import QRCode from 'qrcode';
 import {
@@ -19,8 +17,7 @@ import {
   type PersonaId,
   type Scores,
 } from '@aepick/shared';
-import { db, now, todayPrefix, UPLOAD_DIR, RESULT_DIR } from './db.js';
-import { enqueueImageJob } from './imageJob.js';
+import { db, now, todayPrefix } from './db.js';
 import { PRODUCTS, recommend } from './products.js';
 import { recommendBrands } from './brands.js';
 
@@ -41,7 +38,6 @@ const PUBLIC_BASE = process.env.PUBLIC_BASE_URL ?? '';
 
 interface SessionRow {
   id: string; device_id: string; language: string; status: string;
-  consents: string | null; nickname: string | null; avatar_id: string | null;
   scores: string | null; persona: string | null; started_at: string;
 }
 
@@ -57,39 +53,14 @@ export function registerRoutes(app: FastifyInstance) {
     return ok({ sessionId: id });
   });
 
-  /* ── 2. 동의 ── */
-  app.patch('/api/sessions/:id/consent', async (req, reply) => {
+  /* ── 1-b. 언어 확정 (세션은 페어링에서 생성됨) ── */
+  app.patch('/api/sessions/:id/language', async (req, reply) => {
     const { id } = req.params as { id: string };
-    const body = (req.body ?? {}) as { consents?: object; nickname?: string; ageGroup?: string; avatarId?: string };
-    const res = db.prepare(
-      `UPDATE sessions SET consents=?, nickname=?, age_group=?, avatar_id=? WHERE id=?`,
-    ).run(JSON.stringify(body.consents ?? {}), body.nickname ?? null, body.ageGroup ?? null, body.avatarId ?? null, id);
+    const { language } = (req.body ?? {}) as { language?: string };
+    if (!language) return reply.code(400).send(err('bad_request', 'language required'));
+    const res = db.prepare(`UPDATE sessions SET language=? WHERE id=?`).run(language, id);
     if (res.changes === 0) return reply.code(404).send(err('not_found', 'session not found'));
-    return ok({});
-  });
-
-  /* ── 3. 사진 업로드 ── */
-  app.post('/api/sessions/:id/photo', async (req, reply) => {
-    const { id } = req.params as { id: string };
-    const session = db.prepare(`SELECT id FROM sessions WHERE id=?`).get(id);
-    if (!session) return reply.code(404).send(err('not_found', 'session not found'));
-
-    let mood = 'soft';
-    let saved: string | null = null;
-    const parts = req.parts();
-    for await (const part of parts) {
-      if (part.type === 'file' && part.fieldname === 'photo') {
-        const file = path.join(UPLOAD_DIR, `${id}.jpg`);
-        await pipeline(part.file, createWriteStream(file));
-        saved = file;
-      } else if (part.type === 'field' && part.fieldname === 'mood') {
-        mood = String(part.value);
-      }
-    }
-    if (!saved) return reply.code(400).send(err('bad_request', 'photo file missing'));
-    db.prepare(`INSERT INTO photos (session_id, file_path) VALUES (?, ?)`).run(id, saved);
-    db.prepare(`UPDATE sessions SET mood=? WHERE id=?`).run(mood, id);
-    return ok({ photoId: id });
+    return ok({ language });
   });
 
   /* ── 4. 게임 답변 ── */
@@ -145,11 +116,6 @@ export function registerRoutes(app: FastifyInstance) {
     db.prepare(`UPDATE sessions SET status='completed', scores=?, subtypes=?, persona=?, completed_at=? WHERE id=?`)
       .run(JSON.stringify(scores), JSON.stringify(subtypes), personaId, now(), id);
 
-    enqueueImageJob({
-      sessionId: id, token, persona: personaId, scores,
-      nickname: session.nickname ?? '', avatarId: session.avatar_id,
-    });
-
     // 태블릿이 접속한 주소(스킴+호스트)를 그대로 QR에 넣는다.
     // → 같은 네트워크의 휴대폰이 바로 열 수 있고, HTTPS 시연에서도 스킴이 맞는다.
     const base = PUBLIC_BASE || `${req.protocol}://${req.headers.host ?? `localhost:${process.env.PORT ?? 8787}`}`;
@@ -161,16 +127,6 @@ export function registerRoutes(app: FastifyInstance) {
       scores, persona: personaId, percentile, resultToken: token, qrPngUrl, resultUrl,
       products: products.map((p) => ({ id: p.id, name: p.name, category: p.category, reasonKey: p.reasonKey })),
     });
-  });
-
-  /* ── 6. 이미지 상태 ── */
-  app.get('/api/sessions/:id/image-status', async (req) => {
-    const { id } = req.params as { id: string };
-    const job = db.prepare(`SELECT status FROM image_jobs WHERE session_id=?`).get(id) as { status: string } | undefined;
-    const result = db.prepare(`SELECT image_paths FROM results WHERE session_id=?`).get(id) as { image_paths: string | null } | undefined;
-    const images = result?.image_paths ? JSON.parse(result.image_paths) : null;
-    const status = job?.status ?? 'queued';
-    return ok({ status, imageUrl: images?.story916 ?? undefined });
   });
 
   /* ── 7. 오늘 통계 (Attract·게임 내 표시) ── */
@@ -227,7 +183,7 @@ export function registerRoutes(app: FastifyInstance) {
   app.get('/api/results/:token', async (req, reply) => {
     const { token } = req.params as { token: string };
     const row = db.prepare(`SELECT * FROM results WHERE token=?`).get(token) as {
-      session_id: string; persona: PersonaId; scores: string; image_paths: string | null;
+      session_id: string; persona: PersonaId; scores: string;
       product_ids: string; coupon_code: string; expires_at: string; deleted_at: string | null; scan_count: number;
     } | undefined;
     // 브랜드 추천은 저장하지 않고 조회 시 계산 — 카탈로그를 바꾸면 기존 결과에도 즉시 반영된다
@@ -258,31 +214,11 @@ export function registerRoutes(app: FastifyInstance) {
       nickname: session?.nickname ?? '',
       language: session?.language ?? 'vi',
       scores,
-      images: row.image_paths ? JSON.parse(row.image_paths) : null,
       products,
       brands,
       coupon: row.coupon_code,
       expiresAt: row.expires_at,
     });
-  });
-
-  /* ── 11. 다운로드 ── */
-  app.get('/api/results/:token/download/:variant', async (req, reply) => {
-    const { token, variant } = req.params as { token: string; variant: string };
-    const map: Record<string, string> = { story: 'story916.jpg', feed: 'feed45.jpg', plain: 'plain.jpg', card: 'card.jpg' };
-    const file = map[variant];
-    const row = db.prepare(`SELECT session_id, deleted_at FROM results WHERE token=?`).get(token) as
-      { session_id: string; deleted_at: string | null } | undefined;
-    if (!row || row.deleted_at || !file) return reply.code(404).send(err('not_found', 'not found'));
-    const full = path.join(RESULT_DIR, token, file);
-    if (!existsSync(full)) return reply.code(404).send(err('not_found', 'image not ready'));
-    db.prepare(`UPDATE results SET download_count=download_count+1 WHERE token=?`).run(token);
-    db.prepare(`INSERT INTO events (session_id, type, payload, ts) VALUES (?, 'result.downloaded', ?, ?)`)
-      .run(row.session_id, JSON.stringify({ variant }), now());
-    return reply
-      .header('Content-Disposition', `attachment; filename="aepick-beauty-dna-${variant}.jpg"`)
-      .type('image/jpeg')
-      .send(await import('node:fs').then((fs) => fs.createReadStream(full)));
   });
 
   /* ── 12. 즉시 삭제 ── */
@@ -295,30 +231,17 @@ export function registerRoutes(app: FastifyInstance) {
   });
 }
 
-/** 결과 이미지+레코드 삭제 (즉시 삭제·만료 공용) */
+/** 결과 레코드 삭제 (즉시 삭제·만료 공용) */
 export function deleteResult(token: string) {
-  const dir = path.join(RESULT_DIR, token);
-  try { rmSync(dir, { recursive: true, force: true }); } catch { /* ignore */ }
-  db.prepare(`UPDATE results SET deleted_at=?, image_paths=NULL WHERE token=?`).run(now(), token);
+  db.prepare(`UPDATE results SET deleted_at=? WHERE token=?`).run(now(), token);
 }
 
-/** 만료 스케줄러 — 10분 주기 (결과 만료 + 잔존 업로드 정리) */
+/** 만료 스케줄러 — 10분 주기 (결과 만료) */
 export function startExpiryScheduler() {
   const sweep = () => {
     const expired = db.prepare(`SELECT token FROM results WHERE deleted_at IS NULL AND expires_at < ?`).all(now()) as { token: string }[];
     for (const r of expired) deleteResult(r.token);
     if (expired.length) console.log(`[expiry] deleted ${expired.length} expired results`);
-
-    // 삭제 재시도 실패로 남은 업로드 원본 정리 (30분 초과분)
-    try {
-      const cutoff = Date.now() - 30 * 60 * 1000;
-      for (const f of readdirSync(UPLOAD_DIR)) {
-        const full = path.join(UPLOAD_DIR, f);
-        if (statSync(full).mtimeMs < cutoff) {
-          try { rmSync(full, { force: true }); console.log('[expiry] swept orphan upload:', f); } catch { /* next sweep */ }
-        }
-      }
-    } catch { /* ignore */ }
   };
   sweep();
   setInterval(sweep, 10 * 60 * 1000);

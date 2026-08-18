@@ -20,68 +20,19 @@
     "participants": "Đã có {n} người tham gia",
     "participantsLabel": "Khách tham gia hôm nay",
     "bullets": [
-      "Chụp ảnh",
+      "Quét QR",
       "6 lựa chọn",
-      "Nhận ảnh AI cá nhân hóa"
+      "Gợi ý thương hiệu"
     ],
     "topDna": "DNA phổ biến nhất hôm nay · {persona}",
     "topDnaLabel": "🔥 DNA được chọn nhiều nhất",
-    "startButton": "START"
-  },
-  "consent": {
-    "title": "Trước khi bắt đầu",
-    "required": "Bắt buộc",
-    "optional": "Tùy chọn",
-    "terms": "Tôi đồng ý với Điều khoản sử dụng",
-    "photo": "Tôi đồng ý chụp ảnh và xử lý ảnh bằng AI",
-    "storage": "Tôi đồng ý lưu tạm ảnh kết quả (tự động xóa sau 48 giờ)",
-    "analytics": "Tôi đồng ý phân tích ẩn danh các lựa chọn của tôi",
-    "marketing": "Tôi muốn nhận tin tức và ưu đãi từ AEPICK",
-    "nickname": "Biệt danh (tùy chọn)",
-    "nicknamePlaceholder": "Hiển thị trên ảnh kết quả của bạn",
-    "ageGroup": "Độ tuổi (tùy chọn)",
-    "ages": {
-      "teen": "Dưới 20",
-      "twenties": "20-29",
-      "thirties": "30-39",
-      "fortyPlus": "40+",
-      "skip": "Bỏ qua"
-    },
-    "avatarSuggest": "Bạn có thể tiếp tục với avatar AEPICK thay vì ảnh chụp",
-    "avatarTitle": "Chọn avatar của bạn",
-    "startExperience": "Bắt đầu trải nghiệm"
-  },
-  "camera": {
-    "title": "Show Us Your Beauty Mood",
-    "sub": "Đặt khuôn mặt vào trong khung",
-    "guideNoFace": "Đặt khuôn mặt vào trong khung",
-    "guideTooSmall": "Hãy lại gần hơn một chút",
-    "guideMulti": "Vui lòng chụp từng người một",
-    "guideDark": "Hơi tối — hãy hướng về phía ánh sáng",
-    "guideReady": "Tuyệt! Nhấn nút chụp khi sẵn sàng",
-    "moods": {
-      "soft": "Soft",
-      "bright": "Bright",
-      "chic": "Chic"
-    },
-    "moodLabel": "Chọn mood hôm nay của bạn",
-    "shutter": "Chụp",
-    "flashMessage": "Your Beauty Journey Starts Here."
-  },
-  "quality": {
-    "title": "Dùng ảnh này nhé?",
-    "pass": "Ảnh đẹp lắm!",
-    "eyesClosed": "Có vẻ bạn đang nhắm mắt",
-    "tooDark": "Ảnh hơi tối",
-    "angleTooWide": "Hãy nhìn thẳng vào camera",
-    "tooSmall": "Khuôn mặt hơi nhỏ",
-    "multiFace": "Phát hiện nhiều khuôn mặt",
-    "use": "Thích lắm!",
-    "retake": "Chụp lại"
+    "scanTitle": "Quét mã QR để bắt đầu",
+    "scanBody": "Mở ứng dụng aepick và quét mã QR bên cạnh.\nTrải nghiệm sẽ bắt đầu ngay trên màn hình này.",
+    "scanRetry": "Đang kết nối lại…"
   },
   "intro": {
     "title": "Sáu lựa chọn sẽ hé lộ\nBeauty DNA của riêng bạn",
-    "sub": "Mỗi lựa chọn thắp sáng một viên Beauty Gem —\ncuối cùng hãy gặp kết quả AI của riêng bạn."
+    "sub": "Mỗi lựa chọn thắp sáng một viên Beauty Gem —\ncuối cùng bạn sẽ nhận gợi ý thương hiệu dành riêng cho mình."
   },
   "core1": {
     "title": "EMPTY BOTTLE CHALLENGE",
@@ -336,7 +287,7 @@
     "analyzing": "Đang phân tích\nBeauty DNA của bạn",
     "analyzingSub": "Đang kết hợp 6 lựa chọn thành kết quả của riêng bạn\nVui lòng đợi trong giây lát",
     "analyzingProgress": "Đang phân tích",
-    "analyzingComing": "AI Beauty Result sắp được hé lộ",
+    "analyzingComing": "Kết quả Beauty DNA của bạn sắp xuất hiện",
     "youAre": "You are a",
     "resultBadge": "Beauty DNA Result",
     "percentile": "Chỉ {p}% khách hôm nay có DNA này",
@@ -400,13 +351,9 @@
       "trust": "Trust"
     }
   },
-  "reveal": {
-    "blooming": "Your Beauty Aura is blooming…",
-    "delayNotice": "Ảnh hoàn chỉnh sẽ sẵn sàng trên điện thoại của bạn"
-  },
   "qr": {
     "scanTitle": "Scan to keep your Beauty DNA",
-    "retention": "Ảnh kết quả được lưu trong 48 giờ",
+    "retention": "Trang kết quả có hiệu lực trong 48 giờ",
     "deleteNotice": "Bạn có thể xóa ngay bất cứ lúc nào trên trang kết quả",
     "productsTitle": "Dành riêng cho {persona}",
     "finish": "Kết thúc"

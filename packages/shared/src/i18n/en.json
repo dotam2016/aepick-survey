@@ -19,68 +19,19 @@
     "participants": "{n} people have joined so far",
     "participantsLabel": "Today's participants",
     "bullets": [
-      "Take a photo",
-      "6 quick picks",
-      "Personalized AI image"
+      "Scan QR",
+      "6 Picks",
+      "Brand picks for you"
     ],
     "topDna": "Today's top DNA · {persona}",
     "topDnaLabel": "🔥 Most picked DNA",
-    "startButton": "START"
-  },
-  "consent": {
-    "title": "Before we begin",
-    "required": "Required",
-    "optional": "Optional",
-    "terms": "I agree to the Terms of Service",
-    "photo": "I agree to photo capture and AI image processing",
-    "storage": "I agree to temporary storage of my result image (auto-deleted after 48h)",
-    "analytics": "I agree to anonymous analysis of my choices",
-    "marketing": "I'd like to receive AEPICK news and offers",
-    "nickname": "Nickname (optional)",
-    "nicknamePlaceholder": "Shown on your result image",
-    "ageGroup": "Age group (optional)",
-    "ages": {
-      "teen": "Teens",
-      "twenties": "20s",
-      "thirties": "30s",
-      "fortyPlus": "40+",
-      "skip": "Skip"
-    },
-    "avatarSuggest": "You can continue with an AEPICK avatar instead of a photo",
-    "avatarTitle": "Choose your avatar",
-    "startExperience": "Begin"
-  },
-  "camera": {
-    "title": "Show Us Your Beauty Mood",
-    "sub": "Fit your face inside the frame",
-    "guideNoFace": "Fit your face inside the frame",
-    "guideTooSmall": "Come a little closer",
-    "guideMulti": "One person at a time, please",
-    "guideDark": "It's a bit dark — face the light",
-    "guideReady": "Perfect! Tap the shutter when ready",
-    "moods": {
-      "soft": "Soft",
-      "bright": "Bright",
-      "chic": "Chic"
-    },
-    "moodLabel": "Pick today's mood",
-    "shutter": "Capture",
-    "flashMessage": "Your Beauty Journey Starts Here."
-  },
-  "quality": {
-    "title": "Use this photo?",
-    "pass": "Looking great!",
-    "eyesClosed": "Your eyes look closed",
-    "tooDark": "The photo is a bit dark",
-    "angleTooWide": "Please face the camera",
-    "tooSmall": "Your face looks small",
-    "multiFace": "Multiple faces detected",
-    "use": "Love it!",
-    "retake": "Retake"
+    "scanTitle": "Scan to start",
+    "scanBody": "Open the aepick app and scan the QR code.\nYour experience starts right here on this screen.",
+    "scanRetry": "Reconnecting…"
   },
   "intro": {
     "title": "Six picks will reveal\nyour own Beauty DNA",
-    "sub": "A Beauty Gem lights up with every choice —\nmeet your own AI result at the end."
+    "sub": "A Beauty Gem lights up with every choice —\nand your own brand picks are waiting at the end."
   },
   "core1": {
     "title": "EMPTY BOTTLE CHALLENGE",
@@ -335,7 +286,7 @@
     "analyzing": "Analyzing your\nBeauty DNA",
     "analyzingSub": "Weaving your six picks into a result of your own\nJust a moment, please",
     "analyzingProgress": "Analyzing",
-    "analyzingComing": "Your AI Beauty Result is almost here",
+    "analyzingComing": "Your Beauty DNA result is almost here",
     "youAre": "You are a",
     "resultBadge": "Beauty DNA Result",
     "percentile": "Only {p}% of today's visitors share this DNA",
@@ -399,13 +350,9 @@
       "trust": "Trust"
     }
   },
-  "reveal": {
-    "blooming": "Your Beauty Aura is blooming…",
-    "delayNotice": "Your finished image will be ready on your phone"
-  },
   "qr": {
     "scanTitle": "Scan to keep your Beauty DNA",
-    "retention": "Your result image is kept for 48 hours",
+    "retention": "Your result page stays available for 48 hours",
     "deleteNotice": "You can delete it instantly anytime on the result page",
     "productsTitle": "Picked for a {persona}",
     "finish": "Finish"
