@@ -11,6 +11,7 @@ import { registerAdminRoutes } from './adminRoutes.js';
 import { adminPageHtml, resultPageHtml } from './pages.js';
 import { detectLanIps, ensureCert } from './demoNet.js';
 import { ADMIN_KEY } from './adminKey.js';
+import { registerPairingRoutes, startPairingSweeper } from './pairingRoutes.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PORT ?? 8787);
@@ -41,6 +42,7 @@ await app.register(multipart, { limits: { fileSize: 8 * 1024 * 1024 } });
 await app.register(fastifyStatic, { root: DATA_DIR, prefix: '/static/', decorateReply: false });
 
 registerRoutes(app);
+registerPairingRoutes(app);
 registerAdminRoutes(app);
 
 /* 모바일 결과 페이지 */
@@ -69,6 +71,7 @@ if (hasKioskBuild) {
 }
 
 startExpiryScheduler();
+startPairingSweeper();
 
 await app.listen({ port: PORT, host: '0.0.0.0' });
 
