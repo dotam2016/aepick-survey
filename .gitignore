@@ -27,3 +27,6 @@ server/certs/
 Thumbs.db
 desktop.ini
 .DS_Store
+
+# Vite 임시 파일
+vite.config.ts.timestamp-*
