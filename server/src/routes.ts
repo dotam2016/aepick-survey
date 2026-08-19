@@ -41,18 +41,15 @@ interface SessionRow {
 }
 
 export function registerRoutes(app: FastifyInstance) {
-  /* ── 1. 세션 생성 ── */
-  app.post('/api/sessions', async (req) => {
-    const { deviceId, language } = (req.body ?? {}) as { deviceId?: string; language?: string };
-    const id = randomUUID();
-    db.prepare(`INSERT INTO sessions (id, device_id, language, started_at) VALUES (?, ?, ?, ?)`)
-      .run(id, deviceId ?? 'unknown', language ?? 'vi', now());
-    db.prepare(`INSERT INTO events (session_id, device_id, type, ts) VALUES (?, ?, 'session.started', ?)`)
-      .run(id, deviceId ?? 'unknown', now());
-    return ok({ sessionId: id });
-  });
+  /*
+   * 세션 생성 라우트는 없다.
+   * 세션은 오직 페어링 클레임(POST /api/pairings/:code/claim)으로만 만들어진다.
+   * v1에는 익명으로 세션을 여는 POST /api/sessions 가 있었지만,
+   * 그대로 두면 QR 없이 체험 기록을 만들어 방문 집계와 투표 자격을
+   * 우회할 수 있어 제거했다.
+   */
 
-  /* ── 1-b. 언어 확정 (세션은 페어링에서 생성됨) ── */
+  /* ── 1. 언어 확정 ── */
   app.patch('/api/sessions/:id/language', async (req, reply) => {
     const { id } = req.params as { id: string };
     const { language } = (req.body ?? {}) as { language?: string };

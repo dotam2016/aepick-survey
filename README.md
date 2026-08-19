@@ -1,47 +1,101 @@
-# AEPICK BEAUTY DNA
+# AEPICK BEAUTY DNA — v2 (팝업 운영 버전)
 
-팝업스토어용 단일 기기 인터랙티브 체험 — Six Picks. One Beauty Identity.
+하노이 팝업 **Core Value Zone** 체험 — Six Picks. One Beauty Identity.
 
-문서: [서비스 기획서](docs/01_서비스기획서.md) · [기능정의서](docs/02_기능정의서.md) · [API·데이터 명세](docs/03_API_데이터명세.md)
+고객이 PAD의 QR을 찍어 aepick 앱 계정과 연결하고, 6개 게임으로 Beauty DNA를 판정받아
+맞춤 브랜드·제품을 추천받은 뒤, 브랜드 체험 후 제품 3개에 투표하는 흐름입니다.
+
+## 문서
+
+| 문서 | 대상 | 내용 |
+|---|---|---|
+| **[BE 인계문서](docs/07_BE_인계문서.md)** | 백엔드 개발자 | API 명세 · app 연동 지점 · 인프라 이관 · 미결 사항 |
+| **[디자이너 가이드](docs/06_디자이너_가이드.md)** | 디자이너 | 에셋 매니페스트 · 교체 절차 · 규격 |
+| [시연 가이드](docs/05_시연가이드.md) | 운영 | 노트북·태블릿 시연 준비 |
+
+> `docs/01`~`05`는 **v1(사진 촬영 + AI 이미지) 기준**입니다.
+> 채점 로직·페르소나 정의 등 v2에서도 유효한 부분을 참고하는 용도로 남겨 두었으며,
+> 각 문서 상단에 안내를 붙였습니다.
+
+## v1과 무엇이 다른가
+
+| | v1 | v2 |
+|---|---|---|
+| 시작 | PAD에서 익명으로 시작 | **QR 스캔 → app 계정 페어링** |
+| 사진 촬영 | 있음 | **없음** |
+| AI 이미지 생성 | 있음 | **없음** |
+| 결과 | 개인화 이미지 | **브랜드·제품 추천** |
+| 투표 | 없음 | **제품 3개 투표** |
+| 브랜드 관리 | 코드 상수 | **어드민 화면에서 편집** |
+| 기기 | 1대 | **10대 규모** |
+
+v1은 별도 폴더(`Aepick 6core Value`)에 `v1.0-demo` 태그로 동결되어 있습니다.
 
 ## 구성
 
 | 경로 | 내용 |
 |---|---|
-| `apps/kiosk` | 키오스크 체험 앱 (React + Vite, 17화면·6게임) |
-| `server` | Backend API + 이미지 합성 + 결과 웹(`/r/:token`) + 대시보드(`/admin`) |
-| `packages/shared` | 타입·스코어링·페르소나·i18n(vi/en/ko) 공유 로직 |
-| `android-shell` | (2차) Kotlin WebView 키오스크 쉘 |
+| `apps/kiosk` | PAD 체험 앱 (React + Vite, 6게임) |
+| `server` | API + 결과 웹(`/r/:token`) + 투표(`/v/:token`) + 어드민(`/admin`) |
+| `packages/shared` | 채점·페르소나·i18n(vi/en/ko) 공유 로직 |
 
 ## 실행
 
 ```bash
 npm install
-npm run dev:server   # http://localhost:8787 (API·결과웹·대시보드)
-npm run dev:kiosk    # http://localhost:5173 (키오스크, /api는 8787로 프록시)
+npm run demo          # 빌드 + 서버 (HTTPS, 8787)
 ```
 
-- 대시보드: http://localhost:8787/admin (기본 키: `aepick-admin`, `ADMIN_KEY` 환경변수로 변경)
-- 테스트: `npm test` (스코어링·페르소나 단위테스트)
-- 키오스크 자동테스트 시 무입력 타임아웃 비활성화: `http://localhost:5173/?noTimeout=1`
+개발 중에는 나눠서 띄울 수 있습니다.
 
-## 환경변수 (server)
+```bash
+npm run dev:server    # http://localhost:8787
+npm run dev:kiosk     # http://localhost:5173 (/api는 8787로 프록시)
+```
+
+| 주소 | 용도 |
+|---|---|
+| `/` | PAD 키오스크 |
+| `/admin` | 운영자 대시보드 |
+| `/admin/catalog` | **브랜드·제품 관리** |
+| `/r/:token` | 모바일 결과 페이지 |
+| `/v/:token` | 제품 투표 |
+
+- 테스트: `npm test` (37개)
+- 무입력 타임아웃 끄기: `?noTimeout=1`
+
+## PAD 기기 설정 (10대 운영 시 필수)
+
+기기마다 **서로 다른 ID**가 필요합니다. 같은 ID를 쓰면 페어링 코드가 서로를 무효화해 체험이 끊깁니다.
+
+```
+최초 1회, 각 PAD에서  http://<서버>:8787/?device=PAD-03  으로 엽니다
+```
+
+이후에는 파라미터 없이 열어도 유지됩니다.
+
+## 환경변수
 
 | 변수 | 기본값 | 설명 |
 |---|---|---|
-| `PORT` | 8787 | API 포트 |
-| `ADMIN_KEY` | aepick-admin | 대시보드 인증 키 |
-| `RESULT_TTL_HOURS` | 48 | 결과 이미지 보관 시간 |
-| `PUBLIC_BASE_URL` | (요청 호스트) | QR에 들어갈 결과 페이지 베이스 URL — 현장에서는 휴대폰이 접근 가능한 주소로 설정 |
-| `AI_PROVIDER` | template | `template`=합성 엔진(Phase A). 외부 생성 API 연동 시 어댑터 추가(Phase B) |
+| `PORT` | 8787 | |
+| `HTTPS` | — | `1`이면 자체 서명 인증서로 기동 |
+| `TUNNEL` | — | `1`이면 프록시 뒤 모드 + 관리자 키 임의 생성 |
+| `PUBLIC_BASE_URL` | (요청 호스트) | QR 주소 베이스. 로드밸런서 뒤에서는 명시 권장 |
+| `ADMIN_KEY` | `aepick-admin` | **운영 시 변경 필수** |
+| `STAFF_PIN` | `1234` | 직원 확인 PIN — **운영 시 변경 필수** |
+| `VISITOR_HASH_SALT` | `aepick-dev-salt` | 계정 해시 솔트 — **운영 시 변경 필수** |
+| `RESULT_TTL_HOURS` | 48 | 결과 페이지 보관 시간 |
 
-## 개인정보 처리 (구현 반영)
+## 개인정보 처리
 
-- 원본 사진: 이미지 생성 완료 즉시 파일 삭제
-- 결과 이미지: 48시간 후 자동 삭제(10분 주기 스케줄러) + 결과 페이지에서 즉시 삭제 가능
-- 결과 URL: 192bit 랜덤 토큰
-- 얼굴 인식(개인 식별) 미사용 — 위치·품질 확인만
+- **얼굴 사진을 다루지 않습니다** (v2에서 촬영·AI 생성 제거)
+- app 계정 식별자는 **해시로만 저장**하고 원문을 남기지 않습니다
+- 결과 URL은 192bit 랜덤 토큰이며 48시간 후 자동 삭제됩니다
 
 ## Node 요구사항
 
 Node 22.13+ (내장 `node:sqlite` 사용 — 네이티브 빌드 의존성 없음)
+
+> `node:sqlite`는 Node의 실험적 API입니다. 운영 이관 시 PostgreSQL 전환을 권합니다
+> ([BE 인계문서 5-1](docs/07_BE_인계문서.md)).
