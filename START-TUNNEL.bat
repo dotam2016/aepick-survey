@@ -107,10 +107,9 @@ REM runs plain HTTP. TUNNEL=1 also forces a random admin key.
 set TUNNEL=1
 set HTTPS=
 
-REM To use the real AI image API, remove REM from the two lines below
-REM and paste your key.
-REM set AI_PROVIDER=gemini
-REM set GEMINI_API_KEY=PASTE_YOUR_KEY_HERE
+REM Staff PIN for the vote-complete screen (visit count / reward).
+REM Change this before running in public.
+set STAFF_PIN=1234
 
 call npx tsx server/src/index.ts
 
