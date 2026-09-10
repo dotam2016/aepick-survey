@@ -2,6 +2,7 @@ import type { FastifyInstance, FastifyRequest } from 'fastify';
 import QRCode from 'qrcode';
 import { db, now } from './db.js';
 import { identityProvider, isIdentityMocked } from './identity.js';
+import { dicts } from './i18nDicts.js';
 import { cancelPairings, claimPairing, getPairing, issuePairing, sweepExpiredPairings } from './pairing.js';
 
 const ok = (data: unknown) => ({ ok: true, data });
@@ -108,11 +109,11 @@ export function startPairingSweeper() {
  */
 function pairingPageHtml(code: string): string {
   return `<!doctype html>
-<html lang="ko">
+<html>
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-<title>AEPICK — 체험 시작</title>
+<title>AEPICK</title>
 <style>
   :root{--bg:#fff5f7;--card:#fff;--accent:#f25c7c;--ink:#2b2b2b;--muted:#8a8a8a}
   *{box-sizing:border-box}
@@ -139,48 +140,57 @@ function pairingPageHtml(code: string): string {
 <body>
 <div class="card">
   <div id="form">
-    <h1>체험을 시작합니다</h1>
-    <p>aepick 앱 계정을 연결하면<br/>패드에서 바로 시작됩니다.</p>
+    <h1 id="h1"></h1>
+    <p id="desc"></p>
     <div class="msg" id="msg"></div>
-    <input id="cred" placeholder="앱 계정 ID" autocomplete="off" autocapitalize="off"/>
-    <button id="go">연결하기</button>
-    <div class="mock">
-      <b>목업 화면입니다.</b><br/>
-      실제로는 aepick 앱이 열려 로그인된 계정으로 자동 연결됩니다.
-      지금은 아무 ID나 넣으면 됩니다. 같은 ID로 다시 하면 재방문으로 집계됩니다.
-    </div>
+    <input id="cred" autocomplete="off" autocapitalize="off"/>
+    <button id="go"></button>
+    <div class="mock" id="mockNotice"></div>
   </div>
   <div id="done" class="done">
-    <h1>연결 완료</h1>
+    <h1 id="doneTitle"></h1>
     <div class="big">📱 → 🖥️</div>
-    <p><b>패드 화면을 봐주세요.</b><br/>체험이 시작되었습니다.<br/>
-       휴대폰은 넣어두셔도 됩니다. 체험이 끝나면 결과 QR을 안내해 드립니다.</p>
+    <p id="doneDesc"></p>
     <p style="color:var(--accent);font-weight:700" id="visit"></p>
   </div>
 </div>
 <script>
 const CODE=${JSON.stringify(code)};
+const DICTS=${JSON.stringify(dicts)};
+const LANG=(navigator.language||'vi').slice(0,2);
+const lookup=(d,p)=>p.split('.').reduce((n,k)=>n&&typeof n==='object'?n[k]:undefined,d);
+const t=(k,v)=>{let r=lookup(DICTS[LANG],k)??lookup(DICTS.en,k);if(typeof r!=='string')return k;
+  if(v)for(const[a,b]of Object.entries(v))r=r.replaceAll('{'+a+'}',b);return r};
 const el=id=>document.getElementById(id);
+
+document.title=t('pairing.pageTitle');
+el('h1').textContent=t('pairing.h1');
+el('desc').innerHTML=t('pairing.desc');
+el('cred').placeholder=t('pairing.credPlaceholder');
+el('go').textContent=t('pairing.connectBtn');
+el('mockNotice').innerHTML=t('pairing.mockNotice');
+el('doneTitle').textContent=t('pairing.doneTitle');
+el('doneDesc').innerHTML=t('pairing.doneDesc');
+
 el('go').onclick=async()=>{
   const credential=el('cred').value.trim();
-  if(!credential){el('msg').textContent='계정 ID를 입력해 주세요';return}
+  if(!credential){el('msg').textContent=t('pairing.credRequired');return}
   el('go').disabled=true; el('msg').textContent='';
   try{
     const r=await fetch('/api/pairings/'+CODE+'/claim',{
       method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({credential,language:(navigator.language||'vi').slice(0,2)})});
+      body:JSON.stringify({credential,language:LANG})});
     const j=await r.json();
     if(!j.ok){
-      const m={not_found:'유효하지 않은 QR입니다. 패드의 QR을 다시 찍어주세요.',
-               expired:'QR이 만료되었습니다. 패드의 새 QR을 찍어주세요.',
-               already_claimed:'이미 사용된 QR입니다. 패드의 새 QR을 찍어주세요.'};
-      el('msg').textContent=m[j.error&&j.error.code]||'연결에 실패했습니다. 다시 시도해 주세요.';
+      const code=j.error&&j.error.code;
+      const known=['not_found','expired','already_claimed'];
+      el('msg').textContent=known.includes(code)?t('pairing.errors.'+code):t('pairing.connectFail');
       el('go').disabled=false; return;
     }
     el('form').style.display='none'; el('done').style.display='block';
-    if(j.data.visitCount>1) el('visit').textContent=j.data.visitCount+'번째 방문이시네요. 반갑습니다!';
+    if(j.data.visitCount>1) el('visit').textContent=t('pairing.visitWelcome',{n:j.data.visitCount});
   }catch(e){
-    el('msg').textContent='네트워크 오류입니다. 다시 시도해 주세요.';
+    el('msg').textContent=t('pairing.netError');
     el('go').disabled=false;
   }
 };

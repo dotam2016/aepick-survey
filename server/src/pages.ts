@@ -1,15 +1,6 @@
-import { readFileSync } from 'node:fs';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { PERSONAS } from '@aepick/shared';
 import { ADMIN_KEY_IS_DEFAULT } from './adminKey.js';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const I18N_DIR = path.resolve(__dirname, '../../packages/shared/src/i18n');
-
-const dicts = Object.fromEntries(
-  (['vi', 'en', 'ko'] as const).map((l) => [l, JSON.parse(readFileSync(path.join(I18N_DIR, `${l}.json`), 'utf-8'))]),
-);
+import { dicts } from './i18nDicts.js';
 
 /** 모바일 결과 페이지 (/r/:token) */
 export function resultPageHtml(token: string): string {
@@ -185,7 +176,6 @@ th{color:var(--dim);font-weight:600}
 <div class="grid">
   <div class="card"><h2>Persona distribution</h2><div id="personas"></div></div>
   <div class="card"><h2>Core Value averages</h2><div id="axes"></div></div>
-  <div class="card"><h2>Image jobs</h2><div id="jobs"></div></div>
   <div class="card"><h2>Recent sessions</h2><div id="sessions" style="max-height:280px;overflow:auto"></div></div>
 </div>
 <script>
@@ -220,7 +210,6 @@ async function refresh(){
       '<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:12px"><span>'+p.persona+'</span><b>'+p.n+'</b></div><div class="bar" style="width:'+(p.n/maxP*100)+'%"></div></div>').join(''):'<p class="muted">no data</p>';
     el('axes').innerHTML=Object.entries(a.axisAverages).map(([k,v])=>
       '<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:12px"><span>'+k+'</span><b>'+(v??'—')+'</b></div><div class="bar" style="width:'+(v||0)+'%"></div></div>').join('');
-    el('jobs').innerHTML='<table>'+Object.entries(o.imageJobs).map(([k,v])=>'<tr><td>'+k+'</td><td><b>'+v+'</b></td></tr>').join('')+'</table>'||'<p class="muted">no jobs</p>';
     el('sessions').innerHTML='<table><tr><th>time</th><th>status</th><th>persona</th><th>lang</th></tr>'+
       se.data.sessions.map(s=>'<tr><td>'+s.started_at.slice(11,19)+'</td><td>'+s.status+'</td><td>'+(s.persona||'—')+'</td><td>'+s.language+'</td></tr>').join('')+'</table>';
   }catch(e){el('status').textContent='offline'}

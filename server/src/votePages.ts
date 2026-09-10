@@ -1,4 +1,5 @@
 import { VOTE_PICK_COUNT } from './voteRoutes.js';
+import { dicts } from './i18nDicts.js';
 
 /**
  * 투표 페이지 (스펙 8·9번)
@@ -43,37 +44,52 @@ const SHELL_CSS = `
   .msg{text-align:center;padding:40px 20px;color:var(--muted);font-size:14px}
 `;
 
+/** 클라이언트 스크립트에서 쓰는 다국어 조회 헬퍼 (server/src/pages.ts와 동일 규약). */
+const I18N_HELPERS = `
+const DICTS=${JSON.stringify(dicts)};
+const LANG=(navigator.language||'vi').slice(0,2);
+const lookup=(d,p)=>p.split('.').reduce((n,k)=>n&&typeof n==='object'?n[k]:undefined,d);
+const t=(k,v)=>{let r=lookup(DICTS[LANG],k)??lookup(DICTS.en,k);if(typeof r!=='string')return k;
+  if(v)for(const[a,b]of Object.entries(v))r=r.replaceAll('{'+a+'}',b);return r};
+`;
+
 export function votePageHtml(token: string): string {
   return `<!doctype html>
-<html lang="ko">
+<html>
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-<title>AEPICK — 제품 투표</title>
+<title>AEPICK</title>
 <style>${SHELL_CSS}</style>
 </head>
 <body>
 <header>
-  <h1>가장 마음에 든 제품 ${VOTE_PICK_COUNT}가지를 골라주세요</h1>
-  <p class="sub">직접 체험해 보신 제품 중에서 선택해 주세요.<br/>투표를 마치면 직원에게 화면을 보여주세요.</p>
+  <h1 id="h1"></h1>
+  <p class="sub" id="sub"></p>
 </header>
-<div class="wrap" id="list"><div class="msg">불러오는 중…</div></div>
+<div class="wrap" id="list"><div class="msg" id="loadingMsg"></div></div>
 <div class="bar" id="bar" style="display:none">
   <span class="cnt"><b id="n">0</b> / ${VOTE_PICK_COUNT}</span>
-  <button class="go" id="go" disabled>투표하기</button>
+  <button class="go" id="go" disabled></button>
 </div>
 <script>
 const TOKEN=${JSON.stringify(token)};
 const NEED=${VOTE_PICK_COUNT};
-const LANG=(navigator.language||'vi').slice(0,2);
+${I18N_HELPERS}
 const picked=new Set();
 const el=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const nameOf=o=>esc((o&&(o[LANG]||o.vi||o.en||o.ko))||'');
 
+document.title=t('vote.pageTitle');
+el('h1').innerHTML=t('vote.pickTitle',{n:NEED});
+el('sub').innerHTML=t('vote.pickSub');
+el('loadingMsg').textContent=t('vote.loading');
+el('go').textContent=t('vote.voteBtn');
+
 async function load(){
   const r=await fetch('/api/vote/'+TOKEN+'/options');
-  if(!r.ok){el('list').innerHTML='<div class="msg">투표 정보를 불러오지 못했습니다.<br/>직원에게 문의해 주세요.</div>';return}
+  if(!r.ok){el('list').innerHTML='<div class="msg">'+t('vote.loadError')+'</div>';return}
   const d=(await r.json()).data;
   if(d.alreadyVoted){location.replace('/v/'+TOKEN+'/done');return}
   el('list').innerHTML=d.brands.map(b=>\`
@@ -97,7 +113,7 @@ function tog(node){
   const id=node.dataset.id;
   if(picked.has(id)){picked.delete(id);node.classList.remove('on')}
   else{
-    if(picked.size>=NEED){alert(NEED+'개까지만 고를 수 있어요. 바꾸시려면 선택을 해제해 주세요.');return}
+    if(picked.size>=NEED){alert(t('vote.limitAlert',{n:NEED}));return}
     picked.add(id);node.classList.add('on');
   }
   el('n').textContent=picked.size;
@@ -105,19 +121,19 @@ function tog(node){
 }
 
 el('go').onclick=async()=>{
-  el('go').disabled=true; el('go').textContent='전송 중…';
+  el('go').disabled=true; el('go').textContent=t('vote.voteBtnSending');
   try{
     const r=await fetch('/api/vote/'+TOKEN,{method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({productIds:[...picked]})});
     const j=await r.json();
     if(!j.ok&&j.error&&j.error.code!=='already_voted'){
-      alert('투표에 실패했습니다. 다시 시도해 주세요.');
-      el('go').disabled=false; el('go').textContent='투표하기'; return;
+      alert(t('vote.voteFail'));
+      el('go').disabled=false; el('go').textContent=t('vote.voteBtn'); return;
     }
     location.replace('/v/'+TOKEN+'/done');
   }catch(e){
-    alert('네트워크 오류입니다. 다시 시도해 주세요.');
-    el('go').disabled=false; el('go').textContent='투표하기';
+    alert(t('vote.netError'));
+    el('go').disabled=false; el('go').textContent=t('vote.voteBtn');
   }
 };
 load();
@@ -138,11 +154,11 @@ load();
  */
 export function voteDonePageHtml(token: string): string {
   return `<!doctype html>
-<html lang="ko">
+<html>
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-<title>AEPICK — 투표 완료</title>
+<title>AEPICK</title>
 <style>${SHELL_CSS}
   body{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px}
   .card{background:var(--card);border-radius:20px;padding:32px 22px;max-width:420px;width:100%;
@@ -175,38 +191,49 @@ export function voteDonePageHtml(token: string): string {
 <body>
 <div class="card">
   <div class="big">🎉</div>
-  <h1>투표 완료!</h1>
-  <p class="sub">소중한 의견 감사합니다.<br/><b>이 화면을 직원에게 보여주세요.</b></p>
+  <h1 id="doneH1"></h1>
+  <p class="sub" id="doneSub"></p>
   <div class="picks" id="picks"></div>
-  <div class="note" id="note">직원 확인 후 사은품을 받으실 수 있어요.</div>
+  <div class="note" id="note"></div>
 </div>
 
 <div class="staff" id="staff"></div>
 <div class="sheet" id="sheet">
   <div class="sbox">
-    <h2>직원 확인</h2>
+    <h2 id="staffTitle"></h2>
     <div id="sform">
-      <input id="pin" type="tel" inputmode="numeric" placeholder="PIN" autocomplete="off"/>
+      <input id="pin" type="tel" inputmode="numeric" autocomplete="off"/>
       <div class="serr" id="serr"></div>
-      <button onclick="lookup()">확인</button>
-      <button class="sec" onclick="closeSheet()">닫기</button>
+      <button id="confirmBtn" onclick="staffLookup()"></button>
+      <button class="sec" id="closeBtn1" onclick="closeSheet()"></button>
     </div>
     <div id="sres" style="display:none">
-      <div class="visit">이 고객은 <span class="n" id="vc">—</span>번째 방문입니다.</div>
+      <div class="visit" id="visitLine"></div>
       <div class="sub" id="vsub" style="margin:10px 0 14px"></div>
-      <button id="rewardBtn" onclick="claim()">사은품 지급 처리</button>
-      <button class="sec" onclick="closeSheet()">닫기</button>
+      <button id="rewardBtn" onclick="claim()"></button>
+      <button class="sec" id="closeBtn2" onclick="closeSheet()"></button>
     </div>
   </div>
 </div>
 
 <script>
 const TOKEN=${JSON.stringify(token)};
-const LANG=(navigator.language||'vi').slice(0,2);
+${I18N_HELPERS}
 const el=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const nameOf=o=>esc((o&&(o[LANG]||o.vi||o.en||o.ko))||'');
 let PIN='';
+
+document.title=t('vote.donePageTitle');
+el('doneH1').textContent=t('vote.doneTitle');
+el('doneSub').innerHTML=t('vote.doneSub');
+el('note').textContent=t('vote.rewardNote');
+el('staffTitle').textContent=t('vote.staff.title');
+el('pin').placeholder=t('vote.staff.pinPlaceholder');
+el('confirmBtn').textContent=t('vote.staff.confirmBtn');
+el('closeBtn1').textContent=t('vote.staff.closeBtn');
+el('closeBtn2').textContent=t('vote.staff.closeBtn');
+el('rewardBtn').textContent=t('vote.staff.rewardBtn');
 
 (async function(){
   const r=await fetch('/api/vote/'+TOKEN+'/status');
@@ -216,7 +243,7 @@ let PIN='';
   el('picks').innerHTML=d.picks.map(p=>
     '<div class="pick"><span class="e">'+esc(p.emoji)+'</span><span>'+nameOf(p.name)+
     '<div class="b">'+esc(p.brand)+'</div></span></div>').join('');
-  if(d.rewardClaimedAt) el('note').textContent='사은품 지급이 완료되었습니다.';
+  if(d.rewardClaimedAt) el('note').textContent=t('vote.rewardDone');
 })();
 
 /* 길게 누르기(1.2초)로만 열린다 — 고객의 우연한 터치 방지 */
@@ -231,17 +258,17 @@ let PIN='';
 function closeSheet(){el('sheet').classList.remove('on');el('sform').style.display='block';
   el('sres').style.display='none';el('pin').value='';el('serr').textContent='';PIN=''}
 
-async function lookup(){
+async function staffLookup(){
   PIN=el('pin').value.trim();
   const r=await fetch('/api/vote/'+TOKEN+'/staff',{method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({pin:PIN})});
   const j=await r.json();
-  if(!j.ok){el('serr').textContent='PIN이 올바르지 않습니다.';return}
+  if(!j.ok){el('serr').textContent=t('vote.staff.pinError');return}
   el('sform').style.display='none'; el('sres').style.display='block';
-  el('vc').textContent=j.data.visitCount;
+  el('visitLine').innerHTML=t('vote.staff.visitLine',{n:'<span class="n" id="vc">'+j.data.visitCount+'</span>'});
   el('vsub').textContent=j.data.rewardClaimedAt
-    ? '사은품 지급 완료 ('+new Date(j.data.rewardClaimedAt).toLocaleString()+')'
-    : '아직 사은품이 지급되지 않았습니다.';
+    ? t('vote.staff.rewardClaimedAt',{date:new Date(j.data.rewardClaimedAt).toLocaleString()})
+    : t('vote.staff.rewardNotYet');
   el('rewardBtn').disabled=!!j.data.rewardClaimedAt;
 }
 
@@ -251,12 +278,12 @@ async function claim(){
   const j=await r.json();
   if(!j.ok){
     el('vsub').textContent = j.error && j.error.code==='already_claimed'
-      ? '이미 지급된 고객입니다.' : '처리에 실패했습니다.';
+      ? t('vote.staff.alreadyClaimed') : t('vote.staff.claimFail');
     el('rewardBtn').disabled=true; return;
   }
-  el('vsub').textContent='사은품 지급 처리되었습니다.';
+  el('vsub').textContent=t('vote.staff.claimSuccess');
   el('rewardBtn').disabled=true;
-  el('note').textContent='사은품 지급이 완료되었습니다.';
+  el('note').textContent=t('vote.rewardDone');
 }
 </script>
 </body>

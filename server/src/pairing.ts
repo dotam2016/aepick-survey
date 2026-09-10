@@ -25,7 +25,7 @@ import { visitorIdOf, type AppIdentity } from './identity.js';
  */
 
 /** 코드 유효 시간. 지나면 PAD가 새 코드를 발급한다. */
-export const PAIRING_TTL_MS = 3 * 60 * 1000;
+export const PAIRING_TTL_MS = 8 * 60 * 1000;
 
 export type PairingStatus = 'pending' | 'claimed' | 'expired';
 

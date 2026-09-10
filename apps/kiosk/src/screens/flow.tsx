@@ -10,7 +10,7 @@ import {
 } from '@aepick/shared';
 import { screenAfterBridge, useStore } from '../state';
 import { makeT, makeTr } from '../i18n';
-import { api, type PairingIssued, type TodayStats } from '../api';
+import { api, type TodayStats } from '../api';
 import { ASSET, Deco, Logo, RadarChart, personaColors } from '../components';
 
 /* ────────────────────── S00. Attract ────────────────────── */
@@ -43,7 +43,7 @@ function CardFan() {
  * 교체할 때 같은 파일명을 쓰면 코드 수정 없이 반영된다(V2-7 가이드 참조).
  */
 const STEP_ITEMS = [
-  { asset: 'step-photo', label: 'Scan' },
+  { asset: 'step-photo', label: 'Start' },
   { asset: 'step-picks', label: '6 Picks' },
   { asset: 'step-ai', label: 'Brands' },
 ];
@@ -139,93 +139,16 @@ export function AttractScreen() {
         ))}
       </div>
 
-      {/* 페어링 QR — 고객이 폰으로 찍으면 체험이 시작된다 */}
-      <PairingPanel />
-    </div>
-  );
-}
-
-/**
- * 대기화면의 페어링 QR.
- *
- * 체험 1회마다 일회용 코드를 발급해 QR로 띄우고, 폰이 스캔해 app 계정을
- * 연결할 때까지 폴링한다. 연결되면 세션 정보를 받아 언어 선택으로 넘어간다.
- * 코드가 만료되면 자동으로 새로 발급한다(PAD가 방치돼도 항상 유효한 QR 유지).
- */
-const PAIRING_POLL_MS = 1500;
-
-function PairingPanel() {
-  const { s, update, go } = useStore();
-  const t = makeT(s.language);
-  const [qr, setQr] = useState<PairingIssued | null>(null);
-  const [failed, setFailed] = useState(false);
-
-  useEffect(() => {
-    let alive = true;
-    let pollTimer: ReturnType<typeof setTimeout>;
-
-    const issue = async () => {
-      const res = await api.issuePairing();
-      if (!alive) return;
-      if (!res) { setFailed(true); setTimeout(issue, 5000); return; }
-      setFailed(false);
-      setQr(res);
-      poll(res);
-    };
-
-    const poll = (issued: PairingIssued) => {
-      pollTimer = setTimeout(async () => {
-        if (!alive) return;
-        const r = await api.pollPairing(issued.code);
-        if (!alive) return;
-        if (r && r.status === 'claimed') {
-          update({
-            sessionId: r.sessionId,
-            visitCount: r.visitCount,
-            ...(r.language ? { language: r.language } : {}),
-          });
-          go('language');
-          return;
-        }
-        if (r && r.status === 'expired') { issue(); return; }
-        poll(issued);
-      }, PAIRING_POLL_MS);
-    };
-
-    issue();
-    return () => { alive = false; clearTimeout(pollTimer); };
-  }, [update, go]);
-
-  return (
-    <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '1.1vh', alignItems: 'center' }}>
-      <div className="card" style={{
-        padding: '14px 16px 12px', borderRadius: 24, display: 'flex', alignItems: 'center', gap: 18, width: '92%',
-      }}>
-        <div style={{
-          width: 128, height: 128, flex: 'none', borderRadius: 16, background: '#fff',
-          display: 'grid', placeItems: 'center', overflow: 'hidden',
-        }}>
-          {qr
-            ? <img src={qr.qrPngUrl} alt="" style={{ width: '100%', height: '100%' }} draggable={false} />
-            : <span className="hint" style={{ fontSize: 12 }}>{failed ? '· · ·' : ''}</span>}
-        </div>
-        <div style={{ textAlign: 'left', flex: 1 }}>
-          <p className="display" style={{ fontSize: 'clamp(17px, 2.4vh, 24px)', lineHeight: 1.3, marginBottom: 6 }}>
-            {t('attract.scanTitle')}
-          </p>
-          <p className="hint" style={{ fontSize: 'clamp(12px, 1.6vh, 15px)', lineHeight: 1.55 }}>
-            {t('attract.scanBody')}
-          </p>
-          {failed && (
-            <p style={{ fontSize: 12, color: 'var(--accent)', marginTop: 6, fontWeight: 700 }}>
-              {t('attract.scanRetry')}
-            </p>
-          )}
-        </div>
+      {/* START + 푸터 — 익명 체험이므로 QR 페어링 없이 바로 시작 */}
+      <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '1.4vh', alignItems: 'center' }}>
+        <button className="btn pulse" style={{ padding: '24px 0', fontSize: 30, width: '92%', letterSpacing: '0.08em' }}
+          onClick={() => go('language')}>
+          {t('common.start')} <span style={{ fontSize: 22, verticalAlign: 'middle' }}>→</span>
+        </button>
+        <p className="hint" style={{ fontSize: 'clamp(11px, 1.5vh, 14px)' }}>
+          ⏱ Approx. 5 min
+        </p>
       </div>
-      <p className="hint" style={{ fontSize: 'clamp(11px, 1.5vh, 14px)' }}>
-        ⏱ Approx. 5 min
-      </p>
     </div>
   );
 }
@@ -247,12 +170,11 @@ export function LanguageScreen() {
     update({ language: code }); // 선택 즉시 전체 UI 언어 반영
   };
 
-  // 세션은 페어링 시점에 이미 만들어져 있다. 여기서는 언어만 확정한다.
   const next = async () => {
-    go('intro');
-    if (!s.sessionId) { update({ offline: true }); return; }
-    const res = await api.setLanguage(s.sessionId, selected);
-    update({ offline: res === null });
+    go('consent');
+    const res = await api.createSession(selected);
+    if (res) update({ sessionId: res.sessionId, offline: false });
+    else update({ offline: true });
   };
 
   return (
@@ -329,6 +251,65 @@ export function LanguageScreen() {
 
       <button className="btn" style={{ width: '72%', marginTop: '2.6vh', padding: '23px 0', letterSpacing: '0.14em' }} onClick={next}>
         NEXT
+      </button>
+    </div>
+  );
+}
+
+/* ────────────────────── S02. 동의 ────────────────────── */
+
+export function ConsentScreen() {
+  const { s, update, go } = useStore();
+  const t = makeT(s.language);
+  const [c, setC] = useState({ terms: false, storage: false });
+  const [fullName, setFullName] = useState('');
+  const [gender, setGender] = useState<'male' | 'female' | null>(null);
+  const [ageGroup, setAgeGroup] = useState<string | null>(null);
+
+  const requiredOk = c.terms && c.storage && fullName.trim().length > 0 && gender !== null && ageGroup !== null;
+
+  const toggle = (k: keyof typeof c) => setC((prev) => ({ ...prev, [k]: !prev[k] }));
+
+  const Row = ({ k, label, required }: { k: keyof typeof c; label: string; required?: boolean }) => (
+    <button className="card consent-row" style={{ color: 'var(--ink)', cursor: 'pointer' }} onClick={() => toggle(k)}>
+      <div className={`checkbox ${c[k] ? 'on' : ''}`}>✓</div>
+      <span>
+        {required && <span style={{ color: 'var(--pink)', fontWeight: 800 }}>[{t('consent.required')}] </span>}
+        {label}
+      </span>
+    </button>
+  );
+
+  const start = () => {
+    update({ fullName: fullName.trim(), gender, ageGroup });
+    go('intro');
+  };
+
+  return (
+    <div className="screen" style={{ justifyContent: 'center', gap: 12 }}>
+      <h1 className="display" style={{ marginBottom: '2vh' }}>{t('consent.title')}</h1>
+      <Row k="terms" label={t('consent.terms')} required />
+      <Row k="storage" label={t('consent.storage')} required />
+      <div style={{ height: 8 }} />
+      <input className="text" placeholder={t('consent.fullNamePlaceholder')}
+        value={fullName} onChange={(e) => setFullName(e.target.value)} />
+      <div style={{ display: 'flex', gap: 8, width: '100%', justifyContent: 'center' }}>
+        {(['male', 'female'] as const).map((g) => (
+          <button key={g} className="btn ghost small" style={{
+            border: gender === g ? '2px solid var(--pink)' : '1px solid var(--card-border)',
+          }} onClick={() => setGender(g)}>{t(`consent.genders.${g}`)}</button>
+        ))}
+      </div>
+      <p className="hint">{t('consent.ageShare')}</p>
+      <div style={{ display: 'flex', gap: 8, width: '100%', justifyContent: 'center', flexWrap: 'wrap' }}>
+        {(['teen', 'twenties', 'thirties', 'fortyPlus', 'skip'] as const).map((a) => (
+          <button key={a} className="btn ghost small" style={{
+            border: ageGroup === a ? '2px solid var(--pink)' : '1px solid var(--card-border)',
+          }} onClick={() => setAgeGroup(a)}>{t(`consent.ages.${a}`)}</button>
+        ))}
+      </div>
+      <button className="btn" style={{ marginTop: '2vh' }} disabled={!requiredOk} onClick={start}>
+        {t('consent.startExperience')}
       </button>
     </div>
   );
@@ -670,7 +651,6 @@ export function QrScreen() {
   useEffect(() => {
     if (s.resultToken) api.sendEvent('qr.issued', s.sessionId);
   }, [s.resultToken, s.sessionId]);
-  const p = s.persona ? PERSONAS[s.persona] : null;
   return (
     <div className="screen" style={{ justifyContent: 'center', gap: 20 }}>
       <h1 className="display" style={{ fontSize: 'clamp(22px,3.2vh,34px)' }}>{t('qr.scanTitle')}</h1>
@@ -687,20 +667,6 @@ export function QrScreen() {
         <p className="hint">⏳ {t('qr.retention')}</p>
         <p className="hint">🗑 {t('qr.deleteNotice')}</p>
       </div>
-      {s.products.length > 0 && p && (
-        <div style={{ width: '100%' }}>
-          <p className="question" style={{ marginBottom: 12 }}>{t('qr.productsTitle', { persona: p.name })}</p>
-          <div style={{ display: 'flex', gap: 12 }}>
-            {s.products.map((prod) => (
-              <div key={prod.id} className="card" style={{ flex: 1, padding: 16 }}>
-                <div style={{ fontSize: 36 }}>🧴</div>
-                <div style={{ fontWeight: 700, fontSize: 14, marginTop: 8 }}>{prod.name[s.language]}</div>
-                <div className="hint" style={{ fontSize: 12, marginTop: 4 }}>{t(prod.reasonKey)}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
       <button className="btn" onClick={() => go('end')}>{t('qr.finish')}</button>
     </div>
   );

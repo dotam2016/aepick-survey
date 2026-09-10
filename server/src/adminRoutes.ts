@@ -28,10 +28,6 @@ export function registerAdminRoutes(app: FastifyInstance) {
        FROM sessions WHERE status='completed' AND started_at LIKE ?`,
     ).get(prefix) as { sec: number | null };
 
-    const jobs = db.prepare(
-      `SELECT status, COUNT(*) n FROM image_jobs GROUP BY status`,
-    ).all() as { status: string; n: number }[];
-
     const qrScans = q(`SELECT COUNT(*) n FROM events WHERE type='result.scanned' AND ts LIKE ?`, prefix);
     const qrIssued = q(`SELECT COUNT(*) n FROM events WHERE type='qr.issued' AND ts LIKE ?`, prefix);
     const downloads = q(`SELECT COUNT(*) n FROM events WHERE type='result.downloaded' AND ts LIKE ?`, prefix);
@@ -44,7 +40,6 @@ export function registerAdminRoutes(app: FastifyInstance) {
       today: { started, completed, abandoned, active },
       completionRate: started > 0 ? Math.round((completed / started) * 100) : null,
       avgDurationSec: avgDuration.sec ? Math.round(avgDuration.sec) : null,
-      imageJobs: Object.fromEntries(jobs.map((j) => [j.status, j.n])),
       qr: { issued: qrIssued, scanned: qrScans, scanRate: qrIssued > 0 ? Math.round((qrScans / qrIssued) * 100) : null },
       downloads,
       retakeRate: captures > 0 ? Math.round((retakes / (captures + retakes)) * 100) : null,

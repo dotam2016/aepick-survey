@@ -19,15 +19,32 @@
     "participants": "지금까지 {n}명이 참여했어요",
     "participantsLabel": "오늘의 참여자",
     "bullets": [
-      "QR 연결",
+      "바로 시작",
       "6번의 선택",
       "맞춤 브랜드 추천"
     ],
     "topDna": "오늘 가장 많이 나온 DNA · {persona}",
-    "topDnaLabel": "🔥 인기 DNA",
-    "scanTitle": "QR을 찍고 시작하세요",
-    "scanBody": "aepick 앱으로 옆의 QR을 찍어주세요.\n이 화면에서 바로 체험이 시작됩니다.",
-    "scanRetry": "다시 연결 중…"
+    "topDnaLabel": "🔥 인기 DNA"
+  },
+  "consent": {
+    "title": "체험을 시작하기 전에",
+    "required": "필수 동의",
+    "terms": "이용 약관에 동의합니다",
+    "storage": "체험 데이터의 임시 저장(48시간 후 자동 삭제)에 동의합니다",
+    "fullNamePlaceholder": "이름을 입력해 주세요",
+    "genders": {
+      "male": "남성",
+      "female": "여성"
+    },
+    "ageShare": "aépick에게 연령대를 알려주실 수 있나요?",
+    "ages": {
+      "teen": "10대",
+      "twenties": "20대",
+      "thirties": "30대",
+      "fortyPlus": "40대 이상",
+      "skip": "선택 안 함"
+    },
+    "startExperience": "체험 시작"
   },
   "intro": {
     "title": "여섯 번의 선택으로\n당신만의 Beauty DNA를 찾아드려요",
@@ -393,5 +410,55 @@
   },
   "end": {
     "thanks": "Thank you!\n당신의 Beauty DNA를 잊지 마세요 ✨"
+  },
+  "vote": {
+    "pageTitle": "AEPICK — 제품 투표",
+    "pickTitle": "가장 마음에 든 제품 {n}가지를 골라주세요",
+    "pickSub": "직접 체험해 보신 제품 중에서 선택해 주세요.<br/>투표를 마치면 직원에게 화면을 보여주세요.",
+    "loading": "불러오는 중…",
+    "loadError": "투표 정보를 불러오지 못했습니다.<br/>직원에게 문의해 주세요.",
+    "limitAlert": "{n}개까지만 고를 수 있어요. 바꾸시려면 선택을 해제해 주세요.",
+    "voteBtn": "투표하기",
+    "voteBtnSending": "전송 중…",
+    "voteFail": "투표에 실패했습니다. 다시 시도해 주세요.",
+    "netError": "네트워크 오류입니다. 다시 시도해 주세요.",
+    "donePageTitle": "AEPICK — 투표 완료",
+    "doneTitle": "투표 완료!",
+    "doneSub": "소중한 의견 감사합니다.<br/><b>이 화면을 직원에게 보여주세요.</b>",
+    "rewardNote": "직원 확인 후 사은품을 받으실 수 있어요.",
+    "rewardDone": "사은품 지급이 완료되었습니다.",
+    "staff": {
+      "title": "직원 확인",
+      "pinPlaceholder": "PIN",
+      "confirmBtn": "확인",
+      "closeBtn": "닫기",
+      "pinError": "PIN이 올바르지 않습니다.",
+      "visitLine": "이 고객은 {n}번째 방문입니다.",
+      "rewardClaimedAt": "사은품 지급 완료 ({date})",
+      "rewardNotYet": "아직 사은품이 지급되지 않았습니다.",
+      "alreadyClaimed": "이미 지급된 고객입니다.",
+      "claimFail": "처리에 실패했습니다.",
+      "claimSuccess": "사은품 지급 처리되었습니다.",
+      "rewardBtn": "사은품 지급 처리"
+    }
+  },
+  "pairing": {
+    "pageTitle": "AEPICK — 체험 시작",
+    "h1": "체험을 시작합니다",
+    "desc": "aepick 앱 계정을 연결하면<br/>패드에서 바로 시작됩니다.",
+    "credPlaceholder": "앱 계정 ID",
+    "connectBtn": "연결하기",
+    "credRequired": "계정 ID를 입력해 주세요",
+    "mockNotice": "<b>목업 화면입니다.</b><br/>실제로는 aepick 앱이 열려 로그인된 계정으로 자동 연결됩니다.<br/>지금은 아무 ID나 넣으면 됩니다. 같은 ID로 다시 하면 재방문으로 집계됩니다.",
+    "doneTitle": "연결 완료",
+    "doneDesc": "<b>패드 화면을 봐주세요.</b><br/>체험이 시작되었습니다.<br/>휴대폰은 넣어두셔도 됩니다. 체험이 끝나면 결과 QR을 안내해 드립니다.",
+    "visitWelcome": "{n}번째 방문이시네요. 반갑습니다!",
+    "connectFail": "연결에 실패했습니다. 다시 시도해 주세요.",
+    "netError": "네트워크 오류입니다. 다시 시도해 주세요.",
+    "errors": {
+      "not_found": "유효하지 않은 QR입니다. 패드의 QR을 다시 찍어주세요.",
+      "expired": "QR이 만료되었습니다. 패드의 새 QR을 찍어주세요.",
+      "already_claimed": "이미 사용된 QR입니다. 패드의 새 QR을 찍어주세요."
+    }
   }
 }

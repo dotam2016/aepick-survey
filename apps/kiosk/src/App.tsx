@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { StateProvider, useStore, type ScreenId } from './state';
 import { ASSET, TimeoutGuard } from './components';
 import {
-  AttractScreen, LanguageScreen, IntroScreen, BridgeScreen,
+  AttractScreen, LanguageScreen, ConsentScreen, IntroScreen, BridgeScreen,
   AnalyzingScreen, DnaResultScreen, QrScreen, EndScreen,
 } from './screens/flow';
 import { Core1Screen, Core2Screen, Core3Screen, Core4Screen, Core5Screen, Core6Screen } from './screens/games';
@@ -11,6 +11,7 @@ import { Core1Screen, Core2Screen, Core3Screen, Core4Screen, Core5Screen, Core6S
 const SCREENS: Record<ScreenId, React.ComponentType> = {
   attract: AttractScreen,
   language: LanguageScreen,
+  consent: ConsentScreen,
   intro: IntroScreen,
   core1: Core1Screen,
   core2: Core2Screen,
@@ -27,8 +28,8 @@ const SCREENS: Record<ScreenId, React.ComponentType> = {
 
 /** 타임아웃 정책 (기능정의서 1.2). null = 타임아웃 없음 */
 const TIMEOUTS: Record<ScreenId, number | null> = {
-  attract: null, // 페어링 QR 대기 — 고객이 없는 상태이므로 타임아웃 없음
-  language: 60, intro: 60,
+  attract: null, // 고객을 기다리는 대기화면 — 고객이 없는 상태이므로 타임아웃 없음
+  language: 60, consent: 60, intro: 60,
   core1: 90, core2: 90, core3: 90, core4: 90, core5: 90, core6: 90,
   bridge: null, // 자동 전환 화면 — 무입력 타임아웃 대상 아님
   analyzing: null, dnaResult: 60, qr: 60, end: null,

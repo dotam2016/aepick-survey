@@ -42,12 +42,25 @@ interface SessionRow {
 
 export function registerRoutes(app: FastifyInstance) {
   /*
-   * 세션 생성 라우트는 없다.
-   * 세션은 오직 페어링 클레임(POST /api/pairings/:code/claim)으로만 만들어진다.
-   * v1에는 익명으로 세션을 여는 POST /api/sessions 가 있었지만,
-   * 그대로 두면 QR 없이 체험 기록을 만들어 방문 집계와 투표 자격을
-   * 우회할 수 있어 제거했다.
+   * 0. 세션 생성 (익명).
+   * QR 페어링을 없애기로 하면서 app 계정 연동이 사라졌다. 투표 1인 1회 제한
+   * (votes.visitor_id UNIQUE)이 계속 동작하도록 세션마다 임시 visitor_id를
+   * 새로 발급한다 — 다만 이제는 계정 기준이 아니라 세션 기준 중복 방지라
+   * 같은 사람이 다시 시작하면 또 투표할 수 있다.
+   * ponytail: 재방문자 식별(진짜 계정 연동) 필요해지면 여기부터 다시 붙인다.
    */
+  app.post('/api/sessions', async (req) => {
+    const { deviceId, language } = (req.body ?? {}) as { deviceId?: string; language?: string };
+    const sessionId = randomUUID();
+    const visitorId = randomUUID();
+    const ts = now();
+    db.prepare(`INSERT INTO visitors (id, visit_count, first_seen_at, last_seen_at) VALUES (?, 1, ?, ?)`)
+      .run(visitorId, ts, ts);
+    db.prepare(
+      `INSERT INTO sessions (id, device_id, visitor_id, language, started_at) VALUES (?, ?, ?, ?, ?)`,
+    ).run(sessionId, deviceId ?? 'unknown', visitorId, language ?? 'vi', ts);
+    return ok({ sessionId });
+  });
 
   /* ── 1. 언어 확정 ── */
   app.patch('/api/sessions/:id/language', async (req, reply) => {

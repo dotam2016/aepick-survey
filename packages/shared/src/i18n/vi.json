@@ -20,15 +20,32 @@
     "participants": "Đã có {n} người tham gia",
     "participantsLabel": "Khách tham gia hôm nay",
     "bullets": [
-      "Quét QR",
+      "Bắt đầu ngay",
       "6 lựa chọn",
       "Gợi ý thương hiệu"
     ],
     "topDna": "DNA phổ biến nhất hôm nay · {persona}",
-    "topDnaLabel": "🔥 DNA được chọn nhiều nhất",
-    "scanTitle": "Quét mã QR để bắt đầu",
-    "scanBody": "Mở ứng dụng aepick và quét mã QR bên cạnh.\nTrải nghiệm sẽ bắt đầu ngay trên màn hình này.",
-    "scanRetry": "Đang kết nối lại…"
+    "topDnaLabel": "🔥 DNA được chọn nhiều nhất"
+  },
+  "consent": {
+    "title": "Trước khi bắt đầu",
+    "required": "Bắt buộc",
+    "terms": "Tôi đồng ý với Điều khoản sử dụng",
+    "storage": "Tôi đồng ý lưu tạm dữ liệu trải nghiệm (tự động xóa sau 48 giờ)",
+    "fullNamePlaceholder": "Vui lòng nhập họ tên",
+    "genders": {
+      "male": "Nam",
+      "female": "Nữ"
+    },
+    "ageShare": "Bạn có thể chia sẻ cho aépick về độ tuổi của mình không.",
+    "ages": {
+      "teen": "Dưới 20",
+      "twenties": "20-29",
+      "thirties": "30-39",
+      "fortyPlus": "40+",
+      "skip": "Bỏ qua"
+    },
+    "startExperience": "Bắt đầu trải nghiệm"
   },
   "intro": {
     "title": "Sáu lựa chọn sẽ hé lộ\nBeauty DNA của riêng bạn",
@@ -394,5 +411,55 @@
   },
   "end": {
     "thanks": "Cảm ơn bạn!\nĐừng quên Beauty DNA của mình nhé ✨"
+  },
+  "vote": {
+    "pageTitle": "AEPICK — Bình chọn sản phẩm",
+    "pickTitle": "Hãy chọn {n} sản phẩm bạn thích nhất",
+    "pickSub": "Chọn trong những sản phẩm bạn đã trải nghiệm.<br/>Sau khi bình chọn xong, hãy đưa màn hình cho nhân viên.",
+    "loading": "Đang tải…",
+    "loadError": "Không tải được thông tin bình chọn.<br/>Vui lòng liên hệ nhân viên.",
+    "limitAlert": "Bạn chỉ được chọn tối đa {n}. Bỏ chọn để đổi.",
+    "voteBtn": "Bình chọn",
+    "voteBtnSending": "Đang gửi…",
+    "voteFail": "Bình chọn thất bại. Vui lòng thử lại.",
+    "netError": "Lỗi mạng. Vui lòng thử lại.",
+    "donePageTitle": "AEPICK — Bình chọn hoàn tất",
+    "doneTitle": "Bình chọn hoàn tất!",
+    "doneSub": "Cảm ơn ý kiến của bạn.<br/><b>Hãy đưa màn hình này cho nhân viên.</b>",
+    "rewardNote": "Sau khi nhân viên xác nhận, bạn sẽ nhận được quà tặng.",
+    "rewardDone": "Đã hoàn tất tặng quà.",
+    "staff": {
+      "title": "Xác nhận nhân viên",
+      "pinPlaceholder": "PIN",
+      "confirmBtn": "Xác nhận",
+      "closeBtn": "Đóng",
+      "pinError": "PIN không đúng.",
+      "visitLine": "Đây là lượt ghé thứ {n} của khách này.",
+      "rewardClaimedAt": "Đã tặng quà lúc {date}",
+      "rewardNotYet": "Chưa tặng quà.",
+      "alreadyClaimed": "Khách này đã được tặng quà rồi.",
+      "claimFail": "Xử lý thất bại.",
+      "claimSuccess": "Đã xử lý tặng quà.",
+      "rewardBtn": "Xử lý tặng quà"
+    }
+  },
+  "pairing": {
+    "pageTitle": "AEPICK — Bắt đầu trải nghiệm",
+    "h1": "Bắt đầu trải nghiệm",
+    "desc": "Kết nối tài khoản app aepick<br/>để bắt đầu ngay trên máy.",
+    "credPlaceholder": "ID tài khoản app",
+    "connectBtn": "Kết nối",
+    "credRequired": "Vui lòng nhập ID tài khoản",
+    "mockNotice": "<b>Đây là màn hình mô phỏng.</b><br/>Thực tế app aepick sẽ tự mở và kết nối tài khoản đã đăng nhập.<br/>Hiện tại bạn có thể nhập ID bất kỳ. Cùng một ID sẽ được tính là lượt ghé lại.",
+    "doneTitle": "Kết nối hoàn tất",
+    "doneDesc": "<b>Vui lòng xem màn hình trên máy.</b><br/>Trải nghiệm đã bắt đầu.<br/>Bạn có thể cất điện thoại. Khi kết thúc, mã QR kết quả sẽ được hiển thị.",
+    "visitWelcome": "Lượt ghé thứ {n}, rất vui được gặp lại bạn!",
+    "connectFail": "Kết nối thất bại. Vui lòng thử lại.",
+    "netError": "Lỗi mạng. Vui lòng thử lại.",
+    "errors": {
+      "not_found": "Mã QR không hợp lệ. Vui lòng quét lại mã QR trên máy.",
+      "expired": "Mã QR đã hết hạn. Vui lòng quét mã QR mới trên máy.",
+      "already_claimed": "Mã QR này đã được sử dụng. Vui lòng quét mã QR mới trên máy."
+    }
   }
 }

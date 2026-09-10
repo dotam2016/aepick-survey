@@ -60,7 +60,7 @@ export interface CompleteResponse {
   resultToken: string;
   qrPngUrl: string;
   resultUrl: string;
-  products: { id: string; name: Record<Language, string>; category: string; reasonKey: string }[];
+  products: { id: string; name: Record<Language, string>; price: string; brandId: string }[];
 }
 
 export interface TodayStats {
@@ -71,33 +71,14 @@ export interface TodayStats {
   reviewVotes: Record<string, number>;
 }
 
-export interface PairingIssued {
-  code: string;
-  url: string;
-  qrPngUrl: string;
-  expiresAt: string;
-  /** app 연동 전 목업으로 동작 중인지 */
-  mocked: boolean;
-}
-
-export type PairingPoll =
-  | { status: 'pending' | 'expired'; expiresAt?: string }
-  | { status: 'claimed'; sessionId: string; language?: Language; visitCount: number };
-
 export const api = {
-  /* ── 페어링 (체험 시작) ── */
-  issuePairing: () => tryReq<PairingIssued>('POST', '/pairings', { deviceId: DEVICE_ID }),
-
-  pollPairing: (code: string) => tryReq<PairingPoll>('GET', `/pairings/${code}`),
-
-  cancelPairing: () => tryReq<{ cancelled: number }>('POST', '/pairings/cancel', { deviceId: DEVICE_ID }),
+  /* ── 체험 시작 (익명 세션) ── */
+  createSession: (language: Language) =>
+    tryReq<{ sessionId: string }>('POST', '/sessions', { deviceId: DEVICE_ID, language }),
 
   /* ── 체험 ── */
   submitAnswer: (sessionId: string, coreKey: CoreKey, payload: GameAnswer) =>
     tryReq<{ score: number; subtype: string }>('POST', `/sessions/${sessionId}/answers/${coreKey}`, payload),
-
-  setLanguage: (sessionId: string, language: Language) =>
-    tryReq('PATCH', `/sessions/${sessionId}/language`, { language }),
 
   complete: (sessionId: string) => tryReq<CompleteResponse>('POST', `/sessions/${sessionId}/complete`, {}),
 

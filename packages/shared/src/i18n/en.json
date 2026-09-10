@@ -19,15 +19,32 @@
     "participants": "{n} people have joined so far",
     "participantsLabel": "Today's participants",
     "bullets": [
-      "Scan QR",
+      "Start now",
       "6 Picks",
       "Brand picks for you"
     ],
     "topDna": "Today's top DNA · {persona}",
-    "topDnaLabel": "🔥 Most picked DNA",
-    "scanTitle": "Scan to start",
-    "scanBody": "Open the aepick app and scan the QR code.\nYour experience starts right here on this screen.",
-    "scanRetry": "Reconnecting…"
+    "topDnaLabel": "🔥 Most picked DNA"
+  },
+  "consent": {
+    "title": "Before we begin",
+    "required": "Required",
+    "terms": "I agree to the Terms of Service",
+    "storage": "I agree to temporary storage of my session data (auto-deleted after 48h)",
+    "fullNamePlaceholder": "Please enter your full name",
+    "genders": {
+      "male": "Male",
+      "female": "Female"
+    },
+    "ageShare": "Would you like to share your age with aépick?",
+    "ages": {
+      "teen": "Teens",
+      "twenties": "20s",
+      "thirties": "30s",
+      "fortyPlus": "40+",
+      "skip": "Skip"
+    },
+    "startExperience": "Begin"
   },
   "intro": {
     "title": "Six picks will reveal\nyour own Beauty DNA",
@@ -393,5 +410,55 @@
   },
   "end": {
     "thanks": "Thank you!\nDon't forget your Beauty DNA ✨"
+  },
+  "vote": {
+    "pageTitle": "AEPICK — Product Vote",
+    "pickTitle": "Pick your {n} favorite products",
+    "pickSub": "Choose from the products you tried.<br/>When you're done, show this screen to staff.",
+    "loading": "Loading…",
+    "loadError": "Couldn't load the vote.<br/>Please ask staff for help.",
+    "limitAlert": "You can pick up to {n}. Deselect one to change.",
+    "voteBtn": "Submit vote",
+    "voteBtnSending": "Sending…",
+    "voteFail": "Vote failed. Please try again.",
+    "netError": "Network error. Please try again.",
+    "donePageTitle": "AEPICK — Vote complete",
+    "doneTitle": "Vote complete!",
+    "doneSub": "Thanks for your feedback.<br/><b>Please show this screen to staff.</b>",
+    "rewardNote": "You'll get a gift after staff confirms.",
+    "rewardDone": "Gift already given.",
+    "staff": {
+      "title": "Staff check",
+      "pinPlaceholder": "PIN",
+      "confirmBtn": "Confirm",
+      "closeBtn": "Close",
+      "pinError": "Incorrect PIN.",
+      "visitLine": "This is visit #{n} for this customer.",
+      "rewardClaimedAt": "Gift given at {date}",
+      "rewardNotYet": "Gift not given yet.",
+      "alreadyClaimed": "This customer already received a gift.",
+      "claimFail": "Failed to process.",
+      "claimSuccess": "Gift marked as given.",
+      "rewardBtn": "Mark gift given"
+    }
+  },
+  "pairing": {
+    "pageTitle": "AEPICK — Start experience",
+    "h1": "Start your experience",
+    "desc": "Connect your aepick app account<br/>to start right on the kiosk.",
+    "credPlaceholder": "App account ID",
+    "connectBtn": "Connect",
+    "credRequired": "Please enter an account ID",
+    "mockNotice": "<b>This is a mock screen.</b><br/>In production, the aepick app opens and connects your logged-in account automatically.<br/>For now, enter any ID. The same ID counts as a repeat visit.",
+    "doneTitle": "Connected",
+    "doneDesc": "<b>Please look at the kiosk screen.</b><br/>Your experience has started.<br/>You can put your phone away. We'll show the result QR when you're done.",
+    "visitWelcome": "Visit #{n} — welcome back!",
+    "connectFail": "Connection failed. Please try again.",
+    "netError": "Network error. Please try again.",
+    "errors": {
+      "not_found": "Invalid QR. Please scan the kiosk's QR again.",
+      "expired": "QR expired. Please scan a new QR on the kiosk.",
+      "already_claimed": "This QR was already used. Please scan a new QR on the kiosk."
+    }
   }
 }

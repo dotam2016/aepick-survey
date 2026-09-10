@@ -561,7 +561,7 @@ export function Core4Screen() {
               {t('core4.dirs.love')} ♥
             </motion.div>
             <motion.div className="dir-badge" style={{ left: '50%', translateX: '-50%', color: '#e8a33f', borderColor: '#e8a33f', opacity: useTransform(y, [-140, -40], [1, 0]) }}>
-              ↑ {t('core4.dirs.next')}
+              ↑
             </motion.div>
           </motion.div>
         </AnimatePresence>
@@ -576,20 +576,7 @@ export function Core4Screen() {
             color: 'var(--accent)', fontSize: 19, fontWeight: 900,
             boxShadow: '0 4px 14px rgba(242,92,124,0.25)',
           }}>↑</div>
-          <span style={{ fontSize: 'clamp(10px, 1.4vh, 12.5px)', fontWeight: 800, color: 'var(--accent)', whiteSpace: 'nowrap' }}>
-            {t('core4.dirs.next')}
-          </span>
         </div>
-      </div>
-
-      {/* 하단 넛지 메시지 */}
-      <div style={{
-        display: 'inline-flex', alignItems: 'center', gap: 8, padding: '8px 18px', borderRadius: 999,
-        background: 'rgba(255,255,255,0.7)', border: '1px solid var(--card-border)',
-        fontSize: 'clamp(11px, 1.6vh, 14px)', fontWeight: 700, color: 'var(--ink)',
-      }}>
-        <span style={{ color: 'var(--accent)' }}>✦</span>
-        {t('core4.footerNudge')}
       </div>
 
       {/* 하단 3버튼 — 화살표(방향) + 라벨 2줄 구성 */}
@@ -606,9 +593,11 @@ export function Core4Screen() {
             }}
             onClick={() => swipe(b.dir)}>
             <span style={{ fontSize: 'clamp(15px, 2.1vh, 19px)', fontWeight: 900 }}>{b.arrow}</span>
-            <span style={{ fontSize: 'clamp(11px, 1.6vh, 14px)', fontWeight: 800, whiteSpace: 'nowrap' }}>
-              {t(`core4.dirs.${b.dir}`)}
-            </span>
+            {b.dir !== 'next' && (
+              <span style={{ fontSize: 'clamp(11px, 1.6vh, 14px)', fontWeight: 800, whiteSpace: 'nowrap' }}>
+                {t(`core4.dirs.${b.dir}`)}
+              </span>
+            )}
           </button>
         ))}
       </div>

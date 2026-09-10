@@ -4,6 +4,7 @@ import type { Axis, GameResult, Language, PersonaId, Scores } from '@aepick/shar
 export type ScreenId =
   | 'attract'
   | 'language'
+  | 'consent'
   | 'intro'
   | 'core1'
   | 'core2'
@@ -23,6 +24,10 @@ export interface SessionState {
   sessionId: string | null;
   /** app 계정 기준 몇 번째 방문인지. 첫 방문은 1. */
   visitCount: number;
+  /** 동의 화면에서 입력한 비필수 정보 */
+  fullName: string;
+  gender: 'male' | 'female' | null;
+  ageGroup: string | null;
   results: Partial<Record<Axis, GameResult>>;
   scores: Scores | null;
   persona: PersonaId | null;
@@ -30,7 +35,7 @@ export interface SessionState {
   resultToken: string | null;
   qrPngUrl: string | null;
   resultUrl: string | null;
-  products: { id: string; name: Record<Language, string>; category: string; reasonKey: string }[];
+  products: { id: string; name: Record<Language, string>; price: string; brandId: string }[];
   offline: boolean; // 백엔드 단절 시 로컬 전용 모드
   bridgeAxis: BridgeKey | null; // 브릿지 화면이 어느 게임 뒤인지 ('final' = 전체 마무리)
 }
@@ -40,6 +45,9 @@ const initial: SessionState = {
   language: 'vi',
   sessionId: null,
   visitCount: 1,
+  fullName: '',
+  gender: null,
+  ageGroup: null,
   results: {},
   scores: null,
   persona: null,
