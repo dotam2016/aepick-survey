@@ -281,7 +281,9 @@ export function ConsentScreen() {
   );
 
   const start = () => {
-    update({ fullName: fullName.trim(), gender, ageGroup });
+    const trimmedName = fullName.trim();
+    update({ fullName: trimmedName, gender, ageGroup });
+    if (s.sessionId) api.setProfile(s.sessionId, { fullName: trimmedName, gender, ageGroup });
     go('intro');
   };
 

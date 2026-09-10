@@ -80,6 +80,12 @@ export const api = {
   submitAnswer: (sessionId: string, coreKey: CoreKey, payload: GameAnswer) =>
     tryReq<{ score: number; subtype: string }>('POST', `/sessions/${sessionId}/answers/${coreKey}`, payload),
 
+  /* ── 동의 화면에서 입력한 이름·성별·연령대 저장 ── */
+  setProfile: (
+    sessionId: string,
+    profile: { fullName?: string; gender?: 'male' | 'female' | null; ageGroup?: string | null },
+  ) => tryReq('PATCH', `/sessions/${sessionId}/profile`, profile),
+
   complete: (sessionId: string) => tryReq<CompleteResponse>('POST', `/sessions/${sessionId}/complete`, {}),
 
   todayStats: () => tryReq<TodayStats>('GET', '/stats/today'),
