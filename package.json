@@ -20,6 +20,9 @@
     "demo:seed": "node tools/seed-demo.mjs",
     "demo:reset": "node tools/seed-demo.mjs --clear"
   },
+  "dependencies": {
+    "dotenv": "^16.4.0"
+  },
   "devDependencies": {
     "cross-env": "^10.1.0",
     "tsx": "^4.23.8",

@@ -39,6 +39,17 @@ if !NODEMAJ! LSS 22 (
 echo  [1/4] Node.js OK
 node --version
 
+REM --- 1b) check .env -------------------------------------------
+if not exist ".env" (
+  echo.
+  echo  [ERROR] .env file not found.
+  echo          Copy .env.example to .env and paste your Supabase connection string.
+  echo          (Supabase dashboard - Project Settings - Database - Connection string)
+  echo.
+  pause
+  exit /b 1
+)
+
 REM --- 2) install packages (first run only) --------------------
 if not exist "node_modules\fastify" (
   echo.
