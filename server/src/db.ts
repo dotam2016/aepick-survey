@@ -30,6 +30,7 @@ function getPool(): Pool {
     );
   }
   _pool = new Pool({ connectionString, ssl: { rejectUnauthorized: false } });
+  _pool.on('error', (e) => console.error('[db] idle client error', e.message));
   return _pool;
 }
 

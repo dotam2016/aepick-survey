@@ -40,7 +40,14 @@ interface SessionRow {
 }
 
 export function registerRoutes(app: FastifyInstance) {
-  /* 0. 세션 생성 (익명) */
+  /*
+   * 0. 세션 생성 (익명).
+   * QR 페어링을 없애기로 하면서 app 계정 연동이 사라졌다. 투표 1인 1회 제한
+   * (votes.visitor_id UNIQUE)이 계속 동작하도록 세션마다 임시 visitor_id를
+   * 새로 발급한다 — 다만 이제는 계정 기준이 아니라 세션 기준 중복 방지라
+   * 같은 사람이 다시 시작하면 또 투표할 수 있다.
+   * ponytail: 재방문자 식별(진짜 계정 연동) 필요해지면 여기부터 다시 붙인다.
+   */
   app.post('/api/sessions', async (req) => {
     const { deviceId, language } = (req.body ?? {}) as { deviceId?: string; language?: string };
     const sessionId = randomUUID();
@@ -249,9 +256,13 @@ export async function deleteResult(token: string) {
 
 export function startExpiryScheduler() {
   const sweep = async () => {
-    const expired = await many<{ token: string }>(`SELECT token FROM results WHERE deleted_at IS NULL AND expires_at < $1`, [now()]);
-    for (const r of expired) await deleteResult(r.token);
-    if (expired.length) console.log(`[expiry] deleted ${expired.length} expired results`);
+    try {
+      const expired = await many<{ token: string }>(`SELECT token FROM results WHERE deleted_at IS NULL AND expires_at < $1`, [now()]);
+      for (const r of expired) await deleteResult(r.token);
+      if (expired.length) console.log(`[expiry] deleted ${expired.length} expired results`);
+    } catch (e) {
+      console.error('[expiry] sweep failed', e);
+    }
   };
   sweep();
   setInterval(sweep, 10 * 60 * 1000);

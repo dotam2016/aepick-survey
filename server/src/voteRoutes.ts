@@ -59,6 +59,10 @@ export function registerVoteRoutes(app: FastifyInstance) {
       return reply.code(400).send(err('bad_request', 'unknown product'));
 
     const ts = now();
+    /*
+     * 계정당 1회. UNIQUE(visitor_id) 위반을 잡는 대신 조건부 INSERT 로
+     * 이미 투표한 경우를 명시적으로 구분한다.
+     */
     const already = await one(`SELECT id FROM votes WHERE visitor_id=$1`, [who.visitorId]);
     if (already) return reply.code(409).send(err('already_voted', 'this account has already voted'));
 
@@ -116,6 +120,11 @@ export function registerVoteRoutes(app: FastifyInstance) {
     });
   });
 
+  /*
+   * ── 직원 전용: 사은품 지급 처리 ──
+   * 중복 수령 방지 방식은 운영팀 미결 사항이다. 지금은 '지급함' 시각만
+   * 남겨 두고, 이미 지급된 건은 409로 알린다. 방식이 정해지면 여기에 붙인다.
+   */
   app.post('/api/vote/:token/reward', async (req, reply) => {
     const { token } = req.params as { token: string };
     const { pin, staff } = (req.body ?? {}) as { pin?: string; staff?: string };

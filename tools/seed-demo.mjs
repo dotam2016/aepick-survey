@@ -5,7 +5,7 @@
  *   node tools/seed-demo.mjs [건수]     기본 24건
  *   node tools/seed-demo.mjs --clear    오늘 시드 데이터 삭제
  */
-import 'dotenv/config';
+import '../server/src/loadEnv.js';
 import { Pool } from 'pg';
 import { randomUUID } from 'node:crypto';
 

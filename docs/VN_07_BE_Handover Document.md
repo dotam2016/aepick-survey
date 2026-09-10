@@ -346,7 +346,7 @@ khiến timer và toast cũ tiếp tục chạy và gây lỗi. Đây là vấn 
 
 - [ ] Thay `identity.ts` bằng tích hợp app thực tế (mục 2)
 - [ ] Đổi `ADMIN_KEY` · `STAFF_PIN` · `VISITOR_HASH_SALT`
-- [ ] Chuyển DB sang PostgreSQL (5-1)
+- [ ] Bật xác thực TLS (rejectUnauthorized: true) trước khi có dữ liệu khách hàng thật (xem mục 5-1)
 - [ ] Thêm giới hạn chống brute force staff PIN
 - [ ] Chốt và triển khai phương án chống nhận quà trùng (6-1)
 - [ ] Local review tiếng Việt (6-3)

@@ -92,9 +92,13 @@ export function registerPairingRoutes(app: FastifyInstance) {
  */
 export function startPairingSweeper() {
   setInterval(async () => {
-    const n = await sweepExpiredPairings();
-    if (n > 0) {
-      await run(`INSERT INTO events (type, payload, ts) VALUES ('pairing.swept', $1, $2)`, [JSON.stringify({ n }), now()]);
+    try {
+      const n = await sweepExpiredPairings();
+      if (n > 0) {
+        await run(`INSERT INTO events (type, payload, ts) VALUES ('pairing.swept', $1, $2)`, [JSON.stringify({ n }), now()]);
+      }
+    } catch (e) {
+      console.error('[pairing] sweep failed', e);
     }
   }, 60_000).unref();
 }
