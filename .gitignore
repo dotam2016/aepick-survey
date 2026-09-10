@@ -30,3 +30,7 @@ desktop.ini
 
 # Vite 임시 파일
 vite.config.ts.timestamp-*
+
+# 격리 작업공간 (git worktree, subagent-driven-development 진행 기록)
+.worktrees/
+.superpowers/
