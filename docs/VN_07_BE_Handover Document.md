@@ -25,7 +25,7 @@ Toàn bộ luồng đã hoạt động, và chỉ còn **một điểm tích h�
 | Khu vực | Công nghệ sử dụng | Ghi chú |
 |---|---|---|
 | Server | Node 22+, Fastify 5 | TypeScript, ESM |
-| DB | **`node:sqlite`** (built-in Node) | API thử nghiệm. Cần chuyển đổi — mục 5 |
+| DB | **Supabase Postgres** (qua `pg`) | Đã chuyển từ `node:sqlite` — xem mục 5-1 |
 | Kiosk | React 18 + Vite | Static build, server serve cùng |
 | Mobile·admin | Server-side HTML string | Không có frontend build riêng |
 | Test | vitest 37 test | Tính điểm·persona·tính nhất quán i18n |
@@ -33,6 +33,7 @@ Toàn bộ luồng đã hoạt động, và chỉ còn **một điểm tích h�
 ### Chạy dự án
 
 ```bash
+cp .env.example .env  # rồi dán SUPABASE_DB_URL thật vào .env
 npm install
 npm run demo          # build + server (HTTPS, 8787)
 npm test
@@ -198,19 +199,27 @@ Khi chuyển PostgreSQL, khuyến nghị đổi sang `jsonb`.
 
 ## 5. Các điểm cần xem xét khi chuyển hạ tầng
 
-### 5-1. DB — việc cần làm đầu tiên
+### 5-1. DB — ✅ đã chuyển sang Supabase Postgres (2026-09-10)
 
-`node:sqlite` hiện là **Node experimental API** và sẽ in warning mỗi lần khởi động.
-Không phù hợp production nên khuyến nghị **chuyển sang PostgreSQL**.
+`node:sqlite` đã được thay thế hoàn toàn. Toàn bộ query giờ chạy qua `pg` (node-postgres),
+kết nối tới **Supabase Postgres** bằng biến môi trường `SUPABASE_DB_URL`.
 
-| Hạng mục | Hiện tại | Khi chuyển |
+| Hạng mục | Trước | Hiện tại |
 |---|---|---|
-| Driver | `node:sqlite` (sync) | `pg` (async) — **toàn bộ chỗ gọi query phải đổi sang async** |
-| JSON field | TEXT | `jsonb` |
-| Atomic claim | Single-process serialization | `UPDATE ... WHERE` vẫn dùng được |
-| Schema | Một file `server/src/db.ts` | Khuyến nghị thêm migration tool |
+| Driver | `node:sqlite` (sync) | `pg` (async) — mọi chỗ gọi query đã chuyển sang `await` |
+| Schema | Tạo bảng inline trong `server/src/db.ts` | `server/sql/schema.sql` — chạy 1 lần qua Supabase SQL Editor |
+| DB access | `db.prepare(...).run/get/all` (đồng bộ) | `one/many/run` (`server/src/db.ts`, bất đồng bộ, kết nối lazy) |
+| Atomic claim | Single-process serialization | `UPDATE ... WHERE status='pending'` — vẫn atomic ở Postgres (không cần transaction thêm) |
+| Env | Không cần | `SUPABASE_DB_URL` bắt buộc — copy `.env.example` → `.env` ở repo root, dán connection string từ Supabase dashboard → Project Settings → Database → Connection string (Transaction pooler) |
 
-DB access đang thống nhất ở dạng `db.prepare(...).run/get/all`, vì vậy có thể thay bằng **một lớp adapter mỏng**.
+**Việc còn để ngỏ, cần xem lại trước khi có dữ liệu khách hàng thật:**
+`server/src/db.ts`'s `getPool()` dùng `ssl: { rejectUnauthorized: false }` — tắt xác thực chứng chỉ TLS khi kết nối tới Supabase.
+Đây là cách kết nối phổ biến (nhiều hướng dẫn Supabase+`pg` dùng y hệt) và hiện tại project chưa có dữ liệu khách hàng thật (chỉ dữ liệu demo/seed),
+nên rủi ro chấp nhận được ở giai đoạn này. Trước khi vận hành thật với dữ liệu khách hàng (họ tên/giới tính/tuổi thu thập ở màn đồng ý),
+nên đổi sang cung cấp CA certificate của Supabase (`ssl: { ca: <cert>, rejectUnauthorized: true }`) hoặc dùng `sslmode=verify-full` trên connection string,
+rồi xác minh lại kết nối thật (cần project Supabase thật, không làm được trong môi trường phát triển không có mạng).
+
+Chi tiết đầy đủ của lần chuyển đổi này (toàn bộ file đã sửa, test đã thêm): xem `docs/superpowers/plans/2026-09-10-supabase-migration.md`.
 
 ### 5-2. Quy mô — theo 10 PAD
 
@@ -238,6 +247,7 @@ Thiết bị chưa cấu hình sẽ tự nhận random ID để ít nhất vẫn
 
 | Biến | Mặc định | Khi vận hành |
 |---|---|---|
+| `SUPABASE_DB_URL` | **Bắt buộc, không có mặc định** | Connection string Postgres từ Supabase (Transaction pooler). Copy `.env.example` → `.env` ở repo root |
 | `PORT` | 8787 | |
 | `HTTPS` | — | Nếu `1` dùng self-signed certificate. Không cần nếu dùng certificate chuẩn |
 | `TUNNEL` | — | Nếu `1` chạy sau proxy + random admin key |
@@ -260,6 +270,7 @@ Chỉ nên dùng **sau trusted proxy**.
 | Nhận quà trùng | Chỉ lưu thời điểm phát | **Chưa giải quyết — mục 6** |
 | Admin auth | Một shared key duy nhất | Khuyến nghị auth theo tài khoản |
 | Request rate limit | Không có | Bắt buộc nếu expose public |
+| TLS tới DB | `rejectUnauthorized: false` trong `server/src/db.ts` | Đổi sang CA cert thật/`sslmode=verify-full` trước khi có dữ liệu khách hàng thật — xem mục 5-1 |
 
 ---
 
