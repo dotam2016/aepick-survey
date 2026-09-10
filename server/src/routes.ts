@@ -1,6 +1,5 @@
 import type { FastifyInstance } from 'fastify';
 import { randomUUID, randomBytes } from 'node:crypto';
-import path from 'node:path';
 import QRCode from 'qrcode';
 import {
   AXES,
@@ -17,7 +16,7 @@ import {
   type PersonaId,
   type Scores,
 } from '@aepick/shared';
-import { db, now, todayPrefix } from './db.js';
+import { one, many, run, now, todayPrefix } from './db.js';
 import { recommendBrands, recommendProducts, type CatalogProduct } from './catalog.js';
 
 const ok = (data: unknown) => ({ ok: true, data });
@@ -41,101 +40,110 @@ interface SessionRow {
 }
 
 export function registerRoutes(app: FastifyInstance) {
-  /*
-   * 0. 세션 생성 (익명).
-   * QR 페어링을 없애기로 하면서 app 계정 연동이 사라졌다. 투표 1인 1회 제한
-   * (votes.visitor_id UNIQUE)이 계속 동작하도록 세션마다 임시 visitor_id를
-   * 새로 발급한다 — 다만 이제는 계정 기준이 아니라 세션 기준 중복 방지라
-   * 같은 사람이 다시 시작하면 또 투표할 수 있다.
-   * ponytail: 재방문자 식별(진짜 계정 연동) 필요해지면 여기부터 다시 붙인다.
-   */
+  /* 0. 세션 생성 (익명) */
   app.post('/api/sessions', async (req) => {
     const { deviceId, language } = (req.body ?? {}) as { deviceId?: string; language?: string };
     const sessionId = randomUUID();
     const visitorId = randomUUID();
     const ts = now();
-    db.prepare(`INSERT INTO visitors (id, visit_count, first_seen_at, last_seen_at) VALUES (?, 1, ?, ?)`)
-      .run(visitorId, ts, ts);
-    db.prepare(
-      `INSERT INTO sessions (id, device_id, visitor_id, language, started_at) VALUES (?, ?, ?, ?, ?)`,
-    ).run(sessionId, deviceId ?? 'unknown', visitorId, language ?? 'vi', ts);
+    await run(`INSERT INTO visitors (id, visit_count, first_seen_at, last_seen_at) VALUES ($1, 1, $2, $3)`, [visitorId, ts, ts]);
+    await run(
+      `INSERT INTO sessions (id, device_id, visitor_id, language, started_at) VALUES ($1, $2, $3, $4, $5)`,
+      [sessionId, deviceId ?? 'unknown', visitorId, language ?? 'vi', ts],
+    );
     return ok({ sessionId });
   });
 
-  /* ── 1. 언어 확정 ── */
+  /* 1. 언어 확정 */
   app.patch('/api/sessions/:id/language', async (req, reply) => {
     const { id } = req.params as { id: string };
     const { language } = (req.body ?? {}) as { language?: string };
     if (!language) return reply.code(400).send(err('bad_request', 'language required'));
-    const res = db.prepare(`UPDATE sessions SET language=? WHERE id=?`).run(language, id);
-    if (res.changes === 0) return reply.code(404).send(err('not_found', 'session not found'));
+    const res = await run(`UPDATE sessions SET language=$1 WHERE id=$2`, [language, id]);
+    if (res.rowCount === 0) return reply.code(404).send(err('not_found', 'session not found'));
     return ok({ language });
   });
 
-  /* ── 4. 게임 답변 ── */
+  /* 1b. 동의 화면에서 입력한 이름·성별·연령대 저장 */
+  app.patch('/api/sessions/:id/profile', async (req, reply) => {
+    const { id } = req.params as { id: string };
+    const { fullName, gender, ageGroup } = (req.body ?? {}) as {
+      fullName?: string; gender?: 'male' | 'female'; ageGroup?: string;
+    };
+    if (gender !== undefined && gender !== 'male' && gender !== 'female')
+      return reply.code(400).send(err('bad_request', 'gender must be male or female'));
+    const res = await run(
+      `UPDATE sessions SET full_name=$1, gender=$2, age_group=$3 WHERE id=$4`,
+      [fullName?.trim() || null, gender ?? null, ageGroup ?? null, id],
+    );
+    if (res.rowCount === 0) return reply.code(404).send(err('not_found', 'session not found'));
+    return ok({ fullName, gender, ageGroup });
+  });
+
+  /* 4. 게임 답변 */
   app.post('/api/sessions/:id/answers/:coreKey', async (req, reply) => {
     const { id, coreKey } = req.params as { id: string; coreKey: Axis };
     if (!AXES.includes(coreKey)) return reply.code(400).send(err('bad_request', `unknown coreKey ${coreKey}`));
     try {
       const result = SCORERS[coreKey](req.body as never);
-      db.prepare(
-        `INSERT INTO answers (session_id, core_key, payload, score, subtype, answered_at) VALUES (?, ?, ?, ?, ?, ?)
-         ON CONFLICT(session_id, core_key) DO UPDATE SET payload=excluded.payload, score=excluded.score, subtype=excluded.subtype, answered_at=excluded.answered_at`,
-      ).run(id, coreKey, JSON.stringify(req.body), result.score, result.subtype, now());
+      await run(
+        `INSERT INTO answers (session_id, core_key, payload, score, subtype, answered_at) VALUES ($1, $2, $3, $4, $5, $6)
+         ON CONFLICT (session_id, core_key) DO UPDATE SET payload=excluded.payload, score=excluded.score, subtype=excluded.subtype, answered_at=excluded.answered_at`,
+        [id, coreKey, JSON.stringify(req.body), result.score, result.subtype, now()],
+      );
       return ok(result);
     } catch (e) {
       return reply.code(400).send(err('invalid_answer', (e as Error).message));
     }
   });
 
-  /* ── 5. 완료: 스코어 확정 + 페르소나 + 토큰 + 이미지 잡 ── */
+  /* 5. 완료: 스코어 확정 + 페르소나 + 토큰 + 이미지 잡 */
   app.post('/api/sessions/:id/complete', async (req, reply) => {
     const { id } = req.params as { id: string };
-    const session = db.prepare(`SELECT * FROM sessions WHERE id=?`).get(id) as SessionRow | undefined;
+    const session = await one<SessionRow>(`SELECT * FROM sessions WHERE id=$1`, [id]);
     if (!session) return reply.code(404).send(err('not_found', 'session not found'));
 
-    const answers = db.prepare(`SELECT core_key, score, subtype FROM answers WHERE session_id=?`).all(id) as
-      { core_key: Axis; score: number; subtype: string }[];
+    const answers = await many<{ core_key: Axis; score: number; subtype: string }>(
+      `SELECT core_key, score, subtype FROM answers WHERE session_id=$1`, [id],
+    );
     const scores = Object.fromEntries(AXES.map((a) => [a, 50])) as Scores;
     const subtypes: Record<string, string> = {};
     for (const a of answers) { scores[a.core_key] = a.score; subtypes[a.core_key] = a.subtype; }
 
     const { personaId, topAxes } = determinePersona(scores);
 
-    // 오늘 페르소나 분포 → 희소성
-    const rows = db.prepare(
-      `SELECT persona, COUNT(*) n FROM sessions WHERE persona IS NOT NULL AND started_at LIKE ? GROUP BY persona`,
-    ).all(`${todayPrefix()}%`) as { persona: string; n: number }[];
-    const counts = Object.fromEntries(rows.map((r) => [r.persona, r.n]));
+    const rows = await many<{ persona: string; n: string }>(
+      `SELECT persona, COUNT(*) n FROM sessions WHERE persona IS NOT NULL AND started_at LIKE $1 GROUP BY persona`,
+      [`${todayPrefix()}%`],
+    );
+    const counts = Object.fromEntries(rows.map((r) => [r.persona, Number(r.n)]));
     counts[personaId] = (counts[personaId] ?? 0) + 1;
     const percentile = personaPercentile(counts, personaId);
 
-    // 결과 토큰 + 쿠폰
-    const existing = db.prepare(`SELECT token FROM results WHERE session_id=?`).get(id) as { token: string } | undefined;
+    const existing = await one<{ token: string }>(`SELECT token FROM results WHERE session_id=$1`, [id]);
     const token = existing?.token ?? randomBytes(24).toString('base64url');
     const coupon = `AEPICK-${token.slice(0, 6).toUpperCase()}`;
-    const brands = recommendBrands(personaId, topAxes);
+    const brands = await recommendBrands(personaId, topAxes);
     const products = recommendProducts(brands);
     const expiresAt = new Date(Date.now() + RESULT_TTL_HOURS * 3600_000).toISOString();
 
     if (!existing) {
-      db.prepare(
-        `INSERT INTO results (token, session_id, persona, scores, product_ids, coupon_code, expires_at) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      ).run(token, id, personaId, JSON.stringify(scores), JSON.stringify(products.map((p) => p.id)), coupon, expiresAt);
+      await run(
+        `INSERT INTO results (token, session_id, persona, scores, product_ids, coupon_code, expires_at) VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+        [token, id, personaId, JSON.stringify(scores), JSON.stringify(products.map((p) => p.id)), coupon, expiresAt],
+      );
     }
-    db.prepare(`UPDATE sessions SET status='completed', scores=?, subtypes=?, persona=?, completed_at=? WHERE id=?`)
-      .run(JSON.stringify(scores), JSON.stringify(subtypes), personaId, now(), id);
+    await run(
+      `UPDATE sessions SET status='completed', scores=$1, subtypes=$2, persona=$3, completed_at=$4 WHERE id=$5`,
+      [JSON.stringify(scores), JSON.stringify(subtypes), personaId, now(), id],
+    );
 
-    // 태블릿이 접속한 주소(스킴+호스트)를 그대로 QR에 넣는다.
-    // → 같은 네트워크의 휴대폰이 바로 열 수 있고, HTTPS 시연에서도 스킴이 맞는다.
     const base = PUBLIC_BASE || `${req.protocol}://${req.headers.host ?? `localhost:${process.env.PORT ?? 8787}`}`;
     const resultUrl = `${base}/r/${token}`;
     const qrPngUrl = await QRCode.toDataURL(resultUrl, { width: 480, margin: 1 });
-    db.prepare(`INSERT INTO events (session_id, type, ts) VALUES (?, 'qr.issued', ?)`).run(id, now());
+    await run(`INSERT INTO events (session_id, type, ts) VALUES ($1, 'qr.issued', $2)`, [id, now()]);
 
-    const brands_out = brands.map((b) => ({
-      id: b.id, name: b.name, tagline: b.tagline, emoji: b.emoji, logoUrl: b.logoUrl,
-    }));
+    const brands_out = brands.map((b) => ({ id: b.id, name: b.name, tagline: b.tagline, emoji: b.emoji, logoUrl: b.logoUrl }));
     return ok({
       scores, persona: personaId, percentile, resultToken: token, qrPngUrl, resultUrl,
       brands: brands_out,
@@ -143,18 +151,17 @@ export function registerRoutes(app: FastifyInstance) {
     });
   });
 
-  /* ── 7. 오늘 통계 (Attract·게임 내 표시) ── */
+  /* 7. 오늘 통계 */
   app.get('/api/stats/today', async () => {
     const prefix = `${todayPrefix()}%`;
-    const total = (db.prepare(`SELECT COUNT(*) n FROM sessions WHERE status='completed' AND started_at LIKE ?`).get(prefix) as { n: number }).n;
-    const top = db.prepare(
-      `SELECT persona, COUNT(*) n FROM sessions WHERE persona IS NOT NULL AND started_at LIKE ? GROUP BY persona ORDER BY n DESC LIMIT 1`,
-    ).get(prefix) as { persona: PersonaId } | undefined;
+    const totalRow = await one<{ n: string }>(`SELECT COUNT(*) n FROM sessions WHERE status='completed' AND started_at LIKE $1`, [prefix]);
+    const total = Number(totalRow?.n ?? 0);
+    const top = await one<{ persona: PersonaId }>(
+      `SELECT persona, COUNT(*) n FROM sessions WHERE persona IS NOT NULL AND started_at LIKE $1 GROUP BY persona ORDER BY n DESC LIMIT 1`,
+      [prefix],
+    );
 
-    // 코인 평균 최다 슬롯
-    const valueAnswers = db.prepare(
-      `SELECT payload FROM answers WHERE core_key='value' AND answered_at LIKE ?`,
-    ).all(prefix) as { payload: string }[];
+    const valueAnswers = await many<{ payload: string }>(`SELECT payload FROM answers WHERE core_key='value' AND answered_at LIKE $1`, [prefix]);
     const coinSum: Record<string, number> = {};
     for (const a of valueAnswers) {
       const coins = JSON.parse(a.payload).coins ?? {};
@@ -162,8 +169,7 @@ export function registerRoutes(app: FastifyInstance) {
     }
     const topCoinSlot = Object.entries(coinSum).sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
 
-    // 트렌드 투표 분포
-    const trendAnswers = db.prepare(`SELECT payload FROM answers WHERE core_key='trend' AND answered_at LIKE ?`).all(prefix) as { payload: string }[];
+    const trendAnswers = await many<{ payload: string }>(`SELECT payload FROM answers WHERE core_key='trend' AND answered_at LIKE $1`, [prefix]);
     const trendVotes: Record<string, Record<string, number>> = {};
     for (const a of trendAnswers) {
       const swipes = JSON.parse(a.payload).swipes ?? {};
@@ -173,8 +179,7 @@ export function registerRoutes(app: FastifyInstance) {
       }
     }
 
-    // 리뷰 선택 분포
-    const trustAnswers = db.prepare(`SELECT payload FROM answers WHERE core_key='trust' AND answered_at LIKE ?`).all(prefix) as { payload: string }[];
+    const trustAnswers = await many<{ payload: string }>(`SELECT payload FROM answers WHERE core_key='trust' AND answered_at LIKE $1`, [prefix]);
     const reviewVotes: Record<string, number> = {};
     for (const a of trustAnswers) {
       const picked = JSON.parse(a.payload).picked;
@@ -184,42 +189,40 @@ export function registerRoutes(app: FastifyInstance) {
     return ok({ totalParticipants: total, topPersona: top?.persona ?? null, topCoinSlot, trendVotes, reviewVotes });
   });
 
-  /* ── 8. 이벤트 배치 ── */
+  /* 8. 이벤트 배치 */
   app.post('/api/events', async (req) => {
     const { events } = (req.body ?? {}) as { events?: { type: string; sessionId?: string; payload?: object; ts?: string }[] };
     const deviceId = String(req.headers['x-device-id'] ?? 'unknown');
-    const insert = db.prepare(`INSERT INTO events (session_id, device_id, type, payload, ts) VALUES (?, ?, ?, ?, ?)`);
-    for (const e of events ?? []) insert.run(e.sessionId ?? null, deviceId, e.type, JSON.stringify(e.payload ?? {}), e.ts ?? now());
+    for (const e of events ?? []) {
+      await run(
+        `INSERT INTO events (session_id, device_id, type, payload, ts) VALUES ($1, $2, $3, $4, $5)`,
+        [e.sessionId ?? null, deviceId, e.type, JSON.stringify(e.payload ?? {}), e.ts ?? now()],
+      );
+    }
     return ok({});
   });
 
-  /* ── 10. 결과 데이터 (모바일 웹) ── */
+  /* 10. 결과 데이터 (모바일 웹) */
   app.get('/api/results/:token', async (req, reply) => {
     const { token } = req.params as { token: string };
-    const row = db.prepare(`SELECT * FROM results WHERE token=?`).get(token) as {
+    const row = await one<{
       session_id: string; persona: PersonaId; scores: string;
       product_ids: string; coupon_code: string; expires_at: string; deleted_at: string | null; scan_count: number;
-    } | undefined;
-    // 브랜드 추천은 저장하지 않고 조회 시 계산 — 카탈로그를 바꾸면 기존 결과에도 즉시 반영된다
+    }>(`SELECT * FROM results WHERE token=$1`, [token]);
     if (!row || row.deleted_at) return reply.code(410).send(err('gone', 'result deleted'));
     if (new Date(row.expires_at) < new Date()) return reply.code(410).send(err('gone', 'result expired'));
 
     if (row.scan_count === 0) {
-      db.prepare(`INSERT INTO events (session_id, type, ts) VALUES (?, 'result.scanned', ?)`).run(row.session_id, now());
+      await run(`INSERT INTO events (session_id, type, ts) VALUES ($1, 'result.scanned', $2)`, [row.session_id, now()]);
     }
-    db.prepare(`UPDATE results SET scan_count=scan_count+1 WHERE token=?`).run(token);
+    await run(`UPDATE results SET scan_count=scan_count+1 WHERE token=$1`, [token]);
 
-    const session = db.prepare(`SELECT language FROM sessions WHERE id=?`).get(row.session_id) as
-      { language: string } | undefined;
+    const session = await one<{ language: string }>(`SELECT language FROM sessions WHERE id=$1`, [row.session_id]);
     const scores = JSON.parse(row.scores) as Scores;
     const { topAxes } = determinePersona(scores);
-    const recommended = recommendBrands(row.persona, topAxes);
-    const brands = recommended.map((b) => ({
-      id: b.id, name: b.name, tagline: b.tagline, emoji: b.emoji, logoUrl: b.logoUrl,
-      products: b.products,
-    }));
+    const recommended = await recommendBrands(row.persona, topAxes);
+    const brands = recommended.map((b) => ({ id: b.id, name: b.name, tagline: b.tagline, emoji: b.emoji, logoUrl: b.logoUrl, products: b.products }));
 
-    // 체험 시점에 확정된 제품을 그대로 되살린다(그 사이 카탈로그가 바뀌어도 결과는 고정).
     const byId = new Map<string, CatalogProduct>();
     for (const b of recommended) for (const p of b.products) byId.set(p.id, p);
     const ids = JSON.parse(row.product_ids) as string[];
@@ -227,37 +230,27 @@ export function registerRoutes(app: FastifyInstance) {
       id: p!.id, name: p!.name, price: p!.price, shopUrl: p!.shopUrl, imageUrl: p!.imageUrl, brandId: p!.brandId,
     }));
 
-    return ok({
-      persona: row.persona,
-      language: session?.language ?? 'vi',
-      scores,
-      products,
-      brands,
-      coupon: row.coupon_code,
-      expiresAt: row.expires_at,
-    });
+    return ok({ persona: row.persona, language: session?.language ?? 'vi', scores, products, brands, coupon: row.coupon_code, expiresAt: row.expires_at });
   });
 
-  /* ── 12. 즉시 삭제 ── */
+  /* 12. 즉시 삭제 */
   app.delete('/api/results/:token', async (req, reply) => {
     const { token } = req.params as { token: string };
-    const row = db.prepare(`SELECT token FROM results WHERE token=? AND deleted_at IS NULL`).get(token);
+    const row = await one(`SELECT token FROM results WHERE token=$1 AND deleted_at IS NULL`, [token]);
     if (!row) return reply.code(404).send(err('not_found', 'not found'));
-    deleteResult(token);
+    await deleteResult(token);
     return ok({});
   });
 }
 
-/** 결과 레코드 삭제 (즉시 삭제·만료 공용) */
-export function deleteResult(token: string) {
-  db.prepare(`UPDATE results SET deleted_at=? WHERE token=?`).run(now(), token);
+export async function deleteResult(token: string) {
+  await run(`UPDATE results SET deleted_at=$1 WHERE token=$2`, [now(), token]);
 }
 
-/** 만료 스케줄러 — 10분 주기 (결과 만료) */
 export function startExpiryScheduler() {
-  const sweep = () => {
-    const expired = db.prepare(`SELECT token FROM results WHERE deleted_at IS NULL AND expires_at < ?`).all(now()) as { token: string }[];
-    for (const r of expired) deleteResult(r.token);
+  const sweep = async () => {
+    const expired = await many<{ token: string }>(`SELECT token FROM results WHERE deleted_at IS NULL AND expires_at < $1`, [now()]);
+    for (const r of expired) await deleteResult(r.token);
     if (expired.length) console.log(`[expiry] deleted ${expired.length} expired results`);
   };
   sweep();
