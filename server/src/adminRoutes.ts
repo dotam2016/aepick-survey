@@ -63,31 +63,31 @@ export function registerAdminRoutes(app: FastifyInstance) {
       axisAvg[axis] = r?.avg !== null && r?.avg !== undefined ? Math.round(r.avg) : null;
     }
 
-    const personas = await many(
+    const personas = (await many<{ persona: string; n: string }>(
       `SELECT persona, COUNT(*) n FROM sessions WHERE persona IS NOT NULL AND started_at BETWEEN $1 AND $2 GROUP BY persona ORDER BY n DESC`,
       [lo, hi],
-    );
+    )).map((r) => ({ ...r, n: Number(r.n) }));
 
-    const hourly = await many(
+    const hourly = (await many<{ hour: string; n: string }>(
       `SELECT substr(started_at, 12, 2) hour, COUNT(*) n FROM sessions WHERE started_at BETWEEN $1 AND $2 GROUP BY hour ORDER BY hour`,
       [lo, hi],
-    );
+    )).map((r) => ({ ...r, n: Number(r.n) }));
 
-    const subtypeDist = (coreKey: string) =>
-      many(
+    const subtypeDist = async (coreKey: string) =>
+      (await many<{ subtype: string; n: string }>(
         `SELECT subtype, COUNT(*) n FROM answers WHERE core_key=$1 AND answered_at BETWEEN $2 AND $3 GROUP BY subtype ORDER BY n DESC`,
         [coreKey, lo, hi],
-      );
+      )).map((r) => ({ ...r, n: Number(r.n) }));
 
     const marketingConsent = await one<{ n: string }>(
       `SELECT COUNT(*) n FROM events WHERE type='consent.marketing' AND ts BETWEEN $1 AND $2`,
       [lo, hi],
     );
 
-    const productClicks = await many(
+    const productClicks = (await many<{ pid: string; n: string }>(
       `SELECT payload::json->>'productId' pid, COUNT(*) n FROM events WHERE type='product.clicked' AND ts BETWEEN $1 AND $2 GROUP BY pid ORDER BY n DESC`,
       [lo, hi],
-    );
+    )).map((r) => ({ ...r, n: Number(r.n) }));
 
     return ok({
       axisAverages: axisAvg,
