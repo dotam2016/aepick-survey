@@ -1,4 +1,4 @@
-import { db, now } from './db.js';
+import { one, many, run, now } from './db.js';
 import type { Axis, Language, PersonaId } from '@aepick/shared';
 
 /**
@@ -83,13 +83,9 @@ function toProduct(r: ProductRow): CatalogProduct {
 }
 
 /** 전체 카탈로그. onlyActive=false 면 비활성 항목도 포함(어드민용). */
-export function listBrands(onlyActive = true): CatalogBrand[] {
-  const brands = db.prepare(
-    `SELECT * FROM brands ${onlyActive ? 'WHERE active=1' : ''} ORDER BY sort_order, name`,
-  ).all() as unknown as BrandRow[];
-  const products = db.prepare(
-    `SELECT * FROM brand_products ${onlyActive ? 'WHERE active=1' : ''} ORDER BY sort_order, id`,
-  ).all() as unknown as ProductRow[];
+export async function listBrands(onlyActive = true): Promise<CatalogBrand[]> {
+  const brands = await many<BrandRow>(`SELECT * FROM brands ${onlyActive ? 'WHERE active=1' : ''} ORDER BY sort_order, name`);
+  const products = await many<ProductRow>(`SELECT * FROM brand_products ${onlyActive ? 'WHERE active=1' : ''} ORDER BY sort_order, id`);
 
   const byBrand = new Map<string, CatalogProduct[]>();
   for (const p of products) {
@@ -100,11 +96,10 @@ export function listBrands(onlyActive = true): CatalogBrand[] {
   return brands.map((b) => toBrand(b, byBrand.get(b.id) ?? []));
 }
 
-export function getBrand(id: string): CatalogBrand | undefined {
-  const row = db.prepare(`SELECT * FROM brands WHERE id=?`).get(id) as unknown as BrandRow | undefined;
+export async function getBrand(id: string): Promise<CatalogBrand | undefined> {
+  const row = await one<BrandRow>(`SELECT * FROM brands WHERE id=$1`, [id]);
   if (!row) return undefined;
-  const products = (db.prepare(`SELECT * FROM brand_products WHERE brand_id=? ORDER BY sort_order, id`)
-    .all(id) as unknown as ProductRow[]).map(toProduct);
+  const products = (await many<ProductRow>(`SELECT * FROM brand_products WHERE brand_id=$1 ORDER BY sort_order, id`, [id])).map(toProduct);
   return toBrand(row, products);
 }
 
@@ -120,19 +115,20 @@ export interface BrandInput {
   active?: boolean;
 }
 
-export function upsertBrand(input: BrandInput): CatalogBrand | undefined {
-  db.prepare(
+export async function upsertBrand(input: BrandInput): Promise<CatalogBrand | undefined> {
+  await run(
     `INSERT INTO brands (id, name, tagline, emoji, logo_url, persona_tags, axis_affinity, sort_order, active, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-     ON CONFLICT(id) DO UPDATE SET
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+     ON CONFLICT (id) DO UPDATE SET
        name=excluded.name, tagline=excluded.tagline, emoji=excluded.emoji, logo_url=excluded.logo_url,
        persona_tags=excluded.persona_tags, axis_affinity=excluded.axis_affinity,
        sort_order=excluded.sort_order, active=excluded.active, updated_at=excluded.updated_at`,
-  ).run(
-    input.id, input.name,
-    JSON.stringify(input.tagline ?? {}), input.emoji ?? '🏷', input.logoUrl ?? null,
-    JSON.stringify(input.personaTags ?? []), JSON.stringify(input.axisAffinity ?? {}),
-    input.sortOrder ?? 0, input.active === false ? 0 : 1, now(),
+    [
+      input.id, input.name,
+      JSON.stringify(input.tagline ?? {}), input.emoji ?? '🏷', input.logoUrl ?? null,
+      JSON.stringify(input.personaTags ?? []), JSON.stringify(input.axisAffinity ?? {}),
+      input.sortOrder ?? 0, input.active === false ? 0 : 1, now(),
+    ],
   );
   return getBrand(input.id);
 }
@@ -148,38 +144,39 @@ export interface ProductInput {
   active?: boolean;
 }
 
-export function upsertProduct(input: ProductInput): CatalogProduct | undefined {
-  db.prepare(
+export async function upsertProduct(input: ProductInput): Promise<CatalogProduct | undefined> {
+  await run(
     `INSERT INTO brand_products (id, brand_id, name, price, shop_url, image_url, sort_order, active, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-     ON CONFLICT(id) DO UPDATE SET
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+     ON CONFLICT (id) DO UPDATE SET
        brand_id=excluded.brand_id, name=excluded.name, price=excluded.price, shop_url=excluded.shop_url,
        image_url=excluded.image_url, sort_order=excluded.sort_order, active=excluded.active,
        updated_at=excluded.updated_at`,
-  ).run(
-    input.id, input.brandId, JSON.stringify(input.name ?? {}), input.price ?? '',
-    input.shopUrl ?? '', input.imageUrl ?? null, input.sortOrder ?? 0,
-    input.active === false ? 0 : 1, now(),
+    [
+      input.id, input.brandId, JSON.stringify(input.name ?? {}), input.price ?? '',
+      input.shopUrl ?? '', input.imageUrl ?? null, input.sortOrder ?? 0,
+      input.active === false ? 0 : 1, now(),
+    ],
   );
-  const row = db.prepare(`SELECT * FROM brand_products WHERE id=?`).get(input.id) as unknown as ProductRow | undefined;
+  const row = await one<ProductRow>(`SELECT * FROM brand_products WHERE id=$1`, [input.id]);
   return row ? toProduct(row) : undefined;
 }
 
-export function deleteBrand(id: string): boolean {
-  db.prepare(`DELETE FROM brand_products WHERE brand_id=?`).run(id);
-  return Number(db.prepare(`DELETE FROM brands WHERE id=?`).run(id).changes) > 0;
+export async function deleteBrand(id: string): Promise<boolean> {
+  await run(`DELETE FROM brand_products WHERE brand_id=$1`, [id]);
+  return (await run(`DELETE FROM brands WHERE id=$1`, [id])).rowCount > 0;
 }
 
-export function deleteProduct(id: string): boolean {
-  return Number(db.prepare(`DELETE FROM brand_products WHERE id=?`).run(id).changes) > 0;
+export async function deleteProduct(id: string): Promise<boolean> {
+  return (await run(`DELETE FROM brand_products WHERE id=$1`, [id])).rowCount > 0;
 }
 
 /** 추천 브랜드 수 (스펙: 3~5) */
 export const BRAND_PICK_COUNT = 4;
 
 /** 페르소나 태그 우선 → 상위 2축 친화도 순으로 브랜드 선정 */
-export function recommendBrands(persona: PersonaId, topAxes: [Axis, Axis], count = BRAND_PICK_COUNT): CatalogBrand[] {
-  const scored = listBrands(true).map((b) => {
+export async function recommendBrands(persona: PersonaId, topAxes: [Axis, Axis], count = BRAND_PICK_COUNT): Promise<CatalogBrand[]> {
+  const scored = (await listBrands(true)).map((b) => {
     const tagBonus = b.personaTags.includes(persona) ? 10 : 0;
     const affinity = (b.axisAffinity[topAxes[0]] ?? 0) * 1.4 + (b.axisAffinity[topAxes[1]] ?? 0);
     return { b, score: tagBonus + affinity };

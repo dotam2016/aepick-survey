@@ -1,5 +1,5 @@
 import type { FastifyInstance } from 'fastify';
-import { db, now } from './db.js';
+import { run, now } from './db.js';
 import { ADMIN_KEY } from './adminKey.js';
 import {
   deleteBrand, deleteProduct, listBrands, upsertBrand, upsertProduct,
@@ -23,26 +23,24 @@ export function registerCatalogRoutes(app: FastifyInstance) {
   });
 
   /* ── 공개: 투표 페이지 등에서 쓰는 활성 카탈로그 ── */
-  app.get('/api/catalog', async () => ok({ brands: listBrands(true) }));
+  app.get('/api/catalog', async () => ok({ brands: await listBrands(true) }));
 
   /* ── 관리: 비활성 포함 전체 ── */
-  app.get('/api/catalog/admin', async () => ok({ brands: listBrands(false) }));
+  app.get('/api/catalog/admin', async () => ok({ brands: await listBrands(false) }));
 
   app.put('/api/catalog/admin/brands/:id', async (req, reply) => {
     const { id } = req.params as { id: string };
     const body = (req.body ?? {}) as Partial<BrandInput>;
     if (!body.name?.trim()) return reply.code(400).send(err('bad_request', 'name required'));
-    const saved = upsertBrand({ ...body, id, name: body.name } as BrandInput);
-    db.prepare(`INSERT INTO events (type, payload, ts) VALUES ('catalog.brand.saved', ?, ?)`)
-      .run(JSON.stringify({ id }), now());
+    const saved = await upsertBrand({ ...body, id, name: body.name } as BrandInput);
+    await run(`INSERT INTO events (type, payload, ts) VALUES ('catalog.brand.saved', $1, $2)`, [JSON.stringify({ id }), now()]);
     return ok(saved);
   });
 
   app.delete('/api/catalog/admin/brands/:id', async (req, reply) => {
     const { id } = req.params as { id: string };
-    if (!deleteBrand(id)) return reply.code(404).send(err('not_found', 'brand not found'));
-    db.prepare(`INSERT INTO events (type, payload, ts) VALUES ('catalog.brand.deleted', ?, ?)`)
-      .run(JSON.stringify({ id }), now());
+    if (!(await deleteBrand(id))) return reply.code(404).send(err('not_found', 'brand not found'));
+    await run(`INSERT INTO events (type, payload, ts) VALUES ('catalog.brand.deleted', $1, $2)`, [JSON.stringify({ id }), now()]);
     return ok({ id });
   });
 
@@ -50,12 +48,12 @@ export function registerCatalogRoutes(app: FastifyInstance) {
     const { id } = req.params as { id: string };
     const body = (req.body ?? {}) as Partial<ProductInput>;
     if (!body.brandId) return reply.code(400).send(err('bad_request', 'brandId required'));
-    return ok(upsertProduct({ ...body, id, brandId: body.brandId } as ProductInput));
+    return ok(await upsertProduct({ ...body, id, brandId: body.brandId } as ProductInput));
   });
 
   app.delete('/api/catalog/admin/products/:id', async (req, reply) => {
     const { id } = req.params as { id: string };
-    if (!deleteProduct(id)) return reply.code(404).send(err('not_found', 'product not found'));
+    if (!(await deleteProduct(id))) return reply.code(404).send(err('not_found', 'product not found'));
     return ok({ id });
   });
 

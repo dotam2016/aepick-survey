@@ -1,4 +1,4 @@
-import { db } from './db.js';
+import { one } from './db.js';
 import { upsertBrand, upsertProduct, type BrandInput, type ProductInput } from './catalog.js';
 
 /**
@@ -120,14 +120,16 @@ const SEEDS: Seed[] = [
 ];
 
 /** 브랜드가 하나도 없을 때만 더미 카탈로그를 심는다. */
-export function seedCatalogIfEmpty(): number {
-  const { n } = db.prepare(`SELECT COUNT(*) n FROM brands`).get() as { n: number };
-  if (n > 0) return 0;
+export async function seedCatalogIfEmpty(): Promise<number> {
+  const row = await one<{ n: string }>(`SELECT COUNT(*) n FROM brands`);
+  if (Number(row?.n ?? 0) > 0) return 0;
 
-  SEEDS.forEach((seed, bi) => {
+  for (const [bi, seed] of SEEDS.entries()) {
     const { products, ...brand } = seed;
-    upsertBrand({ ...brand, sortOrder: bi });
-    products.forEach((p, pi) => upsertProduct({ ...p, brandId: seed.id, sortOrder: pi }));
-  });
+    await upsertBrand({ ...brand, sortOrder: bi });
+    for (const [pi, p] of products.entries()) {
+      await upsertProduct({ ...p, brandId: seed.id, sortOrder: pi });
+    }
+  }
   return SEEDS.length;
 }
