@@ -204,12 +204,12 @@ git commit -m "chore(db): add Supabase Postgres schema"
 **Files:**
 - Modify: `server/src/db.ts` (full rewrite)
 - Modify: `server/package.json` (add `pg`, `@types/pg`)
-- Create: `server/test/helpers.ts`
 - Create: `server/test/db.test.ts`
 
 **Interfaces:**
 - Consumes: `SUPABASE_DB_URL` env var (Task 10 documents/sets it; for this task, export it in your shell before running the test).
-- Produces: `one<T>(sql, params?)`, `many<T>(sql, params?)`, `run(sql, params?): Promise<{rowCount:number}>`, `now()`, `todayPrefix()`, `pool` (the `pg.Pool`), `DATA_DIR` (unchanged — still used by `index.ts` for static file serving, unrelated to the DB swap). Every later task imports from here.
+- Produces: `one<T>(sql, params?)`, `many<T>(sql, params?)`, `run(sql, params?): Promise<{rowCount:number}>`, `now()`, `todayPrefix()`, `DATA_DIR` (unchanged — still used by `index.ts` for static file serving, unrelated to the DB swap). Every later task imports from here. **Note:** `server/test/helpers.ts` is Task 3's deliverable, not this task's — Task 2's own test only needs `one`, no Fastify app fixture.
+- The connection is created lazily (on first query), not at module load — importing `db.js` with `SUPABASE_DB_URL` unset must NOT throw. It only throws when a query actually runs with no connection string. This matters because every test file across every later task does a static `import ... from '../src/db.js'` (directly or via `helpers.ts`), and those files must load cleanly under `describe.skipIf(!process.env.SUPABASE_DB_URL)` even when the var is unset — a module-load-time throw would crash the whole test file before the skip logic ever runs.
 
 - [ ] **Step 1: Add dependencies**
 
@@ -268,34 +268,50 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export const DATA_DIR = path.resolve(__dirname, '../data');
 mkdirSync(DATA_DIR, { recursive: true });
 
-const connectionString = process.env.SUPABASE_DB_URL;
-if (!connectionString) {
-  throw new Error(
-    'SUPABASE_DB_URL is not set. Copy .env.example to .env and paste the connection string from ' +
-    'Supabase -> Project Settings -> Database -> Connection string (URI, Transaction pooler).',
-  );
+/*
+ * Lazy on purpose: this module is statically imported by every test file
+ * (directly or via test/helpers.ts), including ones that skip their own
+ * body with describe.skipIf(!process.env.SUPABASE_DB_URL) when the var is
+ * unset. A throw here at import time would crash those files before the
+ * skip logic ever runs. Throwing only when a query actually executes keeps
+ * "skip cleanly with no SUPABASE_DB_URL" true, while the real server still
+ * fails fast in practice — index.ts's first startup action (seeding the
+ * catalog) issues a query immediately.
+ */
+let _pool: Pool | undefined;
+function getPool(): Pool {
+  if (_pool) return _pool;
+  const connectionString = process.env.SUPABASE_DB_URL;
+  if (!connectionString) {
+    throw new Error(
+      'SUPABASE_DB_URL is not set. Copy .env.example to .env and paste the connection string from ' +
+      'Supabase -> Project Settings -> Database -> Connection string (URI, Transaction pooler).',
+    );
+  }
+  _pool = new Pool({ connectionString, ssl: { rejectUnauthorized: false } });
+  return _pool;
 }
 
-export const pool = new Pool({ connectionString, ssl: { rejectUnauthorized: false } });
-
 export async function one<T>(sql: string, params: unknown[] = []): Promise<T | undefined> {
-  const { rows } = await pool.query(sql, params);
+  const { rows } = await getPool().query(sql, params);
   return rows[0] as T | undefined;
 }
 
 export async function many<T>(sql: string, params: unknown[] = []): Promise<T[]> {
-  const { rows } = await pool.query(sql, params);
+  const { rows } = await getPool().query(sql, params);
   return rows as T[];
 }
 
 export async function run(sql: string, params: unknown[] = []): Promise<{ rowCount: number }> {
-  const res = await pool.query(sql, params);
+  const res = await getPool().query(sql, params);
   return { rowCount: res.rowCount ?? 0 };
 }
 
 export const now = () => new Date().toISOString();
 export const todayPrefix = () => new Date().toISOString().slice(0, 10);
 ```
+
+Note: nothing outside this file needs the raw `Pool` — every consumer across every later task goes through `one/many/run`. Do not export `pool`.
 
 - [ ] **Step 5: Run it to confirm it passes**
 
@@ -322,14 +338,14 @@ git commit -m "feat(db): replace node:sqlite with a Postgres pool (Supabase)"
 - Create: `server/test/routes.test.ts`
 
 **Interfaces:**
-- Consumes: `one/many/run/now/todayPrefix` from `./db.js` (Task 2); `recommendBrands`/`recommendProducts` from `./catalog.js` — **`recommendBrands` becomes `async` in Task 5**, so this task's calls to it must be `await`ed even though Task 5 hasn't landed yet in isolation. If you run this task before Task 5, temporarily keep `catalog.ts` as-is and drop the two `await`s on `recommendBrands(...)` calls below, then add them back in Task 5.
+- Consumes: `one/many/run/now/todayPrefix` from `./db.js` (Task 2); `recommendBrands`/`recommendProducts` from `./catalog.js`. **`recommendBrands` becomes `async` in Task 5** (it will call the now-async `listBrands`) — use `await recommendBrands(...)` at both call sites below regardless of task order. This is safe even before Task 5 lands: `await` on a value that isn't yet a `Promise` just resolves to that value immediately (no compile error, no behavior change) — so writing `await` now and having Task 5 make the callee actually async later requires no follow-up edit.
 - Produces: `registerRoutes(app)`, `deleteResult(token)` (now async), `startExpiryScheduler()`. New: `PATCH /api/sessions/:id/profile` accepting `{ fullName?, gender?, ageGroup? }`.
+- `server/test/helpers.ts` does not need `dotenv` — every command in this plan that runs these tests passes `SUPABASE_DB_URL` inline on the command line (see Step 3 below), so there's nothing for `dotenv` to load. Don't import it here; it isn't a dependency yet (Task 10 adds it, for `index.ts` and `tools/seed-demo.mjs`, which run as standalone processes with no inline env var).
 
 - [ ] **Step 1: Write `server/test/helpers.ts`** (shared by this and every later route test)
 
 ```typescript
 // server/test/helpers.ts
-import 'dotenv/config';
 import Fastify from 'fastify';
 import { registerRoutes } from '../src/routes.js';
 import { registerPairingRoutes } from '../src/pairingRoutes.js';
