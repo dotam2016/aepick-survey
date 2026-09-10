@@ -1,4 +1,5 @@
 import type { FastifyInstance } from 'fastify';
+import ExcelJS from 'exceljs';
 import { AXES } from '@aepick/shared';
 import { one, many, run, now, todayPrefix } from './db.js';
 import { ADMIN_KEY } from './adminKey.js';
@@ -111,6 +112,39 @@ export function registerAdminRoutes(app: FastifyInstance) {
       ? await many(`SELECT ${cols} FROM sessions WHERE status=$1 ORDER BY started_at DESC LIMIT 50 OFFSET $2`, [status, (p - 1) * 50])
       : await many(`SELECT ${cols} FROM sessions ORDER BY started_at DESC LIMIT 50 OFFSET $1`, [(p - 1) * 50]);
     return ok({ sessions: rows, page: p });
+  });
+
+  /* ── 관리자용 세션 Excel 다운로드 ── */
+  app.get('/api/admin/export/sessions.xlsx', async (_req, reply) => {
+    const rows = await many<{
+      id: string; started_at: string; completed_at: string | null; language: string;
+      full_name: string | null; gender: string | null; age_group: string | null;
+      persona: string | null; status: string;
+    }>(
+      `SELECT id, started_at, completed_at, language, full_name, gender, age_group, persona, status
+       FROM sessions ORDER BY started_at DESC`,
+    );
+
+    const workbook = new ExcelJS.Workbook();
+    const sheet = workbook.addWorksheet('Sessions');
+    sheet.columns = [
+      { header: 'Session ID', key: 'id', width: 38 },
+      { header: 'Started At', key: 'started_at', width: 22 },
+      { header: 'Completed At', key: 'completed_at', width: 22 },
+      { header: 'Language', key: 'language', width: 10 },
+      { header: 'Full Name', key: 'full_name', width: 24 },
+      { header: 'Gender', key: 'gender', width: 10 },
+      { header: 'Age Group', key: 'age_group', width: 12 },
+      { header: 'Persona', key: 'persona', width: 22 },
+      { header: 'Status', key: 'status', width: 12 },
+    ];
+    sheet.addRows(rows);
+
+    const buffer = await workbook.xlsx.writeBuffer();
+    return reply
+      .header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+      .header('Content-Disposition', `attachment; filename="aepick-sessions-${todayPrefix()}.xlsx"`)
+      .send(Buffer.from(buffer));
   });
 
   /* ── 16. 기기 하트비트 ── */

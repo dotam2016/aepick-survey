@@ -170,7 +170,10 @@ th{color:var(--dim);font-weight:600}
 <body>
 <div style="display:flex;justify-content:space-between;align-items:baseline">
   <h1>AEPICK BEAUTY DNA <span>· OPERATIONS</span></h1>
-  <div id="status">connecting…</div>
+  <div style="display:flex;align-items:center;gap:12px">
+    <button id="exportBtn" style="padding:6px 14px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--ink);cursor:pointer;font:inherit">Export Excel</button>
+    <div id="status">connecting…</div>
+  </div>
 </div>
 <div class="grid" id="kpis"></div>
 <div class="grid">
@@ -183,6 +186,15 @@ let KEY=localStorage.getItem('adminKey')||prompt('Admin key:',${JSON.stringify(A
 localStorage.setItem('adminKey',KEY);
 const H={'X-Admin-Key':KEY};
 const el=id=>document.getElementById(id);
+el('exportBtn').onclick=async()=>{
+  const r=await fetch('/api/admin/export/sessions.xlsx',{headers:H});
+  if(!r.ok){alert('Export failed');return}
+  const blob=await r.blob();
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download='aepick-sessions.xlsx'; a.click();
+  URL.revokeObjectURL(url);
+};
 const kpi=(label,value,suffix)=>'<div class="card"><h2>'+label+'</h2><div class="kpi">'+(value??'—')+'<small> '+(suffix||'')+'</small></div></div>';
 
 async function refresh(){
