@@ -1,6 +1,6 @@
 import type { FastifyInstance, FastifyRequest } from 'fastify';
 import QRCode from 'qrcode';
-import { db, now } from './db.js';
+import { one, run, now } from './db.js';
 import { identityProvider, isIdentityMocked } from './identity.js';
 import { dicts } from './i18nDicts.js';
 import { cancelPairings, claimPairing, getPairing, issuePairing, sweepExpiredPairings } from './pairing.js';
@@ -21,7 +21,7 @@ export function registerPairingRoutes(app: FastifyInstance) {
   app.post('/api/pairings', async (req) => {
     const { deviceId } = (req.body ?? {}) as { deviceId?: string };
     const device = deviceId?.trim() || 'unknown';
-    const pairing = issuePairing(device);
+    const pairing = await issuePairing(device);
     const url = `${baseUrlOf(req)}/p/${pairing.code}`;
     const qrPngUrl = await QRCode.toDataURL(url, { width: 480, margin: 1 });
     return ok({
@@ -36,16 +36,14 @@ export function registerPairingRoutes(app: FastifyInstance) {
   /* ── P2. PAD: 클레임 여부 폴링 ── */
   app.get('/api/pairings/:code', async (req, reply) => {
     const { code } = req.params as { code: string };
-    const pairing = getPairing(code);
+    const pairing = await getPairing(code);
     if (!pairing) return reply.code(404).send(err('not_found', 'unknown pairing code'));
 
     if (pairing.status !== 'claimed') {
       return ok({ status: pairing.status, expiresAt: pairing.expires_at });
     }
-    const visitor = db.prepare(`SELECT visit_count n FROM visitors WHERE id=?`)
-      .get(pairing.visitor_id!) as { n: number } | undefined;
-    const session = db.prepare(`SELECT language FROM sessions WHERE id=?`)
-      .get(pairing.session_id!) as { language: string } | undefined;
+    const visitor = await one<{ n: number }>(`SELECT visit_count n FROM visitors WHERE id=$1`, [pairing.visitor_id!]);
+    const session = await one<{ language: string }>(`SELECT language FROM sessions WHERE id=$1`, [pairing.session_id!]);
     return ok({
       status: 'claimed',
       sessionId: pairing.session_id,
@@ -63,7 +61,7 @@ export function registerPairingRoutes(app: FastifyInstance) {
     const identity = await identityProvider.resolve(credential);
     if (!identity) return reply.code(401).send(err('unauthorized', 'could not verify app account'));
 
-    const result = claimPairing(code, identity, language ?? 'vi');
+    const result = await claimPairing(code, identity, language ?? 'vi');
     if (!result.ok) {
       const status = result.reason === 'not_found' ? 404 : 409;
       return reply.code(status).send(err(result.reason!, `pairing ${result.reason}`));
@@ -77,7 +75,7 @@ export function registerPairingRoutes(app: FastifyInstance) {
   /* ── P4. PAD: 발급한 코드 취소 (고객 이탈·초기화) ── */
   app.post('/api/pairings/cancel', async (req) => {
     const { deviceId } = (req.body ?? {}) as { deviceId?: string };
-    const cancelled = cancelPairings(deviceId?.trim() || 'unknown');
+    const cancelled = await cancelPairings(deviceId?.trim() || 'unknown');
     return ok({ cancelled });
   });
 
@@ -93,11 +91,10 @@ export function registerPairingRoutes(app: FastifyInstance) {
  * PAD 10대가 3분마다 코드를 새로 뽑으면 하루치가 쌓이므로 주기적으로 턴다.
  */
 export function startPairingSweeper() {
-  setInterval(() => {
-    const n = sweepExpiredPairings();
+  setInterval(async () => {
+    const n = await sweepExpiredPairings();
     if (n > 0) {
-      db.prepare(`INSERT INTO events (type, payload, ts) VALUES ('pairing.swept', ?, ?)`)
-        .run(JSON.stringify({ n }), now());
+      await run(`INSERT INTO events (type, payload, ts) VALUES ('pairing.swept', $1, $2)`, [JSON.stringify({ n }), now()]);
     }
   }, 60_000).unref();
 }

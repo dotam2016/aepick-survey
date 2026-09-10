@@ -1,5 +1,5 @@
 import { randomBytes, randomUUID } from 'node:crypto';
-import { db, now } from './db.js';
+import { one, run, now } from './db.js';
 import { visitorIdOf, type AppIdentity } from './identity.js';
 
 /**
@@ -46,27 +46,27 @@ const newCode = () => randomBytes(9).toString('base64url'); // 12자
  * PAD가 대기화면에서 호출한다.
  * 같은 기기에 떠 있던 이전 pending 코드는 무효화해 QR이 하나만 유효하게 둔다.
  */
-export function issuePairing(deviceId: string): PairingRow {
+export async function issuePairing(deviceId: string): Promise<PairingRow> {
   const ts = now();
-  db.prepare(`UPDATE pairings SET status='expired' WHERE device_id=? AND status='pending'`).run(deviceId);
+  await run(`UPDATE pairings SET status='expired' WHERE device_id=$1 AND status='pending'`, [deviceId]);
 
   const code = newCode();
   const expiresAt = new Date(Date.now() + PAIRING_TTL_MS).toISOString();
-  db.prepare(
-    `INSERT INTO pairings (code, device_id, status, created_at, expires_at)
-     VALUES (?, ?, 'pending', ?, ?)`,
-  ).run(code, deviceId, ts, expiresAt);
+  await run(
+    `INSERT INTO pairings (code, device_id, status, created_at, expires_at) VALUES ($1, $2, 'pending', $3, $4)`,
+    [code, deviceId, ts, expiresAt],
+  );
 
-  db.prepare(`INSERT INTO events (device_id, type, ts) VALUES (?, 'pairing.issued', ?)`).run(deviceId, ts);
-  return getPairing(code)!;
+  await run(`INSERT INTO events (device_id, type, ts) VALUES ($1, 'pairing.issued', $2)`, [deviceId, ts]);
+  return (await getPairing(code))!;
 }
 
-export function getPairing(code: string): PairingRow | undefined {
-  const row = db.prepare(`SELECT * FROM pairings WHERE code=?`).get(code) as PairingRow | undefined;
+export async function getPairing(code: string): Promise<PairingRow | undefined> {
+  const row = await one<PairingRow>(`SELECT * FROM pairings WHERE code=$1`, [code]);
   if (!row) return undefined;
   // 만료됐는데 아직 pending 이면 조회 시점에 정리한다.
   if (row.status === 'pending' && row.expires_at <= now()) {
-    db.prepare(`UPDATE pairings SET status='expired' WHERE code=? AND status='pending'`).run(code);
+    await run(`UPDATE pairings SET status='expired' WHERE code=$1 AND status='pending'`, [code]);
     return { ...row, status: 'expired' };
   }
   return row;
@@ -85,8 +85,8 @@ export interface ClaimResult {
  * 폰이 호출한다. 성공하면 세션이 만들어지고 PAD의 폴링이 이를 감지한다.
  * 언어는 app 계정 설정이 있으면 그것을, 없으면 PAD에서 고른 값을 쓴다.
  */
-export function claimPairing(code: string, identity: AppIdentity, fallbackLang = 'vi'): ClaimResult {
-  const pairing = getPairing(code);
+export async function claimPairing(code: string, identity: AppIdentity, fallbackLang = 'vi'): Promise<ClaimResult> {
+  const pairing = await getPairing(code);
   if (!pairing) return { ok: false, reason: 'not_found' };
   if (pairing.status === 'claimed') return { ok: false, reason: 'already_claimed' };
   if (pairing.status === 'expired') return { ok: false, reason: 'expired' };
@@ -96,42 +96,46 @@ export function claimPairing(code: string, identity: AppIdentity, fallbackLang =
   const sessionId = randomUUID();
 
   /*
-   * 승자 결정. 같은 코드에 동시 요청이 와도 여기서 한 건만 통과한다.
-   * (node:sqlite 는 단일 프로세스 직렬 실행이라 이 UPDATE 자체가 경계가 된다)
+   * Winner decided by the conditional UPDATE below — Postgres serves many
+   * connections concurrently, so a simultaneous claim only ever flips one
+   * row from status='pending'.
    */
-  const res = db.prepare(
-    `UPDATE pairings SET status='claimed', visitor_id=?, session_id=?, claimed_at=?
-     WHERE code=? AND status='pending'`,
-  ).run(visitorId, sessionId, ts, code);
-  if (res.changes === 0) return { ok: false, reason: 'already_claimed' };
+  const res = await run(
+    `UPDATE pairings SET status='claimed', visitor_id=$1, session_id=$2, claimed_at=$3 WHERE code=$4 AND status='pending'`,
+    [visitorId, sessionId, ts, code],
+  );
+  if (res.rowCount === 0) return { ok: false, reason: 'already_claimed' };
 
   // 방문자 기록 — 첫 방문이 1이 되도록 삽입 시점에 1로 시작한다.
-  db.prepare(
-    `INSERT INTO visitors (id, visit_count, first_seen_at, last_seen_at) VALUES (?, 1, ?, ?)
-     ON CONFLICT(id) DO UPDATE SET visit_count = visit_count + 1, last_seen_at = excluded.last_seen_at`,
-  ).run(visitorId, ts, ts);
-  const visitCount = (db.prepare(`SELECT visit_count n FROM visitors WHERE id=?`).get(visitorId) as { n: number }).n;
+  await run(
+    `INSERT INTO visitors (id, visit_count, first_seen_at, last_seen_at) VALUES ($1, 1, $2, $3)
+     ON CONFLICT (id) DO UPDATE SET visit_count = visit_count + 1, last_seen_at = excluded.last_seen_at`,
+    [visitorId, ts, ts],
+  );
+  const visitor = await one<{ n: number }>(`SELECT visit_count n FROM visitors WHERE id=$1`, [visitorId]);
+  const visitCount = visitor?.n ?? 1;
 
-  db.prepare(
-    `INSERT INTO sessions (id, device_id, visitor_id, language, status, started_at)
-     VALUES (?, ?, ?, ?, 'active', ?)`,
-  ).run(sessionId, pairing.device_id, visitorId, identity.language ?? fallbackLang, ts);
+  await run(
+    `INSERT INTO sessions (id, device_id, visitor_id, language, status, started_at) VALUES ($1, $2, $3, $4, 'active', $5)`,
+    [sessionId, pairing.device_id, visitorId, identity.language ?? fallbackLang, ts],
+  );
 
-  db.prepare(
-    `INSERT INTO events (session_id, device_id, type, payload, ts) VALUES (?, ?, 'pairing.claimed', ?, ?)`,
-  ).run(sessionId, pairing.device_id, JSON.stringify({ visitCount }), ts);
+  await run(
+    `INSERT INTO events (session_id, device_id, type, payload, ts) VALUES ($1, $2, 'pairing.claimed', $3, $4)`,
+    [sessionId, pairing.device_id, JSON.stringify({ visitCount }), ts],
+  );
 
   return { ok: true, sessionId, visitorId, visitCount };
 }
 
 /** PAD를 초기화할 때(고객 이탈 등) 발급해 둔 코드를 버린다. */
-export function cancelPairings(deviceId: string): number {
-  const res = db.prepare(`UPDATE pairings SET status='expired' WHERE device_id=? AND status='pending'`).run(deviceId);
-  return Number(res.changes);
+export async function cancelPairings(deviceId: string): Promise<number> {
+  const res = await run(`UPDATE pairings SET status='expired' WHERE device_id=$1 AND status='pending'`, [deviceId]);
+  return res.rowCount;
 }
 
 /** 만료된 코드 정리. 서버 기동 시 주기 실행. */
-export function sweepExpiredPairings(): number {
-  const res = db.prepare(`UPDATE pairings SET status='expired' WHERE status='pending' AND expires_at <= ?`).run(now());
-  return Number(res.changes);
+export async function sweepExpiredPairings(): Promise<number> {
+  const res = await run(`UPDATE pairings SET status='expired' WHERE status='pending' AND expires_at <= $1`, [now()]);
+  return res.rowCount;
 }
