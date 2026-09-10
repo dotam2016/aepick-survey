@@ -186,6 +186,7 @@ let KEY=localStorage.getItem('adminKey')||prompt('Admin key:',${JSON.stringify(A
 localStorage.setItem('adminKey',KEY);
 const H={'X-Admin-Key':KEY};
 const el=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 el('exportBtn').onclick=async()=>{
   const r=await fetch('/api/admin/export/sessions.xlsx',{headers:H});
   if(!r.ok){alert('Export failed');return}
@@ -223,7 +224,7 @@ async function refresh(){
     el('axes').innerHTML=Object.entries(a.axisAverages).map(([k,v])=>
       '<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:12px"><span>'+k+'</span><b>'+(v??'—')+'</b></div><div class="bar" style="width:'+(v||0)+'%"></div></div>').join('');
     el('sessions').innerHTML='<table><tr><th>time</th><th>status</th><th>persona</th><th>lang</th><th>name</th><th>gender</th><th>age</th></tr>'+
-      se.data.sessions.map(s=>'<tr><td>'+s.started_at.slice(11,19)+'</td><td>'+s.status+'</td><td>'+(s.persona||'—')+'</td><td>'+s.language+'</td><td>'+(s.full_name||'—')+'</td><td>'+(s.gender||'—')+'</td><td>'+(s.age_group||'—')+'</td></tr>').join('')+'</table>';
+      se.data.sessions.map(s=>'<tr><td>'+s.started_at.slice(11,19)+'</td><td>'+s.status+'</td><td>'+(s.persona||'—')+'</td><td>'+s.language+'</td><td>'+esc(s.full_name||'—')+'</td><td>'+esc(s.gender||'—')+'</td><td>'+esc(s.age_group||'—')+'</td></tr>').join('')+'</table>';
   }catch(e){el('status').textContent='offline'}
 }
 refresh();setInterval(refresh,10000);
