@@ -119,6 +119,22 @@ create table if not exists votes (
 create index if not exists idx_events_type_ts on events (type, ts);
 create index if not exists idx_sessions_started on sessions (started_at);
 
+create table if not exists event_registrations (
+  id bigint generated always as identity primary key,
+  external_id text,
+  qr_code text,
+  full_name text,
+  phone text,
+  dob text,
+  gender text,
+  raw_payload text not null,
+  received_at text not null
+);
+-- Lets the same registration webhook retry/resend safely (upsert on conflict)
+-- while still allowing unlimited rows with no external_id at all.
+create unique index if not exists idx_event_registrations_external_id
+  on event_registrations (external_id) where external_id is not null;
+
 -- Re-running this file against a project that already has `sessions`
 -- without the profile columns (e.g. you applied an older copy) adds them:
 alter table sessions add column if not exists full_name text;
