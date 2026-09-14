@@ -143,7 +143,7 @@ export function registerAdminRoutes(app: FastifyInstance) {
     const buffer = await workbook.xlsx.writeBuffer();
     return reply
       .header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-      .header('Content-Disposition', `attachment; filename="aepick-sessions-${todayPrefix()}.xlsx"`)
+      .header('Content-Disposition', `attachment; filename="aepick-survey-${todayPrefix().replace(/-/g, '')}.xlsx"`)
       .send(Buffer.from(buffer));
   });
 
