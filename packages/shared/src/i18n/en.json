@@ -44,7 +44,12 @@
       "fortyPlus": "40+",
       "skip": "Skip"
     },
-    "startExperience": "Begin"
+    "startExperience": "Begin",
+    "qrScanBtn": "Scan QR & start",
+    "qrScanTitle": "Point the QR code at the frame",
+    "qrScanCancel": "Cancel",
+    "qrScanInvalid": "Invalid QR code, please try again",
+    "qrScanCameraError": "Couldn't access the camera. Please allow camera permission or fill in the fields below."
   },
   "intro": {
     "title": "Six picks will reveal\nyour own Beauty DNA",

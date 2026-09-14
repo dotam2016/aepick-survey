@@ -12,6 +12,7 @@ import { screenAfterBridge, useStore } from '../state';
 import { makeT, makeTr } from '../i18n';
 import { api, type TodayStats } from '../api';
 import { ASSET, Deco, Logo, RadarChart, personaColors } from '../components';
+import { QrScanOverlay, type QrProfile } from './QrScan';
 
 /* ────────────────────── S00. Attract ────────────────────── */
 
@@ -265,10 +266,19 @@ export function ConsentScreen() {
   const [fullName, setFullName] = useState('');
   const [gender, setGender] = useState<'male' | 'female' | null>(null);
   const [ageGroup, setAgeGroup] = useState<string | null>(null);
+  const [scanning, setScanning] = useState(false);
 
   const requiredOk = c.terms && c.storage && fullName.trim().length > 0 && gender !== null && ageGroup !== null;
 
   const toggle = (k: keyof typeof c) => setC((prev) => ({ ...prev, [k]: !prev[k] }));
+
+  /** QR로 인적 정보를 받으면 수동 입력 없이 바로 체험을 시작한다 (약관 동의 체크와 무관). */
+  const onQrResult = (profile: QrProfile) => {
+    setScanning(false);
+    update({ fullName: profile.fullName, gender: profile.gender, ageGroup: profile.ageGroup });
+    if (s.sessionId) api.setProfile(s.sessionId, profile);
+    go('intro');
+  };
 
   const Row = ({ k, label, required }: { k: keyof typeof c; label: string; required?: boolean }) => (
     <button className="card consent-row" style={{ color: 'var(--ink)', cursor: 'pointer' }} onClick={() => toggle(k)}>
@@ -313,6 +323,10 @@ export function ConsentScreen() {
       <button className="btn" style={{ marginTop: '2vh' }} disabled={!requiredOk} onClick={start}>
         {t('consent.startExperience')}
       </button>
+      <button className="btn ghost" style={{ marginTop: '1vh' }} onClick={() => setScanning(true)}>
+        {t('consent.qrScanBtn')}
+      </button>
+      {scanning && <QrScanOverlay onResult={onQrResult} onClose={() => setScanning(false)} />}
     </div>
   );
 }

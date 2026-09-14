@@ -45,7 +45,12 @@
       "fortyPlus": "40+",
       "skip": "Bỏ qua"
     },
-    "startExperience": "Bắt đầu trải nghiệm"
+    "startExperience": "Bắt đầu trải nghiệm",
+    "qrScanBtn": "Quét QR và bắt đầu",
+    "qrScanTitle": "Đưa mã QR vào khung hình",
+    "qrScanCancel": "Hủy",
+    "qrScanInvalid": "Mã QR không hợp lệ, vui lòng thử lại",
+    "qrScanCameraError": "Không thể truy cập camera. Vui lòng cho phép quyền camera hoặc nhập tay bên dưới."
   },
   "intro": {
     "title": "Sáu lựa chọn sẽ hé lộ\nBeauty DNA của riêng bạn",
