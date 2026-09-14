@@ -178,10 +178,19 @@ kể cả khi đoán sai tên field.
 | GET | `/api/admin/registrations` | `X-Admin-Key` | Danh sách đăng ký đã nhận, mới nhất trước, phân trang 50/`?page=` |
 
 File: `server/src/webhookRoutes.ts` (route webhook) · phần admin nằm trong `server/src/adminRoutes.ts`.
+Đây là bản chạy **local cùng kiosk** (dùng khi vận hành kiosk tại sự kiện, PC bật liên tục).
+
+**Bản deploy riêng, luôn online (2026-09-14):** `webhook-api/` — cùng 2 endpoint này, tách thành
+Vercel serverless functions độc lập với kiosk, để có URL cố định không phụ thuộc PC tại sự kiện có
+bật hay không. Cùng ghi vào 1 Supabase project / bảng `event_registrations` với bản kiosk.
+Hướng dẫn deploy: `webhook-api/README.md`.
 
 **Việc còn để ngỏ, cần làm trước khi đưa URL thật cho đội Zalo:**
-- Xin họ **payload mẫu thật** để đổi alias field ở trên cho khớp chính xác thay vì đoán.
-- Server hiện chạy local tại sự kiện (kiosk + API chung 1 process) — webhook cần 1 URL public **cố định** để họ trỏ vào. Xem phần bàn về hướng deploy (local + Cloudflare Named Tunnel, hoặc tách riêng route webhook lên Vercel/Railway) trong lịch sử trao đổi của phiên làm việc thêm tính năng này.
+- Xin họ **payload mẫu thật** để đổi alias field ở trên cho khớp chính xác thay vì đoán (sửa cả
+  `server/src/webhookRoutes.ts` lẫn `webhook-api/api/webhooks/zalo-checkin.ts` — 2 bản logic giống
+  nhau, cố ý không dùng chung 1 package vì `webhook-api/` phải nhẹ để Vercel build nhanh).
+- Deploy `webhook-api/` lên Vercel thật (xem README), đổi `ZALO_WEBHOOK_SECRET`/`ADMIN_KEY`, rồi mới
+  đưa URL cho đội Zalo.
 
 ---
 
@@ -374,5 +383,5 @@ khiến timer và toast cũ tiếp tục chạy và gây lỗi. Đây là vấn 
 - [ ] Cấu hình device ID cho 10 PAD (5-3)
 - [ ] Xử lý đa ngôn ngữ ảnh bridge·kết thúc (mục 5 hướng dẫn designer)
 - [ ] Request rate limit · logging · monitoring
-- [ ] Xin payload mẫu thật từ đội Zalo, đổi alias field trong `webhookRoutes.ts` cho khớp (3-6)
-- [ ] Đổi `ZALO_WEBHOOK_SECRET`, chọn hướng deploy có URL cố định rồi đưa cho đội Zalo (3-6)
+- [ ] Xin payload mẫu thật từ đội Zalo, đổi alias field trong `webhookRoutes.ts` **và** `webhook-api/api/webhooks/zalo-checkin.ts` cho khớp (3-6)
+- [ ] Deploy `webhook-api/` lên Vercel thật, đổi `ZALO_WEBHOOK_SECRET`/`ADMIN_KEY`, rồi đưa URL cho đội Zalo (3-6, xem `webhook-api/README.md`)
