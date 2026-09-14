@@ -70,7 +70,7 @@ export function registerAdminRoutes(app: FastifyInstance) {
     )).map((r) => ({ ...r, n: Number(r.n) }));
 
     const hourly = (await many<{ hour: string; n: string }>(
-      `SELECT substr(started_at, 12, 2) hour, COUNT(*) n FROM sessions WHERE started_at BETWEEN $1 AND $2 GROUP BY hour ORDER BY hour`,
+      `SELECT substr(started_at, 12, 2) AS "hour", COUNT(*) n FROM sessions WHERE started_at BETWEEN $1 AND $2 GROUP BY "hour" ORDER BY "hour"`,
       [lo, hi],
     )).map((r) => ({ ...r, n: Number(r.n) }));
 
