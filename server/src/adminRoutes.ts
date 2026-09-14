@@ -191,6 +191,18 @@ export function registerAdminRoutes(app: FastifyInstance) {
       .send(Buffer.from(buffer));
   });
 
+  /* ── 17. Zalo 체크인 이벤트 등록 목록 (webhookRoutes.ts가 저장) ── */
+  app.get('/api/admin/registrations', async (req) => {
+    const { page } = (req.query ?? {}) as { page?: string };
+    const p = Math.max(1, Number(page ?? 1));
+    const rows = await many(
+      `SELECT id, external_id, qr_code, full_name, phone, dob, gender, received_at
+       FROM event_registrations ORDER BY received_at DESC LIMIT 50 OFFSET $1`,
+      [(p - 1) * 50],
+    );
+    return ok({ registrations: rows, page: p });
+  });
+
   /* ── 16. 기기 하트비트 ── */
   app.post('/api/admin/devices/:id/heartbeat', async (req) => {
     const { id } = req.params as { id: string };
