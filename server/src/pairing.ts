@@ -109,7 +109,7 @@ export async function claimPairing(code: string, identity: AppIdentity, fallback
   // 방문자 기록 — 첫 방문이 1이 되도록 삽입 시점에 1로 시작한다.
   await run(
     `INSERT INTO visitors (id, visit_count, first_seen_at, last_seen_at) VALUES ($1, 1, $2, $3)
-     ON CONFLICT (id) DO UPDATE SET visit_count = visit_count + 1, last_seen_at = excluded.last_seen_at`,
+     ON CONFLICT (id) DO UPDATE SET visit_count = visitors.visit_count + 1, last_seen_at = excluded.last_seen_at`,
     [visitorId, ts, ts],
   );
   const visitor = await one<{ n: number }>(`SELECT visit_count n FROM visitors WHERE id=$1`, [visitorId]);

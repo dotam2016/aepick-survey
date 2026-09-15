@@ -20,6 +20,16 @@ describe.skipIf(!process.env.SUPABASE_DB_URL)('sessions Excel export', () => {
     expect(header).toContain('Gender');
     expect(header).toContain('Age Group');
 
+    const answersSheet = workbook.getWorksheet('Answers')!;
+    expect(answersSheet.getRow(1).values as unknown[]).toEqual(
+      expect.arrayContaining(['Session ID', 'Full Name', 'Axis', 'Subtype', 'Score', 'Answered At']),
+    );
+
+    const votesSheet = workbook.getWorksheet('Votes')!;
+    expect(votesSheet.getRow(1).values as unknown[]).toEqual(
+      expect.arrayContaining(['Session ID', 'Full Name', 'Products', 'Voted At']),
+    );
+
     await app.close();
   });
 });

@@ -3,6 +3,7 @@ import ExcelJS from 'exceljs';
 import { AXES } from '@aepick/shared';
 import { one, many, run, now, todayPrefix } from './db.js';
 import { ADMIN_KEY } from './adminKey.js';
+import { listBrands } from './catalog.js';
 
 const ok = (data: unknown) => ({ ok: true, data });
 
@@ -70,7 +71,7 @@ export function registerAdminRoutes(app: FastifyInstance) {
     )).map((r) => ({ ...r, n: Number(r.n) }));
 
     const hourly = (await many<{ hour: string; n: string }>(
-      `SELECT substr(started_at, 12, 2) hour, COUNT(*) n FROM sessions WHERE started_at BETWEEN $1 AND $2 GROUP BY hour ORDER BY hour`,
+      `SELECT substr(started_at, 12, 2) AS "hour", COUNT(*) n FROM sessions WHERE started_at BETWEEN $1 AND $2 GROUP BY "hour" ORDER BY "hour"`,
       [lo, hi],
     )).map((r) => ({ ...r, n: Number(r.n) }));
 
@@ -140,10 +141,53 @@ export function registerAdminRoutes(app: FastifyInstance) {
     ];
     sheet.addRows(rows);
 
+    const answers = await many<{
+      session_id: string; full_name: string | null; core_key: string; subtype: string; score: number; answered_at: string;
+    }>(
+      `SELECT a.session_id, s.full_name, a.core_key, a.subtype, a.score, a.answered_at
+       FROM answers a JOIN sessions s ON s.id = a.session_id
+       ORDER BY a.session_id, a.answered_at`,
+    );
+    const answersSheet = workbook.addWorksheet('Answers');
+    answersSheet.columns = [
+      { header: 'Session ID', key: 'session_id', width: 38 },
+      { header: 'Full Name', key: 'full_name', width: 24 },
+      { header: 'Axis', key: 'core_key', width: 12 },
+      { header: 'Subtype', key: 'subtype', width: 18 },
+      { header: 'Score', key: 'score', width: 8 },
+      { header: 'Answered At', key: 'answered_at', width: 22 },
+    ];
+    answersSheet.addRows(answers);
+
+    const votes = await many<{ session_id: string | null; full_name: string | null; product_ids: string; voted_at: string }>(
+      `SELECT v.session_id, s.full_name, v.product_ids, v.voted_at
+       FROM votes v LEFT JOIN sessions s ON s.id = v.session_id
+       ORDER BY v.voted_at DESC`,
+    );
+    const productLabel = new Map<string, string>();
+    for (const b of await listBrands(false)) {
+      for (const p of b.products) productLabel.set(p.id, `${p.name.vi || p.name.en || p.id} – ${b.name}`);
+    }
+    const votesSheet = workbook.addWorksheet('Votes');
+    votesSheet.columns = [
+      { header: 'Session ID', key: 'session_id', width: 38 },
+      { header: 'Full Name', key: 'full_name', width: 24 },
+      { header: 'Products', key: 'products', width: 60 },
+      { header: 'Voted At', key: 'voted_at', width: 22 },
+    ];
+    votesSheet.addRows(
+      votes.map((v) => ({
+        session_id: v.session_id,
+        full_name: v.full_name,
+        products: (JSON.parse(v.product_ids) as string[]).map((id) => productLabel.get(id) ?? id).join(', '),
+        voted_at: v.voted_at,
+      })),
+    );
+
     const buffer = await workbook.xlsx.writeBuffer();
     return reply
       .header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-      .header('Content-Disposition', `attachment; filename="aepick-sessions-${todayPrefix()}.xlsx"`)
+      .header('Content-Disposition', `attachment; filename="aepick-survey-${todayPrefix().replace(/-/g, '')}.xlsx"`)
       .send(Buffer.from(buffer));
   });
 

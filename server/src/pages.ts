@@ -193,7 +193,8 @@ el('exportBtn').onclick=async()=>{
   const blob=await r.blob();
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a');
-  a.href=url; a.download='aepick-sessions.xlsx'; a.click();
+  const d=new Date();const ymd=''+d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0');
+  a.href=url; a.download='aepick-survey-'+ymd+'.xlsx'; a.click();
   URL.revokeObjectURL(url);
 };
 const kpi=(label,value,suffix)=>'<div class="card"><h2>'+label+'</h2><div class="kpi">'+(value??'—')+'<small> '+(suffix||'')+'</small></div></div>';
