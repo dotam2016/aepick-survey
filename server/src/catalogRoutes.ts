@@ -67,7 +67,7 @@ const PERSONA_IDS = [
 ];
 const AXIS_IDS = ['repick', 'value', 'care', 'trend', 'localFit', 'trust'];
 
-function catalogPageHtml(): string {
+export function catalogPageHtml(): string {
   return `<!doctype html>
 <html lang="ko">
 <head>
@@ -75,7 +75,7 @@ function catalogPageHtml(): string {
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>AEPICK — 브랜드·제품 관리</title>
 <style>
-  :root{--bg:#faf7f8;--card:#fff;--accent:#f25c7c;--ink:#2b2b2b;--muted:#8a8a8a;--line:#eee}
+  :root{--bg:#faf7f7;--card:#fff;--accent:#f2675c;--ink:#2b2b2b;--muted:#8a8a8a;--line:#eee}
   *{box-sizing:border-box}
   body{margin:0;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;background:var(--bg);color:var(--ink);padding:20px}
   h1{font-size:20px;margin:0 0 4px}

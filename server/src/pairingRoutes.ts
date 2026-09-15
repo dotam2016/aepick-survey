@@ -108,7 +108,7 @@ export function startPairingSweeper() {
  * 실제로는 aepick app이 이 자리를 대신한다(딥링크로 app이 열리고 app이 클레임).
  * 지금은 app 연동 전이라 웹 화면에서 계정을 흉내낸다.
  */
-function pairingPageHtml(code: string): string {
+export function pairingPageHtml(code: string): string {
   return `<!doctype html>
 <html>
 <head>
@@ -116,15 +116,15 @@ function pairingPageHtml(code: string): string {
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
 <title>AEPICK</title>
 <style>
-  :root{--bg:#fff5f7;--card:#fff;--accent:#f25c7c;--ink:#2b2b2b;--muted:#8a8a8a}
+  :root{--bg:#fff6f5;--card:#fff;--accent:#f2675c;--ink:#2b2b2b;--muted:#8a8a8a}
   *{box-sizing:border-box}
   body{margin:0;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;background:var(--bg);
        color:var(--ink);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
   .card{background:var(--card);border-radius:20px;padding:32px 24px;max-width:420px;width:100%;
-        box-shadow:0 8px 32px rgba(242,92,124,.12);text-align:center}
+        box-shadow:0 8px 32px rgba(242,103,92,.12);text-align:center}
   h1{font-size:20px;margin:0 0 8px}
   p{color:var(--muted);font-size:14px;line-height:1.6;margin:0 0 24px}
-  input{width:100%;padding:14px;font-size:16px;border:1.5px solid #f0dbe0;border-radius:12px;
+  input{width:100%;padding:14px;font-size:16px;border:1.5px solid #f0dddb;border-radius:12px;
         margin-bottom:12px;text-align:center}
   input:focus{outline:none;border-color:var(--accent)}
   button{width:100%;padding:15px;font-size:16px;font-weight:700;color:#fff;background:var(--accent);
