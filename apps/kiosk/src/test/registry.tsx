@@ -13,6 +13,7 @@ import {
   AnalyzingScreen, DnaResultScreen, QrScreen, EndScreen,
 } from '../screens/flow';
 import { Core1Screen, Core2Screen, Core3Screen, Core4Screen, Core5Screen, Core6Screen } from '../screens/games';
+import { QrScanOverlay } from '../screens/QrScan';
 import {
   MOCK_KIOSK_PRODUCTS, MOCK_PAIR_CODE, MOCK_PERCENTILE, MOCK_PERSONA,
   MOCK_SCORES, MOCK_SESSION_ID, MOCK_TOKEN, fakeQrDataUri,
@@ -85,6 +86,11 @@ function ToastPreview() {
       <CompleteToast message="✨ Bạn đầu tư thông minh — Smart Value!" onDone={() => {}} />
     </>
   );
+}
+
+/** S02 화면의 "Quét QR & bắt đầu" 버튼을 누른 직후 뜨는 오버레이 미리보기 */
+function QrScanPreview() {
+  return <QrScanOverlay onResult={() => {}} onClose={() => {}} />;
 }
 
 const bridge = (axis: string, label: string): ScreenEntry => ({
@@ -194,6 +200,12 @@ export const SCREENS: ScreenEntry[] = [
     id: 'toast', group: 'overlay', label: 'Toast hoàn thành game',
     note: 'Băng chữ hiện 2,4 giây sau khi xong mỗi game. Sửa: components.tsx → CompleteToast.',
     source: COMPONENTS, kind: 'kiosk', Comp: ToastPreview, state: { screen: 'core2' },
+  },
+  {
+    id: 'qrScan', group: 'overlay', label: 'Quét QR (từ màn S02)',
+    note: 'Overlay bật khi khách bấm "Quét QR & bắt đầu" ở màn Đồng ý & thông tin. Cần cho phép trình duyệt dùng camera.',
+    source: 'apps/kiosk/src/screens/QrScan.tsx',
+    kind: 'kiosk', Comp: QrScanPreview, state: { screen: 'consent' },
   },
 
   /* ── ⑤ 모바일 웹 (서버 렌더링 페이지) ── */
