@@ -1,0 +1,11 @@
+{
+  // Kiosk chỉ là 1 SPA tĩnh (build ra apps/kiosk/dist) — không cần Cloudflare
+  // tự động dò framework/Vite plugin (bước đó đòi Vite >= 6 và gây lỗi build).
+  // File này khai báo rõ "chỉ deploy static assets" để Wrangler bỏ qua auto-config.
+  "name": "aepick-survey",
+  "compatibility_date": "2026-09-16",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "single-page-application"
+  }
+}
