@@ -33,11 +33,11 @@ export function ProgressGems({ current }: { current: ScreenId }) {
       <div className="gems">
         {CORE_ORDER.map((c, i) => (
           <React.Fragment key={c.axis}>
-            {i > 0 && <span style={{ width: 22, borderTop: '1.5px solid rgba(242,92,124,0.28)' }} />}
+            {i > 0 && <span style={{ width: 22, borderTop: '1.5px solid rgba(242,103,92,0.28)' }} />}
             <img src={ASSET(i <= idx ? 'ruby' : 'pearl')} alt=""
               style={{
                 width: i === idx ? 34 : 28, height: 'auto', display: 'block',
-                filter: i === idx ? 'drop-shadow(0 0 8px rgba(242,92,124,0.6))' : 'none',
+                filter: i === idx ? 'var(--asset-tint) drop-shadow(0 0 8px rgba(242,103,92,0.6))' : 'var(--asset-tint)',
                 transition: 'all 0.4s ease',
               }} />
           </React.Fragment>
@@ -133,13 +133,13 @@ export function RadarChart({ scores, size = 300, color, withIcons = false }: {
   const pt = (i: number, r: number) => [cx + r * Math.cos(angle(i)), cy + r * Math.sin(angle(i))];
   const poly = (frac: number) => AXES.map((_, i) => pt(i, R * frac).join(',')).join(' ');
   const valuePoly = AXES.map((a, i) => pt(i, (R * scores[a as Axis]) / 100).join(',')).join(' ');
-  const c = color ?? '#f25c7c';
+  const c = color ?? '#f2675c';
   const ICON = size * 0.115; // 축 아이콘 지름
   return (
     <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
       {/* 시안: 바깥 점선 원 */}
       {withIcons && (
-        <circle cx={cx} cy={cy} r={R * 1.42} fill="none" stroke="rgba(242,92,124,0.28)" strokeWidth={1} strokeDasharray="3 6" />
+        <circle cx={cx} cy={cy} r={R * 1.42} fill="none" stroke="rgba(242,103,92,0.28)" strokeWidth={1} strokeDasharray="3 6" />
       )}
       {[0.33, 0.66, 1].map((f) => (
         <polygon key={f} points={poly(f)} fill="none" stroke="rgba(84,62,55,0.16)" strokeWidth={1} />
@@ -192,7 +192,7 @@ export function RadarChart({ scores, size = 300, color, withIcons = false }: {
 /** 페르소나 젬 컬러 세트 */
 export function personaColors(personaId: keyof typeof PERSONAS | null) {
   const p = personaId ? PERSONAS[personaId] : null;
-  return { primary: p?.primaryColor ?? '#f25c7c', secondary: p?.secondaryColor ?? '#f98ba6' };
+  return { primary: p?.primaryColor ?? '#f2675c', secondary: p?.secondaryColor ?? '#f9938b' };
 }
 
 /** 축별 젬 컬러 (분석 애니메이션용) */
@@ -200,7 +200,7 @@ export const AXIS_COLORS: Record<Axis, string> = {
   repick: '#E8B84B',
   value: '#2456C8',
   care: '#4FD1C5',
-  trend: '#FF6F91',
+  trend: '#FF7A6F',
   localFit: '#5DBB63',
   trust: '#8A2BE2',
 };

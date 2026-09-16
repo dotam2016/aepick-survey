@@ -8,7 +8,7 @@ import {
 } from './screens/flow';
 import { Core1Screen, Core2Screen, Core3Screen, Core4Screen, Core5Screen, Core6Screen } from './screens/games';
 
-const SCREENS: Record<ScreenId, React.ComponentType> = {
+export const SCREENS: Record<ScreenId, React.ComponentType> = {
   attract: AttractScreen,
   language: LanguageScreen,
   consent: ConsentScreen,

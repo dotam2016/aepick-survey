@@ -10,7 +10,7 @@ import { dicts } from './i18nDicts.js';
  */
 
 const SHELL_CSS = `
-  :root{--bg:#fff5f7;--card:#fff;--accent:#f25c7c;--ink:#2b2b2b;--muted:#8a8a8a;--line:#f2e3e7}
+  :root{--bg:#fff6f5;--card:#fff;--accent:#f2675c;--ink:#2b2b2b;--muted:#8a8a8a;--line:#f2e4e3}
   *{box-sizing:border-box}
   body{margin:0;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;background:var(--bg);
        color:var(--ink);padding:0 0 96px}
@@ -27,8 +27,8 @@ const SHELL_CSS = `
   .p{display:flex;align-items:center;gap:10px;padding:10px;border:1.5px solid var(--line);
      border-radius:12px;margin-bottom:7px;cursor:pointer;user-select:none;transition:.14s}
   .p:last-child{margin-bottom:0}
-  .p.on{border-color:var(--accent);background:#fff0f4}
-  .p .box{width:21px;height:21px;border-radius:6px;border:2px solid #e6cdd4;flex:none;
+  .p.on{border-color:var(--accent);background:#fff1f0}
+  .p .box{width:21px;height:21px;border-radius:6px;border:2px solid #e6cfcd;flex:none;
           display:grid;place-items:center;font-size:12px;color:#fff}
   .p.on .box{background:var(--accent);border-color:var(--accent)}
   .p .pn{flex:1;font-size:13.5px;font-weight:600;line-height:1.35}
@@ -40,7 +40,7 @@ const SHELL_CSS = `
   .cnt b{color:var(--accent);font-size:17px}
   button.go{flex:1;padding:14px;font-size:15px;font-weight:800;color:#fff;background:var(--accent);
             border:0;border-radius:12px;cursor:pointer}
-  button.go:disabled{background:#e8d3d9;cursor:default}
+  button.go:disabled{background:#e8d5d3;cursor:default}
   .msg{text-align:center;padding:40px 20px;color:var(--muted);font-size:14px}
 `;
 
@@ -162,7 +162,7 @@ export function voteDonePageHtml(token: string): string {
 <style>${SHELL_CSS}
   body{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px}
   .card{background:var(--card);border-radius:20px;padding:32px 22px;max-width:420px;width:100%;
-        box-shadow:0 8px 32px rgba(242,92,124,.12);text-align:center}
+        box-shadow:0 8px 32px rgba(242,103,92,.12);text-align:center}
   .big{font-size:46px;margin:4px 0 10px}
   .card h1{color:var(--accent);font-size:23px}
   .picks{margin-top:18px;text-align:left}
@@ -170,8 +170,8 @@ export function voteDonePageHtml(token: string): string {
         border-radius:11px;margin-bottom:7px;font-size:13.5px}
   .pick .e{font-size:17px}
   .pick .b{color:var(--muted);font-size:11.5px}
-  .note{margin-top:20px;padding:13px;background:#fff0f4;border-radius:12px;font-size:13px;
-        color:#b04a63;line-height:1.55;font-weight:600}
+  .note{margin-top:20px;padding:13px;background:#fff1f0;border-radius:12px;font-size:13px;
+        color:#b0514a;line-height:1.55;font-weight:600}
   /* 직원 전용 — 눈에 띄지 않게 두되 위치는 고정 */
   .staff{position:fixed;right:0;bottom:0;width:64px;height:64px;opacity:0;cursor:default}
   .sheet{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;padding:24px}

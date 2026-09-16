@@ -12,24 +12,24 @@ export function resultPageHtml(token: string): string {
 <title>My AEPICK Beauty DNA</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@1,900&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700;800&family=Nunito:ital,wght@1,900&display=swap" rel="stylesheet"/>
 <style>
-:root{--accent:#f25c7c;--accent-deep:#e8446b;--ink:#26191e;--dim:rgba(96,58,72,.6);--card:#ffffff;--border:#f8d9e1}
+:root{--accent:#f2675c;--accent-deep:#e85044;--ink:#261a19;--dim:rgba(96,61,58,.6);--card:#ffffff;--border:#f8dbd9}
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:
   radial-gradient(70% 30% at 10% 0%,rgba(255,255,255,.7) 0%,transparent 65%),
-  radial-gradient(60% 25% at 95% 8%,rgba(249,168,190,.5) 0%,transparent 70%),
-  linear-gradient(180deg,#fdf2f5 0%,#fae2e9 100%);
-  color:var(--ink);font-family:'Pretendard Variable',Pretendard,'Noto Sans KR','Segoe UI',system-ui,sans-serif;min-height:100vh}
+  radial-gradient(60% 25% at 95% 8%,rgba(249,174,168,.5) 0%,transparent 70%),
+  linear-gradient(180deg,#fdf3f2 0%,#fae4e2 100%);
+  color:var(--ink);font-family:'Be Vietnam Pro','Pretendard Variable',Pretendard,'Noto Sans KR','Segoe UI',system-ui,sans-serif;min-height:100vh}
 .wrap{max-width:480px;margin:0 auto;padding:20px 16px 60px;display:flex;flex-direction:column;gap:18px}
 .brand{font-family:'Nunito','Pretendard Variable',sans-serif;font-style:italic;font-weight:900;font-size:30px;color:var(--accent);text-align:center;letter-spacing:-.03em}
-.hero{border-radius:20px;overflow:hidden;box-shadow:0 16px 44px rgba(242,92,124,.25)}
+.hero{border-radius:20px;overflow:hidden;box-shadow:0 16px 44px rgba(242,103,92,.25)}
 .hero img{width:100%;display:block}
 h1{font-size:22px;text-align:center;font-weight:800;letter-spacing:-.01em}
 h2{font-size:17px;color:var(--accent);font-weight:800;letter-spacing:.02em}
-.card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:16px;box-shadow:0 10px 28px rgba(242,92,124,.12)}
-.btn{display:block;width:100%;text-align:center;padding:15px;border-radius:999px;border:none;font-weight:800;font-size:16px;color:#fff;background:linear-gradient(180deg,#fa93ad,var(--accent-deep));box-shadow:0 10px 24px rgba(242,92,124,.3),inset 0 1px 0 rgba(255,255,255,.45);text-decoration:none;cursor:pointer;font-family:inherit}
-.btn.ghost{background:#fff;border:1.5px solid var(--border);color:var(--ink);box-shadow:0 4px 14px rgba(242,92,124,.08)}
+.card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:16px;box-shadow:0 10px 28px rgba(242,103,92,.12)}
+.btn{display:block;width:100%;text-align:center;padding:15px;border-radius:999px;border:none;font-weight:800;font-size:16px;color:#fff;background:linear-gradient(180deg,#fa9b93,var(--accent-deep));box-shadow:0 10px 24px rgba(242,103,92,.3),inset 0 1px 0 rgba(255,255,255,.45);text-decoration:none;cursor:pointer;font-family:inherit}
+.btn.ghost{background:#fff;border:1.5px solid var(--border);color:var(--ink);box-shadow:0 4px 14px rgba(242,103,92,.08)}
 .row{display:flex;gap:10px}.row .btn{flex:1;font-size:13px;padding:12px 6px}
 .dim{color:var(--dim);font-size:13px;line-height:1.5}
 .prod{display:flex;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--border)}
@@ -38,16 +38,16 @@ h2{font-size:17px;color:var(--accent);font-weight:800;letter-spacing:.02em}
 .brand{padding:14px 0;border-bottom:1px solid var(--border)}
 .brand:last-child{border-bottom:none}
 .brand-head{display:flex;align-items:center;gap:10px}
-.brand-logo{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;font-size:22px;background:#fdf1f4;border:1px solid var(--border);flex:none}
+.brand-logo{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;font-size:22px;background:#fdf2f1;border:1px solid var(--border);flex:none}
 .brand-name{font-weight:800;font-size:15px;letter-spacing:.02em}
 .brand-items{display:flex;flex-direction:column;gap:6px;margin-top:10px;padding-left:54px}
 .brand-item{display:flex;align-items:center;gap:8px;font-size:13px}
 .brand-item .nm{flex:1;font-weight:600}
 .brand-item .pr{color:var(--accent);font-weight:800;font-size:12.5px}
-.brand-item a{flex:none;font-size:11px;font-weight:800;color:#fff;background:linear-gradient(180deg,#fa93ad,var(--accent-deep));padding:5px 10px;border-radius:999px;text-decoration:none}
-.coupon{border:2px dashed var(--accent);text-align:center;background:#fef0f4;box-shadow:none}
+.brand-item a{flex:none;font-size:11px;font-weight:800;color:#fff;background:linear-gradient(180deg,#fa9b93,var(--accent-deep));padding:5px 10px;border-radius:999px;text-decoration:none}
+.coupon{border:2px dashed var(--accent);text-align:center;background:#fef1f0;box-shadow:none}
 .coupon .code{font-size:24px;font-weight:900;letter-spacing:.12em;color:var(--accent-deep);margin:6px 0}
-.danger{color:#c95c77;background:none;border:none;font:inherit;font-size:13px;text-decoration:underline;cursor:pointer;margin:8px auto;display:block}
+.danger{color:#c9645c;background:none;border:none;font:inherit;font-size:13px;text-decoration:underline;cursor:pointer;margin:8px auto;display:block}
 .center{text-align:center}
 #loading{text-align:center;padding:80px 0;font-size:15px;color:var(--dim)}
 </style>
@@ -151,7 +151,7 @@ export function adminPageHtml(): string {
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>AEPICK BEAUTY DNA — Operations</title>
 <style>
-:root{--pink:#ff6f91;--violet:#8a2be2;--mint:#4fd1c5;--ink:#fff;--dim:rgba(255,255,255,.6);--card:rgba(255,255,255,.07);--border:rgba(255,255,255,.14)}
+:root{--pink:#ff7a6f;--violet:#8a2be2;--mint:#4fd1c5;--ink:#fff;--dim:rgba(255,255,255,.6);--card:rgba(255,255,255,.07);--border:rgba(255,255,255,.14)}
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:#14101f;color:var(--ink);font-family:'Segoe UI',system-ui,sans-serif;padding:24px}
 h1{font-size:20px;letter-spacing:.08em}h1 span{color:var(--pink)}

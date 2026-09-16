@@ -66,7 +66,7 @@ export function AttractScreen() {
       {/* 배경 워시 + 장식 하트/스파클 */}
       <div style={{
         position: 'absolute', inset: 0, zIndex: -1,
-        background: 'radial-gradient(80% 45% at 50% 12%, rgba(255,255,255,0.85) 0%, transparent 65%), radial-gradient(70% 40% at 50% 100%, rgba(247,148,176,0.4) 0%, transparent 70%)',
+        background: 'radial-gradient(80% 45% at 50% 12%, rgba(255,255,255,0.85) 0%, transparent 65%), radial-gradient(70% 40% at 50% 100%, var(--bg-glow-b) 0%, transparent 70%)',
       }} />
       <Deco name="heart-glossy" style={{ top: '3%', right: '2%', width: '19%' }} />
       <Deco name="heart-small" style={{ top: '5%', left: '4%', width: '10%', animationDelay: '0.8s' }} />
@@ -94,7 +94,7 @@ export function AttractScreen() {
             </React.Fragment>
           ))}
         </p>
-        <p className="hint" style={{ fontStyle: 'italic', fontWeight: 600, color: 'rgba(214,110,138,0.75)' }}>{t('attract.sub')}</p>
+        <p className="hint" style={{ fontStyle: 'italic', fontWeight: 600, color: 'rgba(214,118,110,0.75)' }}>{t('attract.sub')}</p>
       </div>
 
       {/* 스탯 카드 2개 */}
@@ -124,7 +124,7 @@ export function AttractScreen() {
         {STEP_ITEMS.map((step, i) => (
           <React.Fragment key={step.label}>
             {i > 0 && (
-              <div style={{ flex: 1, borderTop: '3px dotted #f3bfcd', margin: '0 8px', transform: 'translateY(-12px)' }} />
+              <div style={{ flex: 1, borderTop: '3px dotted #f3c3bf', margin: '0 8px', transform: 'translateY(-12px)' }} />
             )}
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
               <img src={ASSET(step.asset)} alt="" style={{ width: 56, height: 56 }} />
@@ -199,9 +199,9 @@ export function LanguageScreen() {
           Choose Your <span style={{ color: 'var(--accent)' }}>Language</span>
         </h1>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, justifyContent: 'center', marginTop: '1.4vh', color: 'var(--accent)' }}>
-          <span style={{ width: 44, borderTop: '1.5px solid rgba(242,92,124,0.45)' }} />
+          <span style={{ width: 44, borderTop: '1.5px solid rgba(242,103,92,0.45)' }} />
           <span style={{ fontSize: 13 }}>♥</span>
-          <span style={{ width: 44, borderTop: '1.5px solid rgba(242,92,124,0.45)' }} />
+          <span style={{ width: 44, borderTop: '1.5px solid rgba(242,103,92,0.45)' }} />
         </div>
         <p className="hint" style={{ marginTop: '1.6vh' }}>Please select your preferred language to begin.</p>
       </div>
@@ -216,12 +216,12 @@ export function LanguageScreen() {
               padding: '23px 26px', borderRadius: 36, cursor: 'pointer', font: 'inherit',
               textAlign: 'left', transition: 'all 0.2s ease',
               background: on
-                ? 'linear-gradient(180deg, #fa93ad 0%, #f2547d 60%, #ee4270 100%)'
+                ? 'linear-gradient(180deg, #fa9b93 0%, #f26054 60%, #ee4f42 100%)'
                 : '#fff',
               border: on ? '2px solid rgba(255,255,255,0.75)' : '1.5px solid var(--card-border)',
               boxShadow: on
-                ? '0 16px 36px rgba(242,92,124,0.45), inset 0 2px 3px rgba(255,255,255,0.55)'
-                : '0 8px 22px rgba(242,92,124,0.1)',
+                ? '0 16px 36px rgba(242,103,92,0.45), inset 0 2px 3px rgba(255,255,255,0.55)'
+                : '0 8px 22px rgba(242,103,92,0.1)',
             }}>
               <img src={ASSET(l.flag)} alt="" style={{
                 width: 66, height: 66, flex: 'none', borderRadius: '50%',
@@ -240,8 +240,8 @@ export function LanguageScreen() {
               <span style={{
                 width: 40, height: 40, flex: 'none', borderRadius: '50%', display: 'grid', placeItems: 'center',
                 background: on ? '#fff' : 'transparent',
-                border: on ? 'none' : '1.5px solid #e9d3d9',
-                color: on ? 'var(--accent)' : '#c9a9b3',
+                border: on ? 'none' : '1.5px solid #e9d5d3',
+                color: on ? 'var(--accent)' : '#c9aba9',
                 fontSize: on ? 20 : 18, fontWeight: 900,
                 boxShadow: on ? '0 3px 8px rgba(0,0,0,0.15)' : 'none',
               }}>{on ? '✓' : '›'}</span>
@@ -299,12 +299,20 @@ export function ConsentScreen() {
 
   return (
     <div className="screen" style={{ justifyContent: 'center', gap: 12 }}>
-      <h1 className="display" style={{ marginBottom: '2vh' }}>{t('consent.title')}</h1>
+      {/* 제목의 "Beauty DNA"는 대기화면과 같은 규칙으로 강조한다 */}
+      <h1 className="display" style={{ marginBottom: '2vh' }}>
+        {t('consent.title').split(/(Beauty DNA)/).map((p, i) =>
+          p === 'Beauty DNA'
+            ? <span key={i} className="accent">Beauty DNA</span>
+            : <React.Fragment key={i}>{p}</React.Fragment>,
+        )}
+      </h1>
       <Row k="terms" label={t('consent.terms')} required />
       <Row k="storage" label={t('consent.storage')} required />
       <div style={{ height: 8 }} />
       <input className="text" placeholder={t('consent.fullNamePlaceholder')}
         value={fullName} onChange={(e) => setFullName(e.target.value)} />
+      <p className="hint">{t('consent.genderShare')}</p>
       <div style={{ display: 'flex', gap: 8, width: '100%', justifyContent: 'center' }}>
         {(['male', 'female'] as const).map((g) => (
           <button key={g} className="btn ghost small" style={{
@@ -364,7 +372,7 @@ export function IntroScreen() {
       <div style={{ position: 'relative', width: R * 2 + GEM, height: R * 2 + GEM }}>
         <span style={{
           position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%,-50%)',
-          fontSize: 34, color: '#f8b7c9', textShadow: '0 0 18px rgba(242,92,124,0.5)',
+          fontSize: 34, color: '#f8bcb7', textShadow: '0 0 18px rgba(242,103,92,0.5)',
         }}>✦</span>
         {INTRO_GEMS.map((gem, i) => {
           const ang = (Math.PI * 2 * i) / 6 - Math.PI / 2;
@@ -375,7 +383,7 @@ export function IntroScreen() {
               style={{
                 position: 'absolute', width: GEM, height: GEM,
                 left: R + R * Math.cos(ang), top: R + R * Math.sin(ang),
-                filter: 'drop-shadow(0 8px 18px rgba(242,92,124,0.28))',
+                filter: 'drop-shadow(0 8px 18px rgba(242,103,92,0.28))',
               }} />
           );
         })}
@@ -487,13 +495,13 @@ export function AnalyzingScreen() {
             transition={{ duration: 26 + i * 8, repeat: Infinity, ease: 'linear' }}
             style={{
               position: 'absolute', width: STAGE * f, height: STAGE * f, borderRadius: '50%',
-              border: '1px solid rgba(255,190,212,0.22)', borderTopColor: 'rgba(255,190,212,0.6)',
+              border: '1px solid rgba(255,195,190,0.22)', borderTopColor: 'rgba(255,195,190,0.6)',
             }} />
         ))}
         <motion.img src={ASSET('dna-orb')} alt="" draggable={false}
           animate={{ scale: [1, 1.045, 1], opacity: [0.92, 1, 0.92] }}
           transition={{ duration: 2.6, repeat: Infinity, ease: 'easeInOut' }}
-          style={{ width: STAGE * 0.62, height: 'auto', filter: 'drop-shadow(0 0 40px rgba(242,92,124,0.7))' }} />
+          style={{ width: STAGE * 0.62, height: 'auto', filter: 'var(--asset-tint) drop-shadow(0 0 40px rgba(242,103,92,0.7))' }} />
         <motion.div animate={{ rotate: 360 }} transition={{ duration: 22, repeat: Infinity, ease: 'linear' }}
           style={{ position: 'absolute', inset: 0 }}>
           {[1, 2, 3, 4, 5, 6].map((n, i) => {
@@ -527,18 +535,18 @@ export function AnalyzingScreen() {
       {/* 진행 바 */}
       <div style={{
         width: '86%', padding: '12px 20px', borderRadius: 999,
-        background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,190,212,0.28)',
+        background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,195,190,0.28)',
         display: 'flex', alignItems: 'center', gap: 14,
       }}>
-        <span style={{ fontSize: 'clamp(12px, 1.7vh, 15px)', fontWeight: 700, color: 'rgba(255,214,226,0.9)', whiteSpace: 'nowrap' }}>
+        <span style={{ fontSize: 'clamp(12px, 1.7vh, 15px)', fontWeight: 700, color: 'rgba(255,217,214,0.9)', whiteSpace: 'nowrap' }}>
           {t('dna.analyzingProgress')}
         </span>
         <div style={{ flex: 1, height: 10, borderRadius: 999, background: 'rgba(255,255,255,0.12)', overflow: 'hidden' }}>
           <div style={{
             height: '100%', width: `${progress}%`, borderRadius: 999,
             transition: 'width 0.2s linear',
-            background: 'linear-gradient(90deg, #fa93ad, var(--accent-deep))',
-            boxShadow: '0 0 12px rgba(242,92,124,0.8)',
+            background: 'linear-gradient(90deg, #fa9b93, var(--accent-deep))',
+            boxShadow: '0 0 12px rgba(242,103,92,0.8)',
           }} />
         </div>
         <span style={{ fontSize: 'clamp(18px, 2.6vh, 26px)', fontWeight: 900, color: 'var(--accent)', minWidth: 62, textAlign: 'right' }}>
@@ -549,8 +557,8 @@ export function AnalyzingScreen() {
       {/* 하단 배지 */}
       <div style={{
         display: 'inline-flex', alignItems: 'center', gap: 10, padding: '10px 22px', borderRadius: 999,
-        background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,190,212,0.3)',
-        fontSize: 'clamp(12px, 1.7vh, 16px)', fontWeight: 700, color: 'rgba(255,232,240,0.95)',
+        background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,195,190,0.3)',
+        fontSize: 'clamp(12px, 1.7vh, 16px)', fontWeight: 700, color: 'rgba(255,234,232,0.95)',
       }}>
         <span style={{ color: 'var(--accent)' }}>✦</span>
         {t('dna.analyzingComing')}
@@ -577,15 +585,15 @@ export function DnaResultScreen() {
       {/* 글래스 결과 카드 */}
       <div style={{
         width: '100%', flex: 1, minHeight: 0, borderRadius: 40, padding: '3.5% 5%',
-        background: 'linear-gradient(180deg, rgba(255,255,255,0.92), rgba(255,240,245,0.85))',
+        background: 'linear-gradient(180deg, rgba(255,255,255,0.92), rgba(255,241,240,0.85))',
         border: '2px solid rgba(255,255,255,0.9)',
-        boxShadow: '0 18px 50px rgba(242,92,124,0.2)',
+        boxShadow: '0 18px 50px rgba(242,103,92,0.2)',
         display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'space-between',
       }}>
         {/* 배지 + You are a */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.2vh' }}>
           <span style={{
-            padding: '7px 22px', borderRadius: 999, border: '1.5px solid rgba(242,92,124,0.45)',
+            padding: '7px 22px', borderRadius: 999, border: '1.5px solid rgba(242,103,92,0.45)',
             background: 'rgba(255,255,255,0.75)', color: 'var(--accent)',
             fontSize: 'clamp(11px, 1.6vh, 14px)', fontWeight: 800, whiteSpace: 'nowrap',
           }}>✦ {t('dna.resultBadge')} ✦</span>
@@ -602,7 +610,7 @@ export function DnaResultScreen() {
             style={{
               fontFamily: "Georgia, 'Times New Roman', serif", fontWeight: 700,
               fontSize: 'clamp(28px, 5.1vh, 50px)', lineHeight: 1.06, letterSpacing: '-0.01em',
-              color: 'var(--accent)', textShadow: '0 4px 18px rgba(242,92,124,0.25)',
+              color: 'var(--accent)', textShadow: '0 4px 18px rgba(242,103,92,0.25)',
               padding: '0 14% 0 4%', // 우측 하트 젬과 겹치지 않도록 여백 확보
             }}>
             {p.name}
@@ -613,9 +621,9 @@ export function DnaResultScreen() {
 
         {/* 디바이더 */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, width: '70%', color: 'var(--accent)' }}>
-          <span style={{ flex: 1, borderTop: '1px solid rgba(242,92,124,0.35)' }} />
+          <span style={{ flex: 1, borderTop: '1px solid rgba(242,103,92,0.35)' }} />
           <span style={{ fontSize: 11 }}>✦</span>
-          <span style={{ flex: 1, borderTop: '1px solid rgba(242,92,124,0.35)' }} />
+          <span style={{ flex: 1, borderTop: '1px solid rgba(242,103,92,0.35)' }} />
         </div>
 
         {/* 설명 + 키워드 */}
@@ -627,7 +635,7 @@ export function DnaResultScreen() {
             {keywords.map((k) => (
               <span key={k} style={{
                 padding: '7px 16px', borderRadius: 999, background: '#fff',
-                border: '1.5px solid rgba(242,92,124,0.35)', color: 'var(--accent)',
+                border: '1.5px solid rgba(242,103,92,0.35)', color: 'var(--accent)',
                 fontSize: 'clamp(12px, 1.8vh, 16px)', fontWeight: 700,
               }}>#{k}</span>
             ))}
@@ -642,7 +650,7 @@ export function DnaResultScreen() {
           <div style={{
             display: 'inline-flex', alignItems: 'center', gap: 10, padding: '8px 20px 8px 8px', borderRadius: 999,
             background: 'rgba(255,255,255,0.9)', border: '1px solid var(--card-border)',
-            boxShadow: '0 4px 14px rgba(242,92,124,0.12)',
+            boxShadow: '0 4px 14px rgba(242,103,92,0.12)',
           }}>
             <img src={ASSET('heart-badge')} alt="" draggable={false} style={{ width: 32, height: 32 }} />
             <span style={{ fontSize: 'clamp(12px, 1.8vh, 16px)', fontWeight: 700 }}>

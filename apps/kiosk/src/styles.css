@@ -1,23 +1,60 @@
 /* AEPICK BEAUTY DNA — Kiosk design tokens
-   Tone & Manner: soft baby pink · rose accent · white cards · Pretendard sans · glossy hearts */
+   Tone & Manner: soft coral(#FF8177 계열) · rose accent · white cards · Pretendard sans · glossy hearts */
 :root {
-  --bg-0: #fae2e9;
-  --bg-1: #fdf2f5;
-  --accent: #f25c7c;
-  --accent-deep: #e8446b;
-  --accent-soft: #fbd7e0;
-  --pink: #f25c7c; /* legacy alias */
-  --violet: #f98ba6; /* legacy alias — pink gradient end */
+  /* ── 배경 톤 ──────────────────────────────────────────────
+     이 네 값만 바꾸면 전 화면(키오스크 무대)의 배경 톤이 함께 바뀐다.
+     FE 테스트 갤러리 상단의 "NỀN"에서 후보 톤을 미리 볼 수 있다
+     (docs/08_FE_TEST_GUIDE.md).
+
+     현재 톤: coral(#FF8177 방향) — 기존 베이비핑크에서 명도·채도는 그대로 두고
+     색상(hue)만 343° → 4°로 옮긴 값이다. */
+  --bg-0: #fae4e2; /* 아래쪽 */
+  --bg-1: #fdf3f2; /* 위쪽 */
+  --bg-glow-a: rgba(249, 174, 168, 0.5); /* 우상단 글로우 */
+  --bg-glow-b: rgba(247, 155, 148, 0.5); /* 하단 글로우 */
+  --bg-stage:
+    radial-gradient(70% 40% at 10% 5%, rgba(255, 255, 255, 0.75) 0%, transparent 65%),
+    radial-gradient(55% 35% at 92% 12%, var(--bg-glow-a) 0%, transparent 70%),
+    radial-gradient(80% 50% at 50% 108%, var(--bg-glow-b) 0%, transparent 70%),
+    linear-gradient(180deg, var(--bg-1) 0%, var(--bg-0) 100%);
+  --accent: #f2675c;
+  --accent-deep: #e85044;
+  --accent-soft: #fbdad7;
+  --pink: #f2675c; /* legacy alias */
+  --violet: #f9938b; /* legacy alias — pink gradient end */
   --gold: #e8b84b;
-  --mint: #f25c7c; /* 단일 핑크 시스템으로 통합 */
-  --ink: #26191e;
-  --ink-dim: rgba(96, 58, 72, 0.6);
+  --mint: #f2675c; /* 단일 핑크 시스템으로 통합 */
+  --ink: #261a19;
+  --ink-dim: rgba(96, 61, 58, 0.6);
   --card: #ffffff;
-  --card-border: #f8d9e1;
+  --card-border: #f8dbd9;
   --radius: 28px;
-  --shadow: 0 12px 36px rgba(242, 92, 124, 0.14);
-  --font: 'Pretendard Variable', Pretendard, 'Noto Sans KR', 'Segoe UI', 'Noto Sans', system-ui, sans-serif;
+  --shadow: 0 12px 36px rgba(242, 103, 92, 0.14);
+  /* 본문 서체 — Be Vietnam Pro(베트남어 전용 설계)가 라틴·베트남어를,
+     한글은 글리프가 없어 자동으로 Pretendard로 넘어간다. 둘 다 로컬 번들. */
+  --font: 'Be Vietnam Pro', 'Pretendard Variable', Pretendard, 'Noto Sans KR', 'Segoe UI', 'Noto Sans', system-ui, sans-serif;
   --wordmark-font: 'Nunito', 'Pretendard Variable', 'Segoe UI', sans-serif;
+
+  /* 핑크로 그려진 장식 에셋(PNG)을 코랄 톤에 맞추는 임시 보정.
+     디자이너가 에셋을 코랄로 다시 내보내면 이 값을 none으로 바꾸면 된다. */
+  --asset-tint: hue-rotate(21deg);
+}
+
+/* 위 보정을 적용할 에셋 — 단색 핑크 그래픽만 고른다.
+   제외: 브랜드 워드마크(logo·logo-sub — 원본 색 그대로 쓴다),
+   인물 사진(photocards·trend-*·product-*·bridge-*), 국기(flag-*),
+   6색 젬(gem-*·dna-gem-*), 금색 코인. */
+img[src*="heart-"],
+img[src*="/diamond"],
+img[src*="dna-helix"],
+img[src*="dna-orb"],
+img[src*="/ruby"],
+img[src*="shield-hero"],
+img[src*="/sh-"],
+img[src*="/step-"],
+img[src*="icon-people"],
+svg image[href*="/axis-"] {
+  filter: var(--asset-tint);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -25,11 +62,7 @@
 img { -webkit-user-drag: none; user-select: none; }
 html, body, #root { height: 100%; }
 body {
-  background:
-    radial-gradient(70% 40% at 10% 5%, rgba(255, 255, 255, 0.75) 0%, transparent 65%),
-    radial-gradient(55% 35% at 92% 12%, rgba(249, 168, 190, 0.5) 0%, transparent 70%),
-    radial-gradient(80% 50% at 50% 108%, rgba(247, 148, 176, 0.5) 0%, transparent 70%),
-    linear-gradient(180deg, var(--bg-1) 0%, var(--bg-0) 100%);
+  background: var(--bg-stage);
   color: var(--ink);
   font-family: var(--font);
   overflow: hidden;
@@ -70,7 +103,7 @@ body {
 .wordmark-sub {
   font-size: clamp(11px, 1.5vh, 14px);
   letter-spacing: 0.42em;
-  color: rgba(242, 92, 124, 0.75);
+  color: rgba(242, 103, 92, 0.75);
   font-weight: 700;
   text-indent: 0.42em;
 }
@@ -104,15 +137,15 @@ p.hint { font-size: clamp(13px, 1.8vh, 18px); color: var(--ink-dim); line-height
   border: none; cursor: pointer; font: inherit; color: #fff;
   border-radius: 999px; font-weight: 800; letter-spacing: 0.02em;
   padding: 20px 56px; font-size: clamp(18px, 2.4vh, 26px);
-  background: linear-gradient(180deg, #fa93ad 0%, var(--accent) 55%, var(--accent-deep) 100%);
-  box-shadow: 0 12px 26px rgba(242, 92, 124, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.45);
+  background: linear-gradient(180deg, #fa9b93 0%, var(--accent) 55%, var(--accent-deep) 100%);
+  box-shadow: 0 12px 26px rgba(242, 103, 92, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.45);
   transition: transform 0.15s ease, opacity 0.2s;
   min-height: 64px; min-width: 64px;
 }
 .btn:active { transform: scale(0.96); }
 .btn:disabled { opacity: 0.35; box-shadow: none; }
 .btn.ghost {
-  background: #fff; border: 1.5px solid var(--card-border); box-shadow: 0 4px 14px rgba(242, 92, 124, 0.08);
+  background: #fff; border: 1.5px solid var(--card-border); box-shadow: 0 4px 14px rgba(242, 103, 92, 0.08);
   color: var(--ink);
 }
 .btn.small { padding: 12px 28px; font-size: clamp(14px, 1.9vh, 18px); min-height: 48px; }
@@ -129,14 +162,14 @@ p.hint { font-size: clamp(13px, 1.8vh, 18px); color: var(--ink-dim); line-height
 .gem {
   width: 22px; height: 22px; border-radius: 50%;
   /* 진주(pearl) 스타일 */
-  background: radial-gradient(circle at 32% 28%, #ffffff 0%, #fdf3f6 45%, #f0ccd8 100%);
+  background: radial-gradient(circle at 32% 28%, #ffffff 0%, #fdf4f3 45%, #f0cfcc 100%);
   border: 1px solid rgba(255, 255, 255, 0.9);
-  box-shadow: 0 3px 8px rgba(242, 92, 124, 0.18), inset 0 -2px 4px rgba(240, 190, 205, 0.5);
+  box-shadow: 0 3px 8px rgba(242, 103, 92, 0.18), inset 0 -2px 4px rgba(240, 194, 190, 0.5);
   transition: all 0.4s ease;
 }
 .gem.lit {
-  background: radial-gradient(circle at 35% 30%, #ffd3de 0%, var(--accent) 55%, var(--accent-deep) 100%);
-  box-shadow: 0 0 14px rgba(242, 92, 124, 0.55);
+  background: radial-gradient(circle at 35% 30%, #ffd6d3 0%, var(--accent) 55%, var(--accent-deep) 100%);
+  box-shadow: 0 0 14px rgba(242, 103, 92, 0.55);
   border-color: transparent;
   transform: scale(1.15);
 }
@@ -155,33 +188,33 @@ p.hint { font-size: clamp(13px, 1.8vh, 18px); color: var(--ink-dim); line-height
 }
 .checkbox {
   flex: none; width: 30px; height: 30px; border-radius: 50%; margin-top: 1px;
-  border: 2px solid #f3bfcd; display: grid; place-items: center;
+  border: 2px solid #f3c3bf; display: grid; place-items: center;
   font-size: 17px; font-weight: 900; color: transparent; transition: all 0.15s;
   background: #fff;
 }
-.checkbox.on { background: linear-gradient(180deg, #fa93ad, var(--accent-deep)); border-color: transparent; color: #fff; }
+.checkbox.on { background: linear-gradient(180deg, #fa9b93, var(--accent-deep)); border-color: transparent; color: #fff; }
 
 input.text {
   width: 100%; padding: 16px 20px; border-radius: 16px; font: inherit; color: var(--ink);
   background: #fff; border: 1.5px solid var(--card-border); outline: none;
   font-size: clamp(15px, 2vh, 19px);
 }
-input.text::placeholder { color: rgba(96, 58, 72, 0.4); }
+input.text::placeholder { color: rgba(96, 61, 58, 0.4); }
 
 /* 카메라 (촬영 영역은 다크 유지) */
-.cam-wrap { position: relative; width: 100%; flex: 1; border-radius: var(--radius); overflow: hidden; background: #241318; box-shadow: var(--shadow); }
+.cam-wrap { position: relative; width: 100%; flex: 1; border-radius: var(--radius); overflow: hidden; background: #241413; box-shadow: var(--shadow); }
 .cam-wrap video, .cam-wrap img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
 .face-oval {
   position: absolute; left: 50%; top: 46%; transform: translate(-50%, -50%);
   width: 62%; aspect-ratio: 3/4; border-radius: 50%;
-  border: 3px solid rgba(250, 147, 173, 0.95);
-  box-shadow: 0 0 0 6px rgba(250, 147, 173, 0.25), 0 0 0 2000px rgba(38, 18, 25, 0.42);
+  border: 3px solid rgba(250, 155, 147, 0.95);
+  box-shadow: 0 0 0 6px rgba(250, 155, 147, 0.25), 0 0 0 2000px rgba(38, 19, 18, 0.42);
 }
 .countdown {
   position: absolute; inset: 0; display: grid; place-items: center;
-  font-size: 120px; font-weight: 900; color: #fff; text-shadow: 0 4px 30px rgba(242, 92, 124, 0.6);
+  font-size: 120px; font-weight: 900; color: #fff; text-shadow: 0 4px 30px rgba(242, 103, 92, 0.6);
 }
-.soft-flash { position: absolute; inset: 0; background: #fff6f8; pointer-events: none; }
+.soft-flash { position: absolute; inset: 0; background: #fff7f6; pointer-events: none; }
 
 /* 게임 공통 */
 .game-body { width: 100%; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2vh; min-height: 0; }
@@ -207,11 +240,11 @@ input.text::placeholder { color: rgba(96, 58, 72, 0.4); }
   transition: all 0.2s;
 }
 .shield-card.picked {
-  background: linear-gradient(180deg, #fff0f4, #ffe3ea);
+  background: linear-gradient(180deg, #fff1f0, #ffe5e3);
   border-color: var(--accent);
-  box-shadow: 0 6px 20px rgba(242, 92, 124, 0.28);
+  box-shadow: 0 6px 20px rgba(242, 103, 92, 0.28);
 }
-.shield-card.weak-picked { background: #f4f0f1; border-color: #d9ccd0; color: var(--ink-dim); }
+.shield-card.weak-picked { background: #f4f0f0; border-color: #d9cdcc; color: var(--ink-dim); }
 
 /* CORE4 스와이프 */
 .swipe-area { position: relative; width: 100%; flex: 1; min-height: 0; }
@@ -232,9 +265,9 @@ input.text::placeholder { color: rgba(96, 58, 72, 0.4); }
   color: var(--ink-dim); /* 아이콘 마스크가 상속받는 색 */
 }
 .pair-btn.on {
-  background: linear-gradient(180deg, #fa93ad, var(--accent-deep));
+  background: linear-gradient(180deg, #fa9b93, var(--accent-deep));
   border-color: transparent; color: #fff;
-  box-shadow: 0 8px 20px rgba(242, 92, 124, 0.32);
+  box-shadow: 0 8px 20px rgba(242, 103, 92, 0.32);
 }
 /* 시안 라인 아이콘 (알파 마스크 + currentColor) */
 .attr-icon {
@@ -247,16 +280,16 @@ input.text::placeholder { color: rgba(96, 58, 72, 0.4); }
 
 /* CORE6 리뷰 */
 .review-card { width: 100%; padding: 22px; text-align: left; transition: all 0.2s; }
-.review-card.picked { border-color: var(--accent); box-shadow: 0 8px 26px rgba(242, 92, 124, 0.3); }
+.review-card.picked { border-color: var(--accent); box-shadow: 0 8px 26px rgba(242, 103, 92, 0.3); }
 .clue-chip {
   display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 999px;
-  background: #fdf0f3; border: 1px solid var(--card-border);
+  background: #fdf1f0; border: 1px solid var(--card-border);
   font-size: clamp(12px, 1.6vh, 14px); color: var(--ink-dim);
 }
-.clue-chip.viewed { background: var(--accent-soft); color: var(--accent-deep); border-color: rgba(242, 92, 124, 0.45); }
+.clue-chip.viewed { background: var(--accent-soft); color: var(--accent-deep); border-color: rgba(242, 103, 92, 0.45); }
 
 /* 타임아웃 모달 */
-.modal-backdrop { position: absolute; inset: 0; background: rgba(64, 26, 38, 0.4); display: grid; place-items: center; z-index: 90; }
+.modal-backdrop { position: absolute; inset: 0; background: rgba(64, 29, 26, 0.4); display: grid; place-items: center; z-index: 90; }
 .modal { width: 78%; padding: 40px 30px; text-align: center; display: flex; flex-direction: column; gap: 20px; align-items: center; }
 
 /* 완료 토스트 */
@@ -264,19 +297,19 @@ input.text::placeholder { color: rgba(96, 58, 72, 0.4); }
   position: absolute; left: 6%; right: 6%; bottom: 8%; z-index: 80;
   padding: 26px 24px; text-align: center; font-size: clamp(16px, 2.3vh, 22px); font-weight: 700; line-height: 1.45;
   color: var(--ink);
-  background: #fffcfd;
-  border: 1.5px solid rgba(242, 92, 124, 0.4); border-radius: var(--radius);
-  box-shadow: 0 16px 44px rgba(242, 92, 124, 0.25);
+  background: #fffcfc;
+  border: 1.5px solid rgba(242, 103, 92, 0.4); border-radius: var(--radius);
+  box-shadow: 0 16px 44px rgba(242, 103, 92, 0.25);
 }
 
 /* 다크 연출 화면 (AI 생성 대기) */
 .dark-stage {
   background:
-    radial-gradient(60% 40% at 50% 38%, rgba(242, 92, 124, 0.3) 0%, transparent 70%),
-    radial-gradient(120% 90% at 50% 0%, #2a1220 0%, #170a12 70%) !important;
+    radial-gradient(60% 40% at 50% 38%, rgba(242, 103, 92, 0.3) 0%, transparent 70%),
+    radial-gradient(120% 90% at 50% 0%, #2a1412 0%, #170b0a 70%) !important;
   color: #fff;
 }
-.dark-stage p.hint { color: rgba(255, 214, 226, 0.75); }
+.dark-stage p.hint { color: rgba(255, 217, 214, 0.75); }
 .dark-stage h1.display { color: #fff; }
 
 .fill-anim { transition: width 1.2s cubic-bezier(0.22, 1, 0.36, 1); }
@@ -287,10 +320,11 @@ input.text::placeholder { color: rgba(96, 58, 72, 0.4); }
 @keyframes floaty { 0%, 100% { transform: translateY(0) rotate(-6deg); } 50% { transform: translateY(-14px) rotate(4deg); } }
 
 /* 글로시 하트 장식 — 항상 콘텐츠 뒤에 배치 (텍스트 가림 방지) */
-.deco-heart {
+/* img.deco-heart — 위 톤 보정 규칙과 같은 우선순위라 나중에 온 이 규칙이 이긴다 */
+img.deco-heart {
   position: absolute; pointer-events: none; z-index: -1;
-  filter: drop-shadow(0 6px 14px rgba(242, 92, 124, 0.25));
+  filter: var(--asset-tint) drop-shadow(0 6px 14px rgba(242, 103, 92, 0.25));
   animation: floaty 5s ease-in-out infinite;
   opacity: 0.85;
 }
-.sparkle { position: absolute; color: #f9a8be; opacity: 0.8; pointer-events: none; z-index: -1; }
+.sparkle { position: absolute; color: #f9aea8; opacity: 0.8; pointer-events: none; z-index: -1; }

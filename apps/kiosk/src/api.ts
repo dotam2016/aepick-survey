@@ -32,8 +32,15 @@ function resolveDeviceId(): string {
 
 export const DEVICE_ID = resolveDeviceId();
 
+/**
+ * Cloudflare Pages 등 프론트와 백엔드가 서로 다른 origin에 배포될 때만 설정.
+ * 로컬 개발(vite dev 프록시)이나 server/가 kiosk 빌드를 같이 서빙하는 기존 방식에서는
+ * 비워두면 그대로 상대 경로로 동작한다 (동작 변경 없음).
+ */
+const API_BASE = import.meta.env.VITE_API_BASE ?? '';
+
 async function req<T>(method: string, path: string, body?: unknown): Promise<T> {
-  const res = await fetch(`/api${path}`, {
+  const res = await fetch(`${API_BASE}/api${path}`, {
     method,
     headers: { 'Content-Type': 'application/json', 'X-Device-Id': DEVICE_ID },
     body: body === undefined ? undefined : JSON.stringify(body),

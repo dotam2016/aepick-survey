@@ -69,11 +69,29 @@ interface Store {
 
 const Ctx = createContext<Store>(null as unknown as Store);
 
-export function StateProvider({ children }: { children: React.ReactNode }) {
-  const [s, setS] = useState<SessionState>(initial);
-  const update = useCallback((patch: Partial<SessionState>) => setS((prev) => ({ ...prev, ...patch })), []);
-  const go = useCallback((screen: ScreenId) => setS((prev) => ({ ...prev, screen })), []);
-  const resetSession = useCallback(() => setS(initial), []);
+export function StateProvider({ children, initialState, freezeNavigation = false }: {
+  children: React.ReactNode;
+  /** 화면별 목업 상태 주입 — FE 테스트 갤러리 전용. 운영 앱에서는 넘기지 않는다. */
+  initialState?: Partial<SessionState>;
+  /** true면 go()가 무시된다 — 갤러리에서 자동 화면 전환을 막는 용도 */
+  freezeNavigation?: boolean;
+}) {
+  const seed = useMemo(() => ({ ...initial, ...initialState }), [initialState]);
+  const [s, setS] = useState<SessionState>(seed);
+  const update = useCallback((patch: Partial<SessionState>) => setS((prev) => {
+    // 브릿지 화면은 자동 전환 직전에 bridgeAxis를 비운다.
+    // 전환이 잠긴 갤러리에서는 그 초기화까지 무시해야 화면이 빈 채로 남지 않는다.
+    if (freezeNavigation && patch.bridgeAxis === null) {
+      const { bridgeAxis: _drop, ...rest } = patch;
+      return { ...prev, ...rest };
+    }
+    return { ...prev, ...patch };
+  }), [freezeNavigation]);
+  const go = useCallback((screen: ScreenId) => {
+    if (freezeNavigation) return;
+    setS((prev) => ({ ...prev, screen }));
+  }, [freezeNavigation]);
+  const resetSession = useCallback(() => setS(seed), [seed]);
   const store = useMemo(() => ({ s, update, go, resetSession }), [s, update, go, resetSession]);
   return <Ctx.Provider value={store}>{children}</Ctx.Provider>;
 }

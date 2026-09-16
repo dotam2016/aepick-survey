@@ -100,7 +100,7 @@ function ProductArt({ id }: { id: 'A' | 'B' | 'C' }) {
 }
 const PRODUCT_THEMES: Record<'A' | 'B' | 'C', { bg: string; badge: string }> = {
   A: { bg: 'linear-gradient(180deg, #f4ecfe 0%, #e6d4f8 100%)', badge: '#b58ce8' },
-  B: { bg: 'linear-gradient(180deg, #fdeef4 0%, #f9d9e5 100%)', badge: '#f0799f' },
+  B: { bg: 'linear-gradient(180deg, #fdefee 0%, #f9dbd9 100%)', badge: '#f08279' },
   C: { bg: 'linear-gradient(180deg, #fdf6ea 0%, #f4e5cb 100%)', badge: '#d3a968' },
 };
 
@@ -155,7 +155,7 @@ export function Core1Screen() {
                 flex: 1, padding: '14px 8px 12px', cursor: 'grab', textAlign: 'center',
                 borderRadius: 24, background: theme.bg, position: 'relative',
                 border: '2px solid rgba(255,255,255,0.85)',
-                boxShadow: '0 10px 26px rgba(242,92,124,0.16)',
+                boxShadow: '0 10px 26px rgba(242,103,92,0.16)',
                 display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
               }}
               onClick={() => { if (!dragging.current) openProduct(p); }}>
@@ -188,9 +188,9 @@ export function Core1Screen() {
       {/* REPICK 드롭존 (시안: 점선 대시 + 글로시 핑크) */}
       <div ref={zoneRef} style={{
         width: '100%', minHeight: '15vh', display: 'grid', placeItems: 'center',
-        borderRadius: 30, border: '2.5px dashed rgba(242,92,124,0.65)',
-        background: 'linear-gradient(180deg, rgba(250,180,199,0.28), rgba(242,92,124,0.16))',
-        boxShadow: 'inset 0 2px 8px rgba(255,255,255,0.6), 0 8px 22px rgba(242,92,124,0.12)',
+        borderRadius: 30, border: '2.5px dashed rgba(242,103,92,0.65)',
+        background: 'linear-gradient(180deg, rgba(250,185,180,0.28), rgba(242,103,92,0.16))',
+        boxShadow: 'inset 0 2px 8px rgba(255,255,255,0.6), 0 8px 22px rgba(242,103,92,0.12)',
         position: 'relative',
       }}>
         <span className="sparkle" style={{ top: 10, left: 16, fontSize: 14 }}>✦</span>
@@ -275,9 +275,9 @@ export function Core2Screen() {
       {/* 잔여 코인 패널 (시안: 흰 캡슐 안에 코인 나열 + 남은 개수) */}
       <div style={{
         width: '100%', padding: '12px 18px', borderRadius: 999,
-        background: 'linear-gradient(180deg, #fff, #fdf3f6)',
+        background: 'linear-gradient(180deg, #fff, #fdf4f3)',
         border: '1.5px solid rgba(255,255,255,0.9)',
-        boxShadow: '0 8px 22px rgba(242,92,124,0.14), inset 0 1px 0 rgba(255,255,255,0.9)',
+        boxShadow: '0 8px 22px rgba(242,103,92,0.14), inset 0 1px 0 rgba(255,255,255,0.9)',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12,
       }}>
         <div style={{ display: 'flex', gap: 4, flex: 1, minWidth: 0 }}>
@@ -296,12 +296,12 @@ export function Core2Screen() {
         {slots.map((slot) => (
           <div key={slot} className="card slot" style={{ opacity: remaining === 0 && coins[slot] === 0 ? 0.55 : 1 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 4 }}>
-              <button className="btn ghost" style={{ width: 40, height: 34, minHeight: 34, minWidth: 40, padding: 0, flex: 'none', fontSize: 19, borderRadius: 12, color: 'var(--accent)', background: '#fdf1f4' }}
+              <button className="btn ghost" style={{ width: 40, height: 34, minHeight: 34, minWidth: 40, padding: 0, flex: 'none', fontSize: 19, borderRadius: 12, color: 'var(--accent)', background: '#fdf2f1' }}
                 onClick={() => remove(slot)}>−</button>
               <span style={{ flex: 1, textAlign: 'center', whiteSpace: 'nowrap', fontSize: 'clamp(15px, 2.2vh, 20px)', fontWeight: 800 }}>
                 {t(`core2.slots.${slot}`)}
               </span>
-              <button className="btn ghost" style={{ width: 40, height: 34, minHeight: 34, minWidth: 40, padding: 0, flex: 'none', fontSize: 19, borderRadius: 12, color: 'var(--accent)', background: '#fdf1f4' }}
+              <button className="btn ghost" style={{ width: 40, height: 34, minHeight: 34, minWidth: 40, padding: 0, flex: 'none', fontSize: 19, borderRadius: 12, color: 'var(--accent)', background: '#fdf2f1' }}
                 onClick={() => add(slot)}>＋</button>
             </div>
             {/* 코인 홀더 4칸 — 시안처럼 빈 칸도 항상 표시 */}
@@ -311,7 +311,7 @@ export function Core2Screen() {
                   <motion.img key={i} src={ASSET('coin')} alt="" layout initial={{ scale: 0 }} animate={{ scale: 1 }}
                     style={{ width: 22, height: 22 }} />
                 ) : (
-                  <div key={i} style={{ width: 22, height: 22, borderRadius: '50%', background: '#f4e7eb' }} />
+                  <div key={i} style={{ width: 22, height: 22, borderRadius: '50%', background: '#f4e8e7' }} />
                 ),
               )}
             </div>
@@ -395,8 +395,8 @@ export function Core3Screen() {
         <img src={ASSET('shield-hero')} alt="" style={{ width: 'clamp(120px, 17vh, 170px)', height: 'auto' }} />
         <div style={{
           marginTop: -12, display: 'flex', alignItems: 'center', gap: 14, padding: '8px 24px', borderRadius: 999,
-          background: 'linear-gradient(180deg, #fff, #fdf3f6)', border: '1.5px solid rgba(255,255,255,0.9)',
-          boxShadow: '0 8px 22px rgba(242,92,124,0.16)',
+          background: 'linear-gradient(180deg, #fff, #fdf4f3)', border: '1.5px solid rgba(255,255,255,0.9)',
+          boxShadow: '0 8px 22px rgba(242,103,92,0.16)',
         }}>
           <span style={{
             fontSize: 'clamp(24px, 3.6vh, 34px)', fontWeight: 900, minWidth: 34, textAlign: 'center',
@@ -407,8 +407,8 @@ export function Core3Screen() {
             {[0, 1, 2].map((i) => (
               <div key={i} style={{
                 width: 15, height: 15, borderRadius: '50%', transition: 'all 0.3s',
-                background: picked.length > i ? 'linear-gradient(180deg, #fa93ad, var(--accent-deep))' : '#f4e7eb',
-                boxShadow: picked.length > i ? '0 2px 6px rgba(242,92,124,0.45)' : 'none',
+                background: picked.length > i ? 'linear-gradient(180deg, #fa9b93, var(--accent-deep))' : '#f4e8e7',
+                boxShadow: picked.length > i ? '0 2px 6px rgba(242,103,92,0.45)' : 'none',
               }} />
             ))}
           </div>
@@ -426,9 +426,9 @@ export function Core3Screen() {
               display: 'flex', alignItems: 'center', gap: 9, padding: '10px 12px',
               borderRadius: 20, cursor: 'pointer', font: 'inherit', textAlign: 'left',
               transition: 'all 0.2s',
-              background: isPicked ? 'linear-gradient(180deg, #fde3ea, #f9c4d5)' : '#fff',
-              border: isPicked ? '2px solid rgba(242,92,124,0.55)' : '1.5px solid var(--card-border)',
-              boxShadow: isPicked ? '0 8px 20px rgba(242,92,124,0.25)' : '0 4px 12px rgba(242,92,124,0.08)',
+              background: isPicked ? 'linear-gradient(180deg, #fde5e3, #f9c8c4)' : '#fff',
+              border: isPicked ? '2px solid rgba(242,103,92,0.55)' : '1.5px solid var(--card-border)',
+              boxShadow: isPicked ? '0 8px 20px rgba(242,103,92,0.25)' : '0 4px 12px rgba(242,103,92,0.08)',
             }}>
               <img src={ASSET(`sh-${id}`)} alt="" draggable={false} style={{ width: 38, height: 38, flex: 'none' }} />
               <span style={{
@@ -436,10 +436,10 @@ export function Core3Screen() {
               }}>{t(`core3.cards.${id}`)}</span>
               <span style={{
                 width: 24, height: 24, flex: 'none', borderRadius: '50%', display: 'grid', placeItems: 'center',
-                background: isPicked ? 'linear-gradient(180deg, #fa93ad, var(--accent-deep))' : 'transparent',
-                border: isPicked ? 'none' : '1.5px solid #e9d3d9',
+                background: isPicked ? 'linear-gradient(180deg, #fa9b93, var(--accent-deep))' : 'transparent',
+                border: isPicked ? 'none' : '1.5px solid #e9d5d3',
                 color: '#fff', fontSize: 13, fontWeight: 900,
-                boxShadow: isPicked ? '0 2px 6px rgba(242,92,124,0.4)' : 'none',
+                boxShadow: isPicked ? '0 2px 6px rgba(242,103,92,0.4)' : 'none',
               }}>{isPicked ? '✓' : ''}</span>
             </button>
           );
@@ -502,7 +502,7 @@ export function Core4Screen() {
     }}>
       <div style={{
         width: 46, height: 46, borderRadius: '50%', display: 'grid', placeItems: 'center',
-        background: 'rgba(255,255,255,0.55)', border: '1.5px solid rgba(242,92,124,0.3)',
+        background: 'rgba(255,255,255,0.55)', border: '1.5px solid rgba(242,103,92,0.3)',
         color: dir === 'notme' ? 'var(--ink-dim)' : 'var(--accent)', fontSize: 20, fontWeight: 800,
       }}>{dir === 'notme' ? '←' : '→'}</div>
       <span style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: '0.06em', color: dir === 'notme' ? 'var(--ink-dim)' : 'var(--accent)' }}>
@@ -524,9 +524,9 @@ export function Core4Screen() {
             style={{
               position: 'absolute', inset: '2% 11%', x, y, rotate, zIndex: 2,
               borderRadius: 30, overflow: 'hidden', cursor: 'grab',
-              background: 'linear-gradient(180deg, #fdeef3, #fbdfe8)',
+              background: 'linear-gradient(180deg, #fdefee, #fbe1df)',
               border: '3px solid rgba(255,255,255,0.9)',
-              boxShadow: '0 18px 46px rgba(242,92,124,0.35), 0 0 0 6px rgba(255,255,255,0.35)',
+              boxShadow: '0 18px 46px rgba(242,103,92,0.35), 0 0 0 6px rgba(255,255,255,0.35)',
               display: 'flex', flexDirection: 'column',
             }}
             initial={{ scale: 0.92, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ opacity: 0, scale: 0.85 }}>
@@ -536,12 +536,12 @@ export function Core4Screen() {
             <div style={{
               position: 'absolute', top: 12, left: '50%', transform: 'translateX(-50%)',
               padding: '6px 20px', borderRadius: 999, whiteSpace: 'nowrap',
-              background: 'linear-gradient(180deg, #fa93ad, var(--accent-deep))', color: '#fff',
+              background: 'linear-gradient(180deg, #fa9b93, var(--accent-deep))', color: '#fff',
               fontSize: 12.5, fontWeight: 800, letterSpacing: '0.06em',
-              boxShadow: '0 4px 10px rgba(242,92,124,0.35)',
+              boxShadow: '0 4px 10px rgba(242,103,92,0.35)',
             }}>{t('core4.trendBadge', { n: idx + 1 })}</div>
             {/* 스타일 정보 */}
-            <div style={{ flex: 'none', padding: '10px 14px 14px', background: 'linear-gradient(180deg, rgba(253,238,243,0.8), #fdeef3 45%)', textAlign: 'center' }}>
+            <div style={{ flex: 'none', padding: '10px 14px 14px', background: 'linear-gradient(180deg, rgba(253,239,238,0.8), #fdefee 45%)', textAlign: 'center' }}>
               <div style={{ fontSize: 'clamp(22px, 3.2vh, 32px)', fontWeight: 800, color: 'var(--accent)', letterSpacing: '-0.01em' }}>
                 {t(`core4.styles.${card}.name`)}
               </div>
@@ -554,7 +554,7 @@ export function Core4Screen() {
               }}>{idx + 1} / {TREND_CARDS.length}</div>
             </div>
             {/* 드래그 방향 배지 */}
-            <motion.div className="dir-badge" style={{ left: 18, color: '#c9707f', borderColor: '#c9707f', opacity: useTransform(x, [-140, -40], [1, 0]) }}>
+            <motion.div className="dir-badge" style={{ left: 18, color: '#c97770', borderColor: '#c97770', opacity: useTransform(x, [-140, -40], [1, 0]) }}>
               {t('core4.dirs.notme')}
             </motion.div>
             <motion.div className="dir-badge" style={{ right: 18, color: 'var(--accent-deep)', borderColor: 'var(--accent-deep)', opacity: useTransform(x, [40, 140], [0, 1]) }}>
@@ -572,9 +572,9 @@ export function Core4Screen() {
         }}>
           <div style={{
             width: 42, height: 42, borderRadius: '50%', display: 'grid', placeItems: 'center',
-            background: 'rgba(255,255,255,0.92)', border: '2px solid rgba(242,92,124,0.35)',
+            background: 'rgba(255,255,255,0.92)', border: '2px solid rgba(242,103,92,0.35)',
             color: 'var(--accent)', fontSize: 19, fontWeight: 900,
-            boxShadow: '0 4px 14px rgba(242,92,124,0.25)',
+            boxShadow: '0 4px 14px rgba(242,103,92,0.25)',
           }}>↑</div>
         </div>
       </div>
@@ -676,7 +676,7 @@ export function Core5Screen() {
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
             {chips.map((c) => (
               <span key={c} style={{
-                padding: '4px 10px', borderRadius: 999, background: '#fdf1f4',
+                padding: '4px 10px', borderRadius: 999, background: '#fdf2f1',
                 border: '1px solid var(--card-border)', fontSize: 'clamp(10px, 1.4vh, 12.5px)',
                 fontWeight: 700, color: 'var(--ink-dim)', whiteSpace: 'nowrap',
               }}>{c}</span>
@@ -694,7 +694,7 @@ export function Core5Screen() {
               display: 'flex', alignItems: 'center', gap: 6, width: '100%',
               padding: '7px 8px', borderRadius: 26,
               background: decided ? 'rgba(255,255,255,0.55)' : 'rgba(255,255,255,0.8)',
-              border: `1.5px solid ${decided ? 'rgba(242,92,124,0.3)' : 'var(--card-border)'}`,
+              border: `1.5px solid ${decided ? 'rgba(242,103,92,0.3)' : 'var(--card-border)'}`,
               transition: 'all 0.2s',
             }}>
               {p.options.map((opt, oi) => {
@@ -704,7 +704,7 @@ export function Core5Screen() {
                     {oi === 1 && (
                       <span style={{
                         flex: 'none', width: 30, height: 30, borderRadius: '50%', display: 'grid', placeItems: 'center',
-                        background: '#fff', border: '1.5px solid rgba(242,92,124,0.35)',
+                        background: '#fff', border: '1.5px solid rgba(242,103,92,0.35)',
                         fontSize: 11, fontWeight: 900, color: 'var(--accent)', letterSpacing: '-0.02em',
                       }}>VS</span>
                     )}
@@ -728,7 +728,7 @@ export function Core5Screen() {
               })}
               <span style={{
                 flex: 'none', width: 22, textAlign: 'center', fontSize: 11, fontWeight: 800,
-                color: decided ? 'var(--accent)' : 'rgba(96,58,72,0.35)',
+                color: decided ? 'var(--accent)' : 'rgba(96,61,58,0.35)',
               }}>{decided ? '✓' : idx + 1}</span>
             </div>
           );
@@ -743,10 +743,10 @@ export function Core5Screen() {
             {t('core5.gauge')} <span style={{ color: 'var(--accent)' }}>✦</span>
           </p>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 6 }}>
-            <div style={{ flex: 1, height: 16, borderRadius: 999, background: '#f7e7ec', overflow: 'hidden' }}>
+            <div style={{ flex: 1, height: 16, borderRadius: 999, background: '#f7e8e7', overflow: 'hidden' }}>
               <div className="fill-anim" style={{
                 height: '100%', width: `${gauge ?? 0}%`, borderRadius: 999,
-                background: 'linear-gradient(90deg, #fa93ad, var(--accent-deep))',
+                background: 'linear-gradient(90deg, #fa9b93, var(--accent-deep))',
               }} />
             </div>
             <span style={{ fontSize: 'clamp(18px, 2.6vh, 26px)', fontWeight: 900, color: 'var(--accent)', minWidth: 54, textAlign: 'right' }}>
