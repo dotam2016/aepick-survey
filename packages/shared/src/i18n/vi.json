@@ -15,7 +15,7 @@
     "progressLabel": "{n} of 6 · Your Beauty DNA is blooming"
   },
   "attract": {
-    "headline": "Gặp Beauty DNA của riêng bạn sau 5 phút.",
+    "headline": "Khám phá Beauty DNA của riêng bạn chỉ sau 5 phút",
     "sub": "Six Picks. One Beauty Identity.",
     "participants": "Đã có {n} người tham gia",
     "participantsLabel": "Khách tham gia hôm nay",
@@ -25,7 +25,7 @@
       "Gợi ý thương hiệu"
     ],
     "topDna": "DNA phổ biến nhất hôm nay · {persona}",
-    "topDnaLabel": "🔥 DNA được chọn nhiều nhất"
+    "topDnaLabel": "🔥 Beauty DNA phổ biến nhất"
   },
   "consent": {
     "title": "Trước khi bắt đầu",
@@ -53,14 +53,13 @@
     "qrScanCameraError": "Không thể truy cập camera. Vui lòng cho phép quyền camera hoặc nhập tay bên dưới."
   },
   "intro": {
-    "title": "Sáu lựa chọn sẽ hé lộ\nBeauty DNA của riêng bạn",
-    "sub": "Mỗi lựa chọn thắp sáng một viên Beauty Gem —\ncuối cùng bạn sẽ nhận gợi ý thương hiệu dành riêng cho mình."
+    "title": "6 lựa chọn, 1 Beauty DNA dành riêng cho bạn",
+    "sub": "Mỗi lựa chọn thắp sáng một Beauty Gem –\n6 viên gem, 1 Beauty DNA dành riêng cho bạn"
   },
   "core1": {
     "title": "EMPTY BOTTLE CHALLENGE",
     "question": "Sản phẩm nào bạn sẽ **dùng đến hết và mua lại**?",
-    "hint": "Lật xem câu chuyện của từng sản phẩm, rồi kéo lựa chọn của bạn vào vùng REPICK.",
-    "tapStory": "Chạm để xem câu chuyện",
+    "dragHint": "Kéo và thả",
     "footerNudge": "Hãy chọn sản phẩm khiến bạn hài lòng lâu dài",
     "repickZone": "REPICK",
     "stageLabels": [
@@ -72,6 +71,8 @@
     "products": {
       "A": {
         "name": "Viral Glow Serum",
+        "persona": "Món đang hot hoặc mới lạ",
+        "personaHint": "– thích thử và dễ FOMO một sản phẩm mới",
         "stage1": "Da căng bóng ngay lập tức! Y như trên mạng.",
         "stage2": "Cảm giác không còn 'wow' như lời đồn.",
         "stage3": "Không chắc có thay đổi thật sự.",
@@ -79,6 +80,8 @@
       },
       "B": {
         "name": "Steady Barrier Cream",
+        "persona": "Món có hiệu quả rõ rệt",
+        "personaHint": "– thấy hiệu quả là muốn dùng mãi",
         "stage1": "Ấn tượng đầu khá bình thường, dịu nhẹ.",
         "stage2": "Da dễ chịu hơn từng ngày.",
         "stage3": "Buổi chiều không còn căng rát. Thay đổi thật sự.",
@@ -86,6 +89,8 @@
       },
       "C": {
         "name": "Classic Daily Lotion",
+        "persona": "Món “must-have”",
+        "personaHint": "– dùng mỗi ngày, hết là phải mua lại",
         "stage1": "Cảm giác quen thuộc, không bao giờ thất vọng.",
         "stage2": "Đồ quen dùng vẫn là nhất.",
         "stage3": "Luôn ổn định và dễ chịu.",
@@ -101,8 +106,8 @@
   },
   "core2": {
     "title": "BEAUTY BUDGET",
-    "question": "Bạn sẽ đầu tư 10 Beauty Coin vào đâu?",
-    "hint": "Kéo coin để đầu tư (tối đa 4 coin mỗi mục)",
+    "question": "10 Beauty Coin, bạn sẽ chọn đầu tư vào đâu?",
+    "hint": "Hãy phân bổ 10 Beauty Coin theo cách của bạn · Tối đa 4 Coin/mục",
     "remaining": "Còn lại {n} coin",
     "footerNudge": "Hãy chia coin cho giá trị bạn coi trọng nhất",
     "slots": {
@@ -125,20 +130,20 @@
   },
   "core3": {
     "title": "BEAUTY SHIELD",
-    "question": "Tìm những tín hiệu đáng tin cậy",
-    "hint": "Chọn 3 tín hiệu đáng tin trong 10 giây!",
+    "question": "Nhận diện những dấu hiệu đáng tin cậy",
+    "hint": "Chọn 3 dấu hiệu đáng tin cậy trong 10 giây!",
     "cards": {
-      "fullIngredients": "Công khai bảng thành phần",
-      "realTest": "Kiểm nghiệm sử dụng thật",
-      "caution": "Lưu ý khi sử dụng",
-      "skinType": "Hướng dẫn theo loại da",
-      "realReviews": "Đánh giá mua hàng thật",
-      "bestSeller": "Bán chạy số 1",
-      "celebrity": "Người nổi tiếng khuyên dùng",
-      "overclaim": "Quảng cáo hiệu quả thái quá"
+      "fullIngredients": "Minh bạch bảng thành phần",
+      "realTest": "Được kiểm nghiệm thực tế",
+      "caution": "Bao bì/visual chuyên nghiệp",
+      "skinType": "Hướng dẫn phù hợp với từng loại da",
+      "realReviews": "Nhiều đánh giá 5 sao",
+      "bestSeller": "Sản phẩm HOT bán chạy",
+      "celebrity": "Được người nổi tiếng khuyên dùng",
+      "overclaim": "Hiệu quả vượt trội theo quảng cáo"
     },
     "riskNudge": "Nghe hấp dẫn đấy — nhưng có kiểm chứng được không?",
-    "footerNudge": "Hãy chọn thông tin kiểm chứng được thay vì quảng cáo",
+    "footerNudge": "Ưu tiên thông tin có thể kiểm chứng, thay vì chỉ tin vào quảng cáo",
     "complete": {
       "ingredient": "Bạn coi trọng thông tin kiểm chứng được hơn quảng cáo hào nhoáng.",
       "expert": "Bạn tin vào kiểm nghiệm và dữ liệu chuyên môn — thật cẩn trọng.",
@@ -147,15 +152,15 @@
     }
   },
   "core4": {
-    "title": "NEXT BEAUTY WAVE",
-    "question": "Chọn Beauty Wave tiếp theo",
-    "hint": "Vuốt thẻ để thể hiện gu hiện tại và xu hướng kế tiếp của bạn",
+    "title": "Đâu là Beauty Wave dành cho bạn?",
+    "question": "",
+    "hint": "Vuốt để chọn xu hướng làm đẹp hợp gu bạn nhất",
     "trendBadge": "TREND {n}",
     "footerNudge": "Beauty DNA của bạn đang cảm nhận một làn sóng mới!",
     "dirs": {
-      "notme": "Không hợp tôi",
+      "notme": "Không hợp gu",
       "next": "Sẽ thử sau",
-      "love": "Thích ngay"
+      "love": "Mê ngay"
     },
     "styles": {
       "glassSkin": {
@@ -193,9 +198,9 @@
   },
   "core5": {
     "title": "HANOI BEAUTY WEATHER LAB",
-    "question": "Combo nào hợp nhất với Hà Nội hôm nay?",
-    "hint": "Chọn các thuộc tính phù hợp với tình huống",
-    "gauge": "Độ phù hợp hôm nay",
+    "question": "Combo nào hợp nhất với Hà Nội hôm nay ?",
+    "hint": "Chọn tiêu chí phù hợp nhất với tình huống hôm nay",
+    "gauge": "Độ phù hợp với hôm nay",
     "fitReady": "Hoàn thành combo để xem độ phù hợp",
     "footerNudge": "Bạn đang tìm ra routine hợp với hoàn cảnh",
     "chips": {
@@ -241,7 +246,7 @@
       "rainy-commute": "Đi làm ngày mưa · giữa ô và mũ bảo hiểm",
       "outdoor-date": "Hẹn hò ngoài trời nắng đẹp · chụp nhiều ảnh",
       "aircon-office": "Ngồi điều hòa nhiều giờ · chống lại khô da",
-      "weekend-trip": "Du lịch cuối tuần · hành lý gọn nhẹ",
+      "weekend-trip": "Vi vu cuối tuần · hành lý gọn nhẹ",
       "evening-party": "Tiệc tối · tỏa sáng lâu dưới ánh đèn"
     },
     "attributes": {
@@ -274,24 +279,24 @@
     }
   },
   "core6": {
-    "title": "REVIEW DETECTIVE",
-    "question": "Tìm đánh giá đáng tin cậy nhất",
-    "hint": "Chạm kính lúp để xem kỹ các manh mối",
+    "title": "Tìm review đáng tin cậy nhất",
+    "question": "",
+    "hint": "Soi kỹ từng manh mối để tìm review đáng tin nhất",
     "reviews": {
       "A": {
         "text": "Đỉnh của chóp! Mua ngay đi!!",
         "meta": "★★★★★ · đăng hôm qua",
-        "clue1": "5 sao · không có chi tiết sử dụng",
+        "clue1": "5 sao nhưng không có trải nghiệm cụ thể",
         "clue2": "Chưa xác minh mua hàng"
       },
       "B": {
-        "text": "Mình da hỗn hợp. Lúc đầu hơi dính nhưng sau một tuần, da bớt căng rát buổi chiều hẳn.",
+        "text": "Da mình là da hỗn hợp thiên khô. Lúc đầu hơi dính, nhưng sau khoảng một tuần dùng thì vùng má đỡ khô căng hơn.",
         "meta": "★★★★ · 2 ảnh thật",
         "clue1": "Ghi rõ loại da & thời gian dùng",
         "clue2": "Có ảnh sử dụng thật"
       },
       "C": {
-        "text": "Thấy nổi trên mạng nên mua thử.",
+        "text": "Thấy đang hot trên mạng nên mua thử.",
         "meta": "♥ 2.4k · bài viết hot",
         "clue1": "2.400 lượt thích",
         "clue2": "Không có chi tiết sử dụng"
@@ -306,61 +311,61 @@
     }
   },
   "dna": {
-    "analyzing": "Đang phân tích\nBeauty DNA của bạn",
-    "analyzingSub": "Đang kết hợp 6 lựa chọn thành kết quả của riêng bạn\nVui lòng đợi trong giây lát",
+    "analyzing": "Đang giải mã\nBeauty DNA của bạn",
+    "analyzingSub": "Đang tổng hợp 6 lựa chọn để tạo kết quả dành riêng cho bạn\nChỉ còn một chút nữa thôi!",
     "analyzingProgress": "Đang phân tích",
-    "analyzingComing": "Kết quả Beauty DNA của bạn sắp xuất hiện",
-    "youAre": "You are a",
-    "resultBadge": "Beauty DNA Result",
+    "analyzingComing": "Kết quả Beauty DNA sắp được hé lộ",
+    "youAre": "Bạn là",
+    "resultBadge": "Kết quả Beauty DNA",
     "percentile": "Chỉ {p}% khách hôm nay có DNA này",
-    "viewAura": "Xem Beauty Aura của tôi",
+    "viewAura": "Khám phá Beauty Aura của tôi",
     "personas": {
       "loyalGlowKeeper": {
-        "desc": "Bạn nhận ra điều gì vẫn tuyệt vời theo thời gian.\nMột lựa chọn tốt tỏa sáng thật lâu.",
+        "desc": "Bạn nhận ra những sản phẩm có thể mang lại sự hài lòng và giá trị lâu dài",
         "keywords": [
-          "TầmNhìnDài",
+          "TầmNhìnXa",
           "BềnBỉ",
           "TinCậy"
         ]
       },
       "smartBeautyCurator": {
-        "desc": "So sánh, kiểm chứng rồi mới chọn.\nMọi món đồ của bạn đều có lý do.",
+        "desc": "Bạn lựa chọn sau khi so sánh và kiểm chứng kỹ lưỡng",
         "keywords": [
-          "PhânTích",
-          "ĐángGiá",
+          "SoSánhPhânTích",
+          "ĐángTiền",
           "KiểmChứng"
         ]
       },
       "trendMuse": {
-        "desc": "Bạn khám phá làn sóng làm đẹp tiếp theo trước tiên\nvà thể hiện theo cách riêng.",
+        "desc": "Bạn là người nắm bắt sớm những làn sóng làm đẹp mới",
         "keywords": [
-          "DẫnXuHướng",
-          "TinhTế",
-          "PhóngKhoáng"
+          "Trendsetter",
+          "CảmNhận",
+          "Playful"
         ]
       },
       "localBeautyExpert": {
-        "desc": "Bạn biết vẻ đẹp nào hợp với\nngày của bạn và thành phố của bạn.",
+        "desc": "Bạn biết rõ sản phẩm nào phù hợp chính xác với dailylife của mình",
         "keywords": [
           "ThựcTế",
-          "HợpNhịpSống",
-          "ThôngThái"
+          "LifeFit",
+          "ThôngMinh"
         ]
       },
       "trustGuardian": {
-        "desc": "Bạn kiểm tra kỹ thông tin và trải nghiệm.\nSự cẩn trọng bảo vệ làn da bạn.",
+        "desc": "Bạn thường kiểm tra kỹ thông tin và trải nghiệm thực tế của sản phẩm",
         "keywords": [
-          "ThànhPhần",
-          "CẩnTrọng",
-          "AnTâm"
+          "KiểmTraThànhPhần",
+          "ThậnTrọng",
+          "YênTâm"
         ]
       },
       "beautyExplorer": {
-        "desc": "Nhà thám hiểm tìm cả sự mới mẻ lẫn giá trị bền lâu.\nBạn không ngừng mở rộng bản đồ cái đẹp.",
+        "desc": "Bạn hay khám phá vừa tìm kiếm sự mới mẻ vừa duy trì lâu dài",
         "keywords": [
           "TòMò",
-          "DámThử",
-          "ChấtRiêng"
+          "ThửThách",
+          "LốiĐiRiêng"
         ]
       }
     },
@@ -374,33 +379,29 @@
     }
   },
   "qr": {
-    "scanTitle": "Scan to keep your Beauty DNA",
-    "retention": "Trang kết quả có hiệu lực trong 48 giờ",
-    "deleteNotice": "Bạn có thể xóa ngay bất cứ lúc nào trên trang kết quả",
+    "scanTitle": "Quét mã để lưu Beauty DNA của bạn",
+    "retention": "Kết quả được lưu trong 48 giờ",
+    "deleteNotice": "Bạn có thể xóa kết quả bất cứ lúc nào",
     "productsTitle": "Dành riêng cho {persona}",
     "finish": "Kết thúc"
   },
   "resultWeb": {
-    "title": "My AEPICK Beauty DNA",
+    "greeting": "Xin chào, {name}",
+    "subtitle": "Đây là kết quả Beauty DNA của bạn",
     "download": "Lưu ảnh",
     "story": "Story 9:16",
     "feed": "Feed 4:5",
     "card": "Thẻ DNA",
-    "share": "Chia sẻ",
-    "couponTitle": "Coupon riêng cho pop-up",
-    "couponDesc": "Đưa màn hình này tại cửa hàng",
-    "productsTitle": "Gợi ý theo DNA của tôi",
-    "brandsTitle": "Thương hiệu hợp với DNA của bạn",
-    "brandsDesc": "Những thương hiệu AEPICK gần nhất với tiêu chí của bạn",
-    "shopButton": "Xem trên Shopee",
+    "brandsTitle": "Beauty Picks dành cho riêng bạn",
+    "brandsDesc": "Dựa trên Beauty DNA của bạn, aépick đã chọn ra những sản phẩm phù hợp nhất dành cho bạn",
     "deleteNow": "Xóa dữ liệu của tôi ngay",
     "deleteConfirm": "Ảnh kết quả và dữ liệu sẽ bị xóa ngay lập tức. Tiếp tục?",
     "deleted": "Đã xóa thành công",
     "expired": "Kết quả này đã hết hạn lưu trữ và bị xóa",
     "expiresIn": "Còn {h} giờ lưu trữ",
-    "voteTitle": "Bình chọn sản phẩm",
-    "voteDesc": "Sau khi trải nghiệm các thương hiệu, hãy chọn 3 sản phẩm bạn thích nhất.",
-    "voteCta": "Đi bình chọn →",
+    "voteTitle": "Chọn sản phẩm bạn yêu thích 💕",
+    "voteDesc": "Đã đến lúc chọn 3 sản phẩm khiến bạn ấn tượng nhất!",
+    "voteCta": "Bình chọn ngay →",
     "voteDone": "Bạn đã bình chọn xong"
   },
   "products": {
@@ -419,17 +420,17 @@
   },
   "vote": {
     "pageTitle": "AEPICK — Bình chọn sản phẩm",
-    "pickTitle": "Hãy chọn {n} sản phẩm bạn thích nhất",
-    "pickSub": "Chọn trong những sản phẩm bạn đã trải nghiệm.<br/>Sau khi bình chọn xong, hãy đưa màn hình cho nhân viên.",
+    "pickTitle": "Hãy chọn {n} sản phẩm bạn yêu thích nhất.",
+    "pickSub": "Chọn trong những sản phẩm bạn đã trải nghiệm.<br/>Sau khi hoàn tất bình chọn, vui lòng đưa màn hình này cho nhân viên xác nhận để nhận dấu lên thẻ hành trình.",
     "loading": "Đang tải…",
     "loadError": "Không tải được thông tin bình chọn.<br/>Vui lòng liên hệ nhân viên.",
     "limitAlert": "Bạn chỉ được chọn tối đa {n}. Bỏ chọn để đổi.",
-    "voteBtn": "Bình chọn",
+    "voteBtn": "Bình chọn ngay",
     "voteBtnSending": "Đang gửi…",
     "voteFail": "Bình chọn thất bại. Vui lòng thử lại.",
     "netError": "Lỗi mạng. Vui lòng thử lại.",
     "donePageTitle": "AEPICK — Bình chọn hoàn tất",
-    "doneTitle": "Bình chọn hoàn tất!",
+    "doneTitle": "Cảm ơn bạn đã tham gia bình chọn tại aépick",
     "doneSub": "Cảm ơn ý kiến của bạn.<br/><b>Hãy đưa màn hình này cho nhân viên.</b>",
     "rewardNote": "Sau khi nhân viên xác nhận, bạn sẽ nhận được quà tặng.",
     "rewardDone": "Đã hoàn tất tặng quà.",

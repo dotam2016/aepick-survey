@@ -97,6 +97,7 @@ create table if not exists brand_products (
   brand_id text not null,
   name text not null,
   price text,
+  list_price text,
   shop_url text,
   image_url text,
   sort_order integer not null default 0,
@@ -140,3 +141,4 @@ create unique index if not exists idx_event_registrations_external_id
 alter table sessions add column if not exists full_name text;
 alter table sessions add column if not exists gender text check (gender in ('male', 'female'));
 alter table sessions add column if not exists age_group text;
+alter table brand_products add column if not exists list_price text;

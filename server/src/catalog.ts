@@ -21,6 +21,7 @@ export interface CatalogProduct {
   brandId: string;
   name: Record<Language, string>;
   price: string;
+  listPrice: string;
   shopUrl: string;
   imageUrl: string | null;
   sortOrder: number;
@@ -50,7 +51,7 @@ interface BrandRow {
   persona_tags: string | null; axis_affinity: string | null; sort_order: number; active: number;
 }
 interface ProductRow {
-  id: string; brand_id: string; name: string; price: string | null; shop_url: string | null;
+  id: string; brand_id: string; name: string; price: string | null; list_price: string | null; shop_url: string | null;
   image_url: string | null; sort_order: number; active: number;
 }
 
@@ -75,6 +76,7 @@ function toProduct(r: ProductRow): CatalogProduct {
     brandId: r.brand_id,
     name: parse(r.name, { ko: '', en: '', vi: '' } as Record<Language, string>),
     price: r.price ?? '',
+    listPrice: r.list_price ?? '',
     shopUrl: r.shop_url ?? '',
     imageUrl: r.image_url,
     sortOrder: r.sort_order,
@@ -138,6 +140,7 @@ export interface ProductInput {
   brandId: string;
   name?: Record<string, string>;
   price?: string;
+  listPrice?: string;
   shopUrl?: string;
   imageUrl?: string | null;
   sortOrder?: number;
@@ -146,14 +149,14 @@ export interface ProductInput {
 
 export async function upsertProduct(input: ProductInput): Promise<CatalogProduct | undefined> {
   await run(
-    `INSERT INTO brand_products (id, brand_id, name, price, shop_url, image_url, sort_order, active, updated_at)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+    `INSERT INTO brand_products (id, brand_id, name, price, list_price, shop_url, image_url, sort_order, active, updated_at)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
      ON CONFLICT (id) DO UPDATE SET
-       brand_id=excluded.brand_id, name=excluded.name, price=excluded.price, shop_url=excluded.shop_url,
-       image_url=excluded.image_url, sort_order=excluded.sort_order, active=excluded.active,
+       brand_id=excluded.brand_id, name=excluded.name, price=excluded.price, list_price=excluded.list_price,
+       shop_url=excluded.shop_url, image_url=excluded.image_url, sort_order=excluded.sort_order, active=excluded.active,
        updated_at=excluded.updated_at`,
     [
-      input.id, input.brandId, JSON.stringify(input.name ?? {}), input.price ?? '',
+      input.id, input.brandId, JSON.stringify(input.name ?? {}), input.price ?? '', input.listPrice ?? '',
       input.shopUrl ?? '', input.imageUrl ?? null, input.sortOrder ?? 0,
       input.active === false ? 0 : 1, now(),
     ],

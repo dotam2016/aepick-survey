@@ -79,7 +79,7 @@ function GameShell({ screen, title, question, hint, children, toast, onToastDone
       <Deco name="heart-glossy" style={{ top: '7%', right: '-6%', width: '17%', animationDelay: '2.2s', opacity: 0.75 }} />
       <ProgressGems current={screen} />
       <h2 className="title">{title}</h2>
-      <p className="question" style={{ marginTop: 8 }}><AccentText text={question} /></p>
+      {question && <p className="question" style={{ marginTop: 8 }}><AccentText text={question} /></p>}
       {hint && <p className="hint" style={{ marginTop: 6 }}>{hint}</p>}
       <div className="game-body">{children}</div>
       {toast && <CompleteToast message={toast} onDone={onToastDone} />}
@@ -141,11 +141,11 @@ export function Core1Screen() {
   };
 
   return (
-    <GameShell screen="core1" title={t('core1.title')} question={t('core1.question')} hint={t('core1.hint')}
+    <GameShell screen="core1" title={t('core1.title')} question={t('core1.question')}
       toast={toast} onToastDone={advance}>
       {/* 제품 카드 3장 (시안: 스테이지 배지 + 일러스트 + 이름 + 스토리 보기) */}
       <div style={{ display: 'flex', gap: 12, width: '100%' }}>
-        {(['A', 'B', 'C'] as const).map((p, idx) => {
+        {(['A', 'B', 'C'] as const).map((p) => {
           const theme = PRODUCT_THEMES[p];
           return (
             <motion.div key={p} drag dragSnapToOrigin dragMomentum={false} whileDrag={{ scale: 1.08, zIndex: 50 }}
@@ -159,30 +159,26 @@ export function Core1Screen() {
                 display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
               }}
               onClick={() => { if (!dragging.current) openProduct(p); }}>
-              {/* 스테이지 배지 */}
-              <div style={{
-                padding: '4px 14px', borderRadius: 999, fontSize: 11, fontWeight: 800, color: '#fff',
-                background: theme.badge, boxShadow: '0 3px 8px rgba(0,0,0,0.12)',
-              }}>{stageLabels[idx]}</div>
               <ProductArt id={p} />
-              <div style={{ fontWeight: 800, fontSize: 'clamp(12px, 1.7vh, 15px)', color: 'var(--ink)', lineHeight: 1.25 }}>
-                {t(`core1.products.${p}.name`)}
+              <div style={{ fontWeight: 600, fontSize: 'clamp(11px, 1.6vh, 13px)', color: 'var(--ink-dim)', lineHeight: 1.3 }}>
+                {t(`core1.products.${p}.persona`)}
               </div>
-              <div style={{
-                display: 'inline-flex', alignItems: 'center', gap: 4, padding: '4px 10px', borderRadius: 999,
-                background: 'rgba(255,255,255,0.75)', fontSize: 10.5, fontWeight: 700,
-                color: viewed[p] > 0 ? 'var(--accent)' : 'var(--ink-dim)',
-              }}>
-                {viewed[p] > 0 ? `${viewed[p]}/4 ✓` : <>{t('core1.tapStory')} ›</>}
+              <div style={viewed[p] > 0
+                ? {
+                  display: 'inline-flex', alignItems: 'center', gap: 4, padding: '4px 10px', borderRadius: 999,
+                  background: 'rgba(255,255,255,0.75)', fontSize: 10.5, fontWeight: 700, color: 'var(--accent)',
+                }
+                : { fontSize: 'clamp(11px, 1.6vh, 13px)', fontWeight: 600, color: 'var(--ink-dim)', lineHeight: 1.3 }}>
+                {viewed[p] > 0 ? `${viewed[p]}/4 ✓` : t(`core1.products.${p}.personaHint`)}
               </div>
             </motion.div>
           );
         })}
       </div>
 
-      {/* TAP / SWIPE 힌트 */}
+      {/* 드래그 힌트 */}
       <p style={{ fontSize: 'clamp(12px, 1.6vh, 15px)', fontWeight: 700, color: 'var(--ink-dim)', letterSpacing: '0.14em' }}>
-        👆 TAP / SWIPE
+        👆 {t('core1.dragHint')}
       </p>
 
       {/* REPICK 드롭존 (시안: 점선 대시 + 글로시 핑크) */}
@@ -567,7 +563,7 @@ export function Core4Screen() {
         </AnimatePresence>
         {/* 상단 ↑ 방향 배지 + 라벨 (위로 스와이프 = 다음에 해볼래요) */}
         <div style={{
-          position: 'absolute', top: 0, left: '50%', transform: 'translate(-50%, -100%)', zIndex: 3,
+          position: 'absolute', top: '12px', left: '50%', transform: 'translate(-50%, -100%)', zIndex: 3,
           display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, pointerEvents: 'none',
         }}>
           <div style={{
@@ -593,11 +589,9 @@ export function Core4Screen() {
             }}
             onClick={() => swipe(b.dir)}>
             <span style={{ fontSize: 'clamp(15px, 2.1vh, 19px)', fontWeight: 900 }}>{b.arrow}</span>
-            {b.dir !== 'next' && (
-              <span style={{ fontSize: 'clamp(11px, 1.6vh, 14px)', fontWeight: 800, whiteSpace: 'nowrap' }}>
-                {t(`core4.dirs.${b.dir}`)}
-              </span>
-            )}
+            <span style={{ fontSize: 'clamp(11px, 1.6vh, 14px)', fontWeight: 800, whiteSpace: 'nowrap' }}>
+              {t(`core4.dirs.${b.dir}`)}
+            </span>
           </button>
         ))}
       </div>

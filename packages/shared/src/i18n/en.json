@@ -14,7 +14,7 @@
     "progressLabel": "{n} of 6 · Your Beauty DNA is blooming"
   },
   "attract": {
-    "headline": "Meet your Beauty DNA in 5 minutes.",
+    "headline": "Discover your own Beauty DNA in just 5 minutes",
     "sub": "Six Picks. One Beauty Identity.",
     "participants": "{n} people have joined so far",
     "participantsLabel": "Today's participants",
@@ -24,7 +24,7 @@
       "Brand picks for you"
     ],
     "topDna": "Today's top DNA · {persona}",
-    "topDnaLabel": "🔥 Most picked DNA"
+    "topDnaLabel": "🔥 Most popular Beauty DNA"
   },
   "consent": {
     "title": "Before we begin",
@@ -52,14 +52,13 @@
     "qrScanCameraError": "Couldn't access the camera. Please allow camera permission or fill in the fields below."
   },
   "intro": {
-    "title": "Six picks will reveal\nyour own Beauty DNA",
-    "sub": "A Beauty Gem lights up with every choice —\nand your own brand picks are waiting at the end."
+    "title": "6 Picks, 1 Beauty DNA made for you",
+    "sub": "Every pick lights up a Beauty Gem — 6 gems, 1 Beauty DNA made just for you"
   },
   "core1": {
     "title": "EMPTY BOTTLE CHALLENGE",
     "question": "Which product would you **finish and buy again**?",
-    "hint": "Flip through each product's story, then drag your pick to the REPICK zone.",
-    "tapStory": "Tap to see the story",
+    "dragHint": "TAP / SWIPE",
     "footerNudge": "Pick the one that satisfies you for long",
     "repickZone": "REPICK",
     "stageLabels": [
@@ -71,6 +70,8 @@
     "products": {
       "A": {
         "name": "Viral Glow Serum",
+        "persona": "Trending or brand-new",
+        "personaHint": "– loves trying new things, easily FOMOs",
         "stage1": "Instant glow! Just like on SNS.",
         "stage2": "The magic feels a little smaller than the hype.",
         "stage3": "Not sure I see a real change.",
@@ -78,6 +79,8 @@
       },
       "B": {
         "name": "Steady Barrier Cream",
+        "persona": "Visibly effective",
+        "personaHint": "– once it works, you keep coming back",
         "stage1": "A mild, unremarkable first impression.",
         "stage2": "My skin feels calmer day by day.",
         "stage3": "No tightness even in the afternoon. Real change.",
@@ -85,6 +88,8 @@
       },
       "C": {
         "name": "Classic Daily Lotion",
+        "persona": "The “must-have”",
+        "personaHint": "– an everyday staple, rebuy the moment it runs out",
         "stage1": "The comfort of an old favorite. Never fails.",
         "stage2": "Familiar really is best.",
         "stage3": "Steadily, reliably good.",
@@ -100,8 +105,8 @@
   },
   "core2": {
     "title": "BEAUTY BUDGET",
-    "question": "Where would you invest your 10 Beauty Coins?",
-    "hint": "Drag coins to invest (max 4 per value)",
+    "question": "10 Beauty Coins — where will you invest them?",
+    "hint": "Distribute your 10 Beauty Coins your way · Max 4 coins per item",
     "remaining": "{n} coins left",
     "footerNudge": "Share your coins with what matters most",
     "slots": {
@@ -124,20 +129,20 @@
   },
   "core3": {
     "title": "BEAUTY SHIELD",
-    "question": "Find the signals you can trust",
-    "hint": "Pick 3 trustworthy signals within 10 seconds!",
+    "question": "Spot the signals you can trust",
+    "hint": "Pick 3 trustworthy signals in 10 seconds!",
     "cards": {
-      "fullIngredients": "Full ingredient list",
-      "realTest": "Real usage test",
-      "caution": "Usage cautions",
-      "skinType": "Skin type guide",
-      "realReviews": "Verified reviews",
-      "bestSeller": "#1 best seller",
-      "celebrity": "Celebrity pick",
-      "overclaim": "Bold effect claims"
+      "fullIngredients": "Transparent ingredient list",
+      "realTest": "Tested in real use",
+      "caution": "Professional packaging & visuals",
+      "skinType": "Guide tailored to your skin type",
+      "realReviews": "Lots of 5-star reviews",
+      "bestSeller": "Hot, best-selling product",
+      "celebrity": "Recommended by a celebrity",
+      "overclaim": "Ad claims outstanding results"
     },
     "riskNudge": "Looks shiny — but can you verify it?",
-    "footerNudge": "Pick facts you can verify over advertising",
+    "footerNudge": "Prioritize information you can verify, not just advertising",
     "complete": {
       "ingredient": "You value verifiable facts over flashy ads.",
       "expert": "You trust expert testing and data — a careful mind.",
@@ -146,15 +151,15 @@
     }
   },
   "core4": {
-    "title": "NEXT BEAUTY WAVE",
-    "question": "Choose the next Beauty Wave",
-    "hint": "Swipe the cards to show your taste now and the trend next",
+    "title": "Which Beauty Wave is made for you?",
+    "question": "",
+    "hint": "Swipe to pick the beauty trend that suits you most",
     "trendBadge": "TREND {n}",
     "footerNudge": "Your Beauty DNA senses a brand-new wave!",
     "dirs": {
       "notme": "Not for me",
       "next": "I'll try next",
-      "love": "Love it now"
+      "love": "Love it"
     },
     "styles": {
       "glassSkin": {
@@ -192,7 +197,7 @@
   },
   "core5": {
     "title": "HANOI BEAUTY WEATHER LAB",
-    "question": "The best combo for today's Hanoi?",
+    "question": "Pick the best fit for today's situation",
     "hint": "Pick the attributes that fit the situation",
     "gauge": "Today's fit score",
     "fitReady": "Complete your combo to see the fit score",
@@ -273,24 +278,24 @@
     }
   },
   "core6": {
-    "title": "REVIEW DETECTIVE",
-    "question": "Find the review you can trust the most",
-    "hint": "Tap the magnifier to inspect the clues",
+    "title": "Find the most trustworthy review",
+    "question": "",
+    "hint": "Examine every clue to find the review you trust most",
     "reviews": {
       "A": {
         "text": "The best ever! Just buy it!!",
         "meta": "★★★★★ · posted yesterday",
-        "clue1": "5 stars · no usage details",
+        "clue1": "5 stars but no real experience shared",
         "clue2": "No verified purchase"
       },
       "B": {
-        "text": "Combination skin here. Slightly sticky at first, but after a week the afternoon tightness eased.",
+        "text": "My skin is combination-dry. Slightly sticky at first, but after about a week my cheeks felt less tight and dry.",
         "meta": "★★★★ · 2 photos",
         "clue1": "Skin type & duration stated",
         "clue2": "Real usage photos"
       },
       "C": {
-        "text": "Bought it because it's famous on SNS.",
+        "text": "Saw it trending online so I gave it a try.",
         "meta": "♥ 2.4k · trending post",
         "clue1": "2,400 likes",
         "clue2": "No usage details"
@@ -305,17 +310,17 @@
     }
   },
   "dna": {
-    "analyzing": "Analyzing your\nBeauty DNA",
-    "analyzingSub": "Weaving your six picks into a result of your own\nJust a moment, please",
+    "analyzing": "Decoding your\nBeauty DNA",
+    "analyzingSub": "Combining your six picks into a result made just for you\nAlmost there!",
     "analyzingProgress": "Analyzing",
-    "analyzingComing": "Your Beauty DNA result is almost here",
+    "analyzingComing": "Your Beauty DNA result is about to be revealed",
     "youAre": "You are a",
     "resultBadge": "Beauty DNA Result",
     "percentile": "Only {p}% of today's visitors share this DNA",
-    "viewAura": "See my Beauty Aura",
+    "viewAura": "Discover my Beauty Aura",
     "personas": {
       "loyalGlowKeeper": {
-        "desc": "You recognize what stays wonderful over time.\nYou make one good choice shine for long.",
+        "desc": "You recognize products that bring lasting satisfaction and real value.",
         "keywords": [
           "LongView",
           "Steady",
@@ -323,7 +328,7 @@
         ]
       },
       "smartBeautyCurator": {
-        "desc": "You compare, verify, then choose.\nEvery item on your shelf has a reason.",
+        "desc": "You choose only after comparing and verifying carefully.",
         "keywords": [
           "Analytical",
           "SmartValue",
@@ -331,7 +336,7 @@
         ]
       },
       "trendMuse": {
-        "desc": "You discover the next beauty wave first\nand express it your own way.",
+        "desc": "You're always the first to catch the next beauty wave.",
         "keywords": [
           "Trendsetter",
           "Sense",
@@ -339,7 +344,7 @@
         ]
       },
       "localBeautyExpert": {
-        "desc": "You know the beauty that fits\nyour day and your city.",
+        "desc": "You know exactly which products fit your daily life.",
         "keywords": [
           "Practical",
           "LifeFit",
@@ -347,7 +352,7 @@
         ]
       },
       "trustGuardian": {
-        "desc": "You check facts and experiences carefully.\nYour caution protects your skin.",
+        "desc": "You always check the facts and real experiences behind a product.",
         "keywords": [
           "Ingredients",
           "Careful",
@@ -355,7 +360,7 @@
         ]
       },
       "beautyExplorer": {
-        "desc": "An explorer seeking both novelty and lasting worth.\nYou keep widening the map of beauty.",
+        "desc": "You explore for novelty while still valuing what lasts.",
         "keywords": [
           "Curious",
           "Daring",
@@ -380,26 +385,22 @@
     "finish": "Finish"
   },
   "resultWeb": {
-    "title": "My AEPICK Beauty DNA",
+    "greeting": "Hi, {name}",
+    "subtitle": "Here's your Beauty DNA result",
     "download": "Save image",
     "story": "Story 9:16",
     "feed": "Feed 4:5",
     "card": "DNA card",
-    "share": "Share",
-    "couponTitle": "Pop-up exclusive coupon",
-    "couponDesc": "Show this screen at the store",
-    "productsTitle": "Matched to my DNA",
-    "brandsTitle": "Brands that match your DNA",
-    "brandsDesc": "The AEPICK brands closest to how you choose",
-    "shopButton": "View on Shopee",
+    "brandsTitle": "Beauty Picks made for you",
+    "brandsDesc": "Based on your Beauty DNA, aépick picked the products that suit you best",
     "deleteNow": "Delete my data now",
     "deleteConfirm": "Your result image and data will be deleted immediately. Continue?",
     "deleted": "Deleted successfully",
     "expired": "This result has expired and was deleted",
     "expiresIn": "{h} hours of storage left",
-    "voteTitle": "Product vote",
-    "voteDesc": "After trying the brands, pick your 3 favourite products.",
-    "voteCta": "Go to vote →",
+    "voteTitle": "Pick your favorite products 💕",
+    "voteDesc": "Time to pick the 3 products that impressed you most!",
+    "voteCta": "Vote now →",
     "voteDone": "You have already voted"
   },
   "products": {
@@ -419,16 +420,16 @@
   "vote": {
     "pageTitle": "AEPICK — Product Vote",
     "pickTitle": "Pick your {n} favorite products",
-    "pickSub": "Choose from the products you tried.<br/>When you're done, show this screen to staff.",
+    "pickSub": "Choose from the products you tried.<br/>When you're done, please show this screen to our staff to get a stamp on your journey card.",
     "loading": "Loading…",
     "loadError": "Couldn't load the vote.<br/>Please ask staff for help.",
     "limitAlert": "You can pick up to {n}. Deselect one to change.",
-    "voteBtn": "Submit vote",
+    "voteBtn": "Vote now",
     "voteBtnSending": "Sending…",
     "voteFail": "Vote failed. Please try again.",
     "netError": "Network error. Please try again.",
     "donePageTitle": "AEPICK — Vote complete",
-    "doneTitle": "Vote complete!",
+    "doneTitle": "Thank you for voting at aépick",
     "doneSub": "Thanks for your feedback.<br/><b>Please show this screen to staff.</b>",
     "rewardNote": "You'll get a gift after staff confirms.",
     "rewardDone": "Gift already given.",

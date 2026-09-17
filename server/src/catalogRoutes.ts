@@ -162,9 +162,10 @@ function render(){
     <div class="tags">\${AXES.map(a=>\`<span class="aff">\${a}
       <input style="width:56px" type="number" step="0.05" min="0" max="1" value="\${(b.axisAffinity||{})[a]??''}" onchange="setAff(\${bi},'\${a}',this.value)"/></span>\`).join('')}</div>
     <table>
-      <tr><th>제품명 (ko / en / vi)</th><th style="width:110px">가격</th><th style="width:150px">구매 링크</th><th style="width:60px">노출</th><th style="width:110px"></th></tr>
+      <tr><th>제품명 (ko / en / vi)</th><th style="width:100px">정가 (취소선)</th><th style="width:100px">판매가 (팝업 전용)</th><th style="width:150px">구매 링크</th><th style="width:60px">노출</th><th style="width:110px"></th></tr>
       \${b.products.map((p,pi)=>\`<tr>
         <td>\${LANGS.map(l=>\`<input style="width:31%" value="\${esc((p.name||{})[l]||'')}" onchange="setP(\${bi},\${pi},'name.\${l}',this.value)" placeholder="\${l}"/>\`).join(' ')}</td>
+        <td><input style="width:100%" value="\${esc(p.listPrice)}" onchange="setP(\${bi},\${pi},'listPrice',this.value)"/></td>
         <td><input style="width:100%" value="\${esc(p.price)}" onchange="setP(\${bi},\${pi},'price',this.value)"/></td>
         <td><input style="width:100%" value="\${esc(p.shopUrl)}" onchange="setP(\${bi},\${pi},'shopUrl',this.value)"/></td>
         <td><input type="checkbox" \${p.active?'checked':''} onchange="setP(\${bi},\${pi},'active',this.checked)"/></td>
@@ -187,6 +188,10 @@ function setP(bi,pi,path,v){const p=DATA[bi].products[pi];
 async function saveB(bi){
   const b=DATA[bi];
   const r=await fetch('/api/catalog/admin/brands/'+encodeURIComponent(b.id),{method:'PUT',headers:H,body:JSON.stringify(b)});
+  // 브랜드 저장 버튼 하나로 그 아래 제품 행들(가격 등)도 함께 저장한다 —
+  // 안 그러면 제품 칸만 고치고 브랜드 저장을 누른 사용자는 반영 안 된 줄 모르고 넘어간다.
+  if(r.ok) for(const p of b.products){ p.brandId=b.id;
+    await fetch('/api/catalog/admin/products/'+encodeURIComponent(p.id),{method:'PUT',headers:H,body:JSON.stringify(p)}); }
   toast(r.ok?'브랜드 저장됨':'저장 실패'); if(r.ok) load();
 }
 async function delB(bi){
@@ -213,7 +218,7 @@ function addBrand(){
 function addProduct(bi){
   const b=DATA[bi];
   const id=b.id+'p'+(b.products.length+1);
-  b.products.push({id,brandId:b.id,name:{},price:'',shopUrl:'',active:true,sortOrder:b.products.length});
+  b.products.push({id,brandId:b.id,name:{},price:'',listPrice:'',shopUrl:'',active:true,sortOrder:b.products.length});
   render(); saveP(bi,b.products.length-1);
 }
 load();

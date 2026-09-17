@@ -676,7 +676,7 @@ export function QrScreen() {
     if (s.resultToken) api.sendEvent('qr.issued', s.sessionId);
   }, [s.resultToken, s.sessionId]);
   return (
-    <div className="screen" style={{ justifyContent: 'center', gap: 20 }}>
+    <div className="screen" style={{ justifyContent: 'center', gap: 28 }}>
       <h1 className="display" style={{ fontSize: 'clamp(22px,3.2vh,34px)' }}>{t('qr.scanTitle')}</h1>
       {s.qrPngUrl ? (
         <div className="card" style={{ padding: 22, background: '#fff', borderRadius: 24 }}>
@@ -687,7 +687,7 @@ export function QrScreen() {
           <p className="hint">QR unavailable (offline)</p>
         </div>
       )}
-      <div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         <p className="hint">⏳ {t('qr.retention')}</p>
         <p className="hint">🗑 {t('qr.deleteNotice')}</p>
       </div>

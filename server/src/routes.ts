@@ -154,7 +154,7 @@ export function registerRoutes(app: FastifyInstance) {
     return ok({
       scores, persona: personaId, percentile, resultToken: token, qrPngUrl, resultUrl,
       brands: brands_out,
-      products: products.map((p) => ({ id: p.id, name: p.name, price: p.price, brandId: p.brandId })),
+      products: products.map((p) => ({ id: p.id, name: p.name, price: p.price, listPrice: p.listPrice, brandId: p.brandId })),
     });
   });
 
@@ -224,7 +224,8 @@ export function registerRoutes(app: FastifyInstance) {
     }
     await run(`UPDATE results SET scan_count=scan_count+1 WHERE token=$1`, [token]);
 
-    const session = await one<{ language: string }>(`SELECT language FROM sessions WHERE id=$1`, [row.session_id]);
+    const session = await one<{ language: string; full_name: string | null }>(
+      `SELECT language, full_name FROM sessions WHERE id=$1`, [row.session_id]);
     const scores = JSON.parse(row.scores) as Scores;
     const { topAxes } = determinePersona(scores);
     const recommended = await recommendBrands(row.persona, topAxes);
@@ -234,10 +235,13 @@ export function registerRoutes(app: FastifyInstance) {
     for (const b of recommended) for (const p of b.products) byId.set(p.id, p);
     const ids = JSON.parse(row.product_ids) as string[];
     const products = ids.map((pid) => byId.get(pid)).filter(Boolean).map((p) => ({
-      id: p!.id, name: p!.name, price: p!.price, shopUrl: p!.shopUrl, imageUrl: p!.imageUrl, brandId: p!.brandId,
+      id: p!.id, name: p!.name, price: p!.price, listPrice: p!.listPrice, shopUrl: p!.shopUrl, imageUrl: p!.imageUrl, brandId: p!.brandId,
     }));
 
-    return ok({ persona: row.persona, language: session?.language ?? 'vi', scores, products, brands, coupon: row.coupon_code, expiresAt: row.expires_at });
+    return ok({
+      persona: row.persona, language: session?.language ?? 'vi', fullName: session?.full_name ?? '',
+      scores, products, brands, coupon: row.coupon_code, expiresAt: row.expires_at,
+    });
   });
 
   /* 12. 즉시 삭제 */
