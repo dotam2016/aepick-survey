@@ -1,0 +1,10 @@
+.git
+.gitignore
+.env
+.env.local
+node_modules
+**/node_modules
+apps/kiosk/dist
+apps/kiosk/dist-fe-test
+server/data
+.idea
