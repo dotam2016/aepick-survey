@@ -1,0 +1,28 @@
+name: Deploy EC2
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: Deploy main
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$HOME/aepick-survey"
+
+          git fetch origin main
+          git checkout main
+          git pull --ff-only origin main
+
+          docker compose up -d --build --remove-orphans
+          docker image prune -f
+
+          docker compose ps
