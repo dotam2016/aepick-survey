@@ -19,29 +19,14 @@ services:
     build: .
     restart: unless-stopped
     env_file: .env
+    ports:
+      - "8787:8787"
     depends_on:
       db:
         condition: service_healthy
     volumes:
       - app_data:/app/server/data
 
-  caddy:
-    image: caddy:2-alpine
-    restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
-    environment:
-      DOMAIN: ${DOMAIN}
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - caddy_data:/data
-      - caddy_config:/config
-    depends_on:
-      - app
-
 volumes:
   postgres_data:
   app_data:
-  caddy_data:
-  caddy_config:

@@ -29,7 +29,10 @@ function getPool(): Pool {
       'Supabase -> Project Settings -> Database -> Connection string (URI, Transaction pooler).',
     );
   }
-  _pool = new Pool({ connectionString, ssl: { rejectUnauthorized: false } });
+  _pool = new Pool({
+  connectionString,
+  ssl: process.env.POSTGRES_SSL === '0' ? undefined : { rejectUnauthorized: false },
+  });
   _pool.on('error', (e) => console.error('[db] idle client error', e.message));
   return _pool;
 }
