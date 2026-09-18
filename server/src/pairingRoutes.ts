@@ -157,6 +157,9 @@ export function pairingPageHtml(code: string): string {
 </div>
 <script>
 const CODE=${JSON.stringify(code)};
+// API Gateway 등 스테이지 접두사(/prod 등) 뒤에 배포될 수 있어, 절대경로 '/api/...' 대신
+// 현재 페이지 경로에서 이 페이지 자신의 경로만 잘라내 접두사를 구한다.
+const ROOT=location.pathname.replace('/p/'+CODE,'');
 const DICTS=${JSON.stringify(dicts)};
 const LANG=(navigator.language||'vi').slice(0,2);
 const lookup=(d,p)=>p.split('.').reduce((n,k)=>n&&typeof n==='object'?n[k]:undefined,d);
@@ -178,7 +181,7 @@ el('go').onclick=async()=>{
   if(!credential){el('msg').textContent=t('pairing.credRequired');return}
   el('go').disabled=true; el('msg').textContent='';
   try{
-    const r=await fetch('/api/pairings/'+CODE+'/claim',{
+    const r=await fetch(ROOT+'/api/pairings/'+CODE+'/claim',{
       method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({credential,language:LANG})});
     const j=await r.json();

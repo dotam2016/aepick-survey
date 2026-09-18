@@ -75,6 +75,9 @@ export function votePageHtml(token: string): string {
 <script>
 const TOKEN=${JSON.stringify(token)};
 const NEED=${VOTE_PICK_COUNT};
+// API Gateway 등 스테이지 접두사(/prod 등) 뒤에 배포될 수 있어, 절대경로 '/api/...' 대신
+// 현재 페이지 경로에서 이 페이지 자신의 경로만 잘라내 접두사를 구한다.
+const ROOT=location.pathname.replace('/v/'+TOKEN,'');
 ${I18N_HELPERS}
 const picked=new Set();
 const el=id=>document.getElementById(id);
@@ -88,10 +91,10 @@ el('loadingMsg').textContent=t('vote.loading');
 el('go').textContent=t('vote.voteBtn');
 
 async function load(){
-  const r=await fetch('/api/vote/'+TOKEN+'/options');
+  const r=await fetch(ROOT+'/api/vote/'+TOKEN+'/options');
   if(!r.ok){el('list').innerHTML='<div class="msg">'+t('vote.loadError')+'</div>';return}
   const d=(await r.json()).data;
-  if(d.alreadyVoted){location.replace('/v/'+TOKEN+'/done');return}
+  if(d.alreadyVoted){location.replace(ROOT+'/v/'+TOKEN+'/done');return}
   el('list').innerHTML=d.brands.map(b=>\`
     <div class="brand">
       <div class="bh">
@@ -123,14 +126,14 @@ function tog(node){
 el('go').onclick=async()=>{
   el('go').disabled=true; el('go').textContent=t('vote.voteBtnSending');
   try{
-    const r=await fetch('/api/vote/'+TOKEN,{method:'POST',headers:{'Content-Type':'application/json'},
+    const r=await fetch(ROOT+'/api/vote/'+TOKEN,{method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({productIds:[...picked]})});
     const j=await r.json();
     if(!j.ok&&j.error&&j.error.code!=='already_voted'){
       alert(t('vote.voteFail'));
       el('go').disabled=false; el('go').textContent=t('vote.voteBtn'); return;
     }
-    location.replace('/v/'+TOKEN+'/done');
+    location.replace(ROOT+'/v/'+TOKEN+'/done');
   }catch(e){
     alert(t('vote.netError'));
     el('go').disabled=false; el('go').textContent=t('vote.voteBtn');
@@ -218,6 +221,9 @@ export function voteDonePageHtml(token: string): string {
 
 <script>
 const TOKEN=${JSON.stringify(token)};
+// API Gateway 등 스테이지 접두사(/prod 등) 뒤에 배포될 수 있어, 절대경로 '/api/...' 대신
+// 현재 페이지 경로에서 이 페이지 자신의 경로만 잘라내 접두사를 구한다.
+const ROOT=location.pathname.replace('/v/'+TOKEN+'/done','');
 ${I18N_HELPERS}
 const el=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -236,10 +242,10 @@ el('closeBtn2').textContent=t('vote.staff.closeBtn');
 el('rewardBtn').textContent=t('vote.staff.rewardBtn');
 
 (async function(){
-  const r=await fetch('/api/vote/'+TOKEN+'/status');
+  const r=await fetch(ROOT+'/api/vote/'+TOKEN+'/status');
   if(!r.ok)return;
   const d=(await r.json()).data;
-  if(!d.voted){location.replace('/v/'+TOKEN);return}
+  if(!d.voted){location.replace(ROOT+'/v/'+TOKEN);return}
   el('picks').innerHTML=d.picks.map(p=>
     '<div class="pick"><span class="e">'+esc(p.emoji)+'</span><span>'+nameOf(p.name)+
     '<div class="b">'+esc(p.brand)+'</div></span></div>').join('');
@@ -260,7 +266,7 @@ function closeSheet(){el('sheet').classList.remove('on');el('sform').style.displ
 
 async function staffLookup(){
   PIN=el('pin').value.trim();
-  const r=await fetch('/api/vote/'+TOKEN+'/staff',{method:'POST',headers:{'Content-Type':'application/json'},
+  const r=await fetch(ROOT+'/api/vote/'+TOKEN+'/staff',{method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({pin:PIN})});
   const j=await r.json();
   if(!j.ok){el('serr').textContent=t('vote.staff.pinError');return}
@@ -273,7 +279,7 @@ async function staffLookup(){
 }
 
 async function claim(){
-  const r=await fetch('/api/vote/'+TOKEN+'/reward',{method:'POST',headers:{'Content-Type':'application/json'},
+  const r=await fetch(ROOT+'/api/vote/'+TOKEN+'/reward',{method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({pin:PIN,staff:''})});
   const j=await r.json();
   if(!j.ok){

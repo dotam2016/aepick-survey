@@ -54,6 +54,9 @@ h2{font-size:17px;color:var(--accent);font-weight:800;letter-spacing:.02em}
 <div class="wrap" id="app"><div id="loading">Loading your Beauty DNA…</div></div>
 <script>
 const TOKEN=${JSON.stringify(token)};
+// API Gateway 등 스테이지 접두사(/prod 등) 뒤에 배포될 수 있어, 절대경로 '/api/...' 대신
+// 현재 페이지 경로에서 이 페이지 자신의 경로만 잘라내 접두사를 구한다.
+const ROOT=location.pathname.replace('/r/'+TOKEN,'');
 const DICTS=${JSON.stringify(dicts)};
 const PERSONAS=${JSON.stringify(PERSONAS)};
 const lookup=(d,p)=>p.split('.').reduce((n,k)=>n&&typeof n==='object'?n[k]:undefined,d);
@@ -62,7 +65,7 @@ const t=(k,v)=>{let r=lookup(DICTS[LANG],k)??lookup(DICTS.en,k);if(typeof r!=='s
   if(v)for(const[a,b]of Object.entries(v))r=r.replaceAll('{'+a+'}',b);return r};
 
 async function main(){
-  const res=await fetch('/api/results/'+TOKEN);
+  const res=await fetch(ROOT+'/api/results/'+TOKEN);
   const app=document.getElementById('app');
   if(res.status===410){app.innerHTML='<div id="loading">'+t('resultWeb.expired')+'</div>';return}
   if(!res.ok){app.innerHTML='<div id="loading">Error</div>';return}
@@ -75,7 +78,7 @@ async function main(){
 
   // 투표 여부에 따라 CTA 를 바꾼다. QR 은 한 번만 찍고 이 페이지에서 투표까지 간다.
   let voted=false;
-  try{ const vs=await fetch('/api/vote/'+TOKEN+'/status'); if(vs.ok) voted=(await vs.json()).data.voted; }catch(e){}
+  try{ const vs=await fetch(ROOT+'/api/vote/'+TOKEN+'/status'); if(vs.ok) voted=(await vs.json()).data.voted; }catch(e){}
 
   app.innerHTML=\`
     <div class="brand">aépick</div>
@@ -90,7 +93,7 @@ async function main(){
     <div class="card">
       <h2>\${t('resultWeb.voteTitle')}</h2>
       <p class="dim" style="margin:6px 0 12px">\${voted?t('resultWeb.voteDone'):t('resultWeb.voteDesc')}</p>
-      <a class="btn" href="/v/\${TOKEN}\${voted?'/done':''}">\${voted?t('resultWeb.voteDone'):t('resultWeb.voteCta')}</a>
+      <a class="btn" href="\${ROOT}/v/\${TOKEN}\${voted?'/done':''}">\${voted?t('resultWeb.voteDone'):t('resultWeb.voteCta')}</a>
     </div>
 
     <div class="card">
@@ -120,7 +123,7 @@ async function main(){
 }
 async function delMine(){
   if(!confirm(t('resultWeb.deleteConfirm')))return;
-  await fetch('/api/results/'+TOKEN,{method:'DELETE'});
+  await fetch(ROOT+'/api/results/'+TOKEN,{method:'DELETE'});
   document.getElementById('app').innerHTML='<div id="loading">'+t('resultWeb.deleted')+'</div>';
 }
 main();
@@ -172,10 +175,13 @@ th{color:var(--dim);font-weight:600}
 let KEY=localStorage.getItem('adminKey')||prompt('Admin key:',${JSON.stringify(ADMIN_KEY_IS_DEFAULT ? 'aepick-admin' : '')});
 localStorage.setItem('adminKey',KEY);
 const H={'X-Admin-Key':KEY};
+// API Gateway 등 스테이지 접두사(/prod 등) 뒤에 배포될 수 있어, 절대경로 '/api/...' 대신
+// 현재 페이지 경로에서 이 페이지 자신의 경로만 잘라내 접두사를 구한다.
+const ROOT=location.pathname.replace('/admin','');
 const el=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 el('exportBtn').onclick=async()=>{
-  const r=await fetch('/api/admin/export/sessions.xlsx',{headers:H});
+  const r=await fetch(ROOT+'/api/admin/export/sessions.xlsx',{headers:H});
   if(!r.ok){alert('Export failed');return}
   const blob=await r.blob();
   const url=URL.createObjectURL(blob);
@@ -189,9 +195,9 @@ const kpi=(label,value,suffix)=>'<div class="card"><h2>'+label+'</h2><div class=
 async function refresh(){
   try{
     const [ov,an,se]=await Promise.all([
-      fetch('/api/admin/overview',{headers:H}).then(r=>r.json()),
-      fetch('/api/admin/analytics',{headers:H}).then(r=>r.json()),
-      fetch('/api/admin/sessions',{headers:H}).then(r=>r.json()),
+      fetch(ROOT+'/api/admin/overview',{headers:H}).then(r=>r.json()),
+      fetch(ROOT+'/api/admin/analytics',{headers:H}).then(r=>r.json()),
+      fetch(ROOT+'/api/admin/sessions',{headers:H}).then(r=>r.json()),
     ]);
     if(!ov.ok){el('status').textContent='auth failed';localStorage.removeItem('adminKey');return}
     const o=ov.data,a=an.data;

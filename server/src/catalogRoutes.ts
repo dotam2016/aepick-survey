@@ -125,6 +125,9 @@ const H={'X-Admin-Key':KEY,'Content-Type':'application/json'};
 // 본문 없는 DELETE 에 Content-Type: application/json 을 붙이면
 // Fastify 가 "Body cannot be empty" 로 400 을 낸다. 인증 헤더만 보낸다.
 const HD={'X-Admin-Key':KEY};
+// API Gateway 등 스테이지 접두사(/prod 등) 뒤에 배포될 수 있어, 절대경로 '/api/...' 대신
+// 현재 페이지 경로에서 이 페이지 자신의 경로만 잘라내 접두사를 구한다.
+const ROOT=location.pathname.replace('/admin/catalog','');
 let DATA=[];
 const el=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -132,7 +135,7 @@ const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&g
 function toast(m){const s=el('status');s.textContent=m;s.classList.add('on');setTimeout(()=>s.classList.remove('on'),1600)}
 
 async function load(){
-  const r=await fetch('/api/catalog/admin',{headers:H});
+  const r=await fetch(ROOT+'/api/catalog/admin',{headers:H});
   if(r.status===401){localStorage.removeItem('adminKey');alert('관리자 키가 올바르지 않습니다.');location.reload();return}
   const j=await r.json();
   DATA=j.data.brands;
@@ -187,26 +190,26 @@ function setP(bi,pi,path,v){const p=DATA[bi].products[pi];
 
 async function saveB(bi){
   const b=DATA[bi];
-  const r=await fetch('/api/catalog/admin/brands/'+encodeURIComponent(b.id),{method:'PUT',headers:H,body:JSON.stringify(b)});
+  const r=await fetch(ROOT+'/api/catalog/admin/brands/'+encodeURIComponent(b.id),{method:'PUT',headers:H,body:JSON.stringify(b)});
   // 브랜드 저장 버튼 하나로 그 아래 제품 행들(가격 등)도 함께 저장한다 —
   // 안 그러면 제품 칸만 고치고 브랜드 저장을 누른 사용자는 반영 안 된 줄 모르고 넘어간다.
   if(r.ok) for(const p of b.products){ p.brandId=b.id;
-    await fetch('/api/catalog/admin/products/'+encodeURIComponent(p.id),{method:'PUT',headers:H,body:JSON.stringify(p)}); }
+    await fetch(ROOT+'/api/catalog/admin/products/'+encodeURIComponent(p.id),{method:'PUT',headers:H,body:JSON.stringify(p)}); }
   toast(r.ok?'브랜드 저장됨':'저장 실패'); if(r.ok) load();
 }
 async function delB(bi){
   if(!confirm('브랜드와 그 제품을 모두 삭제할까요?'))return;
-  const r=await fetch('/api/catalog/admin/brands/'+encodeURIComponent(DATA[bi].id),{method:'DELETE',headers:HD});
+  const r=await fetch(ROOT+'/api/catalog/admin/brands/'+encodeURIComponent(DATA[bi].id),{method:'DELETE',headers:HD});
   toast(r.ok?'삭제됨':'삭제 실패'); load();
 }
 async function saveP(bi,pi){
   const p=DATA[bi].products[pi]; p.brandId=DATA[bi].id;
-  const r=await fetch('/api/catalog/admin/products/'+encodeURIComponent(p.id),{method:'PUT',headers:H,body:JSON.stringify(p)});
+  const r=await fetch(ROOT+'/api/catalog/admin/products/'+encodeURIComponent(p.id),{method:'PUT',headers:H,body:JSON.stringify(p)});
   toast(r.ok?'제품 저장됨':'저장 실패'); if(r.ok) load();
 }
 async function delP(bi,pi){
   if(!confirm('이 제품을 삭제할까요?'))return;
-  const r=await fetch('/api/catalog/admin/products/'+encodeURIComponent(DATA[bi].products[pi].id),{method:'DELETE',headers:HD});
+  const r=await fetch(ROOT+'/api/catalog/admin/products/'+encodeURIComponent(DATA[bi].products[pi].id),{method:'DELETE',headers:HD});
   toast(r.ok?'삭제됨':'삭제 실패'); load();
 }
 function addBrand(){

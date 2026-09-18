@@ -409,9 +409,51 @@ export function IntroScreen() {
 const BRIDGE_MS = 3000;
 
 /**
+ * VN 브릿지 이미지는 문구가 아직 구워져 있지 않은 축들이 있어 텍스트를 오버레이한다.
+ * (progress dots 아래 / 사진 박스 아래, 모든 축이 같은 레이아웃 템플릿을 쓴다)
+ */
+const BRIDGE_VN_OVERLAY: Partial<Record<string, { text1: string; text1Size?: string; text2: string }>> = {
+  repick: {
+    text1: 'Một lựa chọn đáng nhớ là lựa chọn bạn muốn tìm lại.',
+    text2: 'Chờ một chút nhé ~ Hành trình Beauty DNA sẽ tiếp tục ngay sau đây...',
+  },
+  value: {
+    text1: 'Không chỉ là giá tốt, mà phải thật sự xứng đáng.\nKhám phá những sản phẩm được Aépick tuyển chọn, nơi chất lượng và vẻ đẹp tìm thấy sự cân bằng.',
+    text1Size: 'clamp(15px, 2vh, 40px)',
+    text2: 'Nơi bạn tìm thấy vẻ đẹp đích thực.',
+  },
+  care: {
+    text1: 'Hơn cả vẻ ngoài hào nhoáng, Aépick chọn sự an tâm làm tiêu chuẩn\nKhám phá những sản phẩm được Aépick tuyển chọn kỹ lưỡng, để bạn an tâm hơn trong từng lựa chọn cho làn da..',
+    text1Size: 'clamp(15px, 2vh, 40px)',
+    text2: 'Nơi vẻ đẹp bắt đầu từ thành phần và sự tin cậy',
+  },
+  trend: {
+    text1: 'Không chạy theo xu hướng, Aépick đón đầu vẻ đẹp tiếp theo.\nKhám phá những sản phẩm được tuyển chọn với cảm quan dẫn đầu xu hướng, mang đến những phong cách làm đẹp đang được yêu thích.',
+    text1Size: 'clamp(15px, 2vh, 40px)',
+    text2: 'Chạm đến vẻ đẹp của ngày mai',
+  },
+  trust: {
+    text1: 'Aépick không chỉ nhìn vào số đông, mà lắng nghe những trải nghiệm thật\nKhám phá những sản phẩm được tuyển chọn từ review chân thực, để mỗi lựa chọn làm đẹp đều thêm phần đáng tin cậy..',
+    text1Size: 'clamp(15px, 2vh, 40px)',
+    text2: 'Nơi niềm tin dẫn lối vẻ đẹp.',
+  },
+};
+
+/** VN 브릿지 이미지들의 실제 픽셀 비율 (축마다 디자이너가 다른 원본 크기로 낸 경우가 있다) */
+const BRIDGE_VN_ASPECT: Partial<Record<string, string>> = {
+  repick: '1024 / 1536',
+  value: '1024 / 1536',
+  care: '1024 / 1536',
+  trend: '941 / 1672',
+  trust: '941 / 1672',
+  localFit: '941 / 1672',
+};
+
+/**
  * 게임 사이 브랜드 메시지 화면.
  * 디자인 시안이 문구까지 포함된 완성 이미지이므로 전체 화면으로 그대로 표시한다.
- * (문구가 이미지에 구워져 있어 현재는 한국어 고정 — 언어별 이미지가 준비되면 확장)
+ * (문구가 이미지에 구워져 있어 언어별 이미지가 필요 — 베트남어는 public/assets/ui/vn/*-vn.png,
+ *  그 외 언어는 한국어 고정 이미지로 폴백한다)
  */
 export function BridgeScreen() {
   const { s, go, update } = useStore();
@@ -427,11 +469,43 @@ export function BridgeScreen() {
 
   if (!key) return null;
 
+  const src = s.language === 'vi' ? `/assets/ui/vn/bridge-${key}-vn.png` : ASSET(`bridge-${key}`, 'jpg');
+  // 래퍼를 원본 이미지 비율로 고정해두면 objectFit:contain과 동일하게 렌더링되므로,
+  // 오버레이 위치를 화면이 아닌 "이미지 안" 기준 %로 정확히 맞출 수 있다.
+  const overlay = s.language === 'vi' ? BRIDGE_VN_OVERLAY[key] : undefined;
+  const aspect = (s.language === 'vi' ? BRIDGE_VN_ASPECT[key] : undefined) ?? '1024 / 1536';
+
   return (
     <div className="screen" style={{ padding: 0, justifyContent: 'center' }}>
-      <motion.img key={key} src={ASSET(`bridge-${key}`, 'jpg')} alt="" draggable={false}
-        initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.35 }}
-        style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} />
+      <div style={{ position: 'relative', height: '100%', aspectRatio: aspect, maxWidth: '100%' }}>
+        <motion.img key={key} src={src} alt="" draggable={false}
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.35 }}
+          style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} />
+        {overlay && (
+          <>
+            <motion.p key={`${key}-t1`}
+              initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.35 }}
+              style={{
+                position: 'absolute', top: '19%', left: '10%', width: '80%', whiteSpace: 'pre-line',
+                fontWeight: 800, fontSize: overlay.text1Size ?? 'clamp(15px, 2.5vh, 40px)', lineHeight: 1.35,
+                color: 'var(--accent-deep, var(--accent))', textAlign: 'center',
+              }}>
+              {overlay.text1}
+            </motion.p>
+            <motion.p key={`${key}-t2`}
+              initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.35 }}
+              style={{
+                position: 'absolute', top: '75%', left: '9%', width: '82%', whiteSpace: 'pre-line',
+                fontWeight: 700, fontSize: 'clamp(12px, 2.5vh, 40px)', lineHeight: 1.5,
+                color: 'var(--ink)', textAlign: 'center',
+              }}>
+              {overlay.text2}
+            </motion.p>
+          </>
+        )}
+      </div>
     </div>
   );
 }
@@ -707,11 +781,27 @@ export function EndScreen() {
     return () => clearTimeout(id);
   }, [resetSession, s.sessionId]);
   // 체험 마무리 화면 — 디자인 시안(문구 포함 완성 이미지)을 전체 화면으로 표시
+  // VN 이미지는 문구가 구워져 있지 않아 중앙 오브 아래에 텍스트를 오버레이한다.
+  const src = s.language === 'vi' ? '/assets/ui/vn/end-final-vn.png' : ASSET('end-final', 'jpg');
   return (
     <div className="screen" style={{ padding: 0, justifyContent: 'center' }}>
-      <motion.img src={ASSET('end-final', 'jpg')} alt={t('end.thanks')} draggable={false}
-        initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6 }}
-        style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} />
+      <div style={{ position: 'relative', height: '100%', aspectRatio: '1024 / 1536', maxWidth: '100%' }}>
+        <motion.img src={src} alt={t('end.thanks')} draggable={false}
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6 }}
+          style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} />
+        {s.language === 'vi' && (
+          <motion.p
+            initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            style={{
+              position: 'absolute', top: '45%', left: '10%', width: '80%', whiteSpace: 'pre-line',
+              fontWeight: 800, fontSize: 'clamp(15px, 5vh, 40px)', lineHeight: 1.5,
+              color: '#dd736a', textAlign: 'center',
+            }}>
+            {'Cảm ơn bạn.\nHành trình khám phá K-Beauty qua 6 tiêu chuẩn tuyển chọn của Aépick bắt đầu từ đây.'}
+          </motion.p>
+        )}
+      </div>
     </div>
   );
 }
