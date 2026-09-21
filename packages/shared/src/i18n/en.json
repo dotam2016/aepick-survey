@@ -151,8 +151,7 @@
     }
   },
   "core4": {
-    "title": "Which Beauty Wave is made for you?",
-    "question": "",
+    "title": "Which Beauty Wave is made for you?",
     "hint": "Swipe to pick the beauty trend that suits you most",
     "trendBadge": "TREND {n}",
     "footerNudge": "Your Beauty DNA senses a brand-new wave!",
@@ -278,8 +277,7 @@
     }
   },
   "core6": {
-    "title": "Find the most trustworthy review",
-    "question": "",
+    "title": "Find the most trustworthy review",
     "hint": "Examine every clue to find the review you trust most",
     "reviews": {
       "A": {

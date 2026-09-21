@@ -151,8 +151,7 @@
     }
   },
   "core4": {
-    "title": "당신을 위한 Beauty Wave는?",
-    "question": "",
+    "title": "당신을 위한 Beauty Wave는?",
     "hint": "가장 취향에 맞는 뷰티 트렌드를 스와이프로 선택하세요",
     "trendBadge": "TREND {n}",
     "footerNudge": "당신의 Beauty DNA는 새로운 파도를 감지하고 있어요!",
@@ -278,8 +277,7 @@
     }
   },
   "core6": {
-    "title": "가장 믿을 수 있는 리뷰를 찾아주세요",
-    "question": "",
+    "title": "가장 믿을 수 있는 리뷰를 찾아주세요",
     "hint": "단서를 꼼꼼히 살펴보고 가장 믿을 수 있는 리뷰를 찾아보세요",
     "reviews": {
       "A": {

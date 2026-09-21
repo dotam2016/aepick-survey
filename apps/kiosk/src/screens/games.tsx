@@ -68,7 +68,7 @@ function AccentText({ text }: { text: string }) {
 }
 
 function GameShell({ screen, title, question, hint, children, toast, onToastDone }: {
-  screen: ScreenId; title: string; question: string; hint?: string;
+  screen: ScreenId; title: string; question?: string; hint?: string;
   children: React.ReactNode; toast: string | null; onToastDone: () => void;
 }) {
   return (
@@ -508,7 +508,7 @@ export function Core4Screen() {
   );
 
   return (
-    <GameShell screen="core4" title={t('core4.title')} question={t('core4.question')} hint={t('core4.hint')}
+    <GameShell screen="core4" title={t('core4.title')} hint={t('core4.hint')}
       toast={toast} onToastDone={advance}>
       <div className="swipe-area" style={{ minHeight: '46vh', marginTop: '2.5vh' }}>
         <SideHint dir="notme" />
@@ -791,7 +791,7 @@ export function Core6Screen() {
   };
 
   return (
-    <GameShell screen="core6" title={t('core6.title')} question={t('core6.question')} hint={t('core6.hint')}
+    <GameShell screen="core6" title={t('core6.title')} hint={t('core6.hint')}
       toast={toast} onToastDone={advance}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12, width: '100%' }}>
         {(['A', 'B', 'C'] as ReviewId[]).map((r) => (

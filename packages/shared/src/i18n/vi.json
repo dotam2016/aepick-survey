@@ -152,8 +152,7 @@
     }
   },
   "core4": {
-    "title": "Đâu là Beauty Wave dành cho bạn?",
-    "question": "",
+    "title": "Đâu là Beauty Wave dành cho bạn?",
     "hint": "Vuốt để chọn xu hướng làm đẹp hợp gu bạn nhất",
     "trendBadge": "TREND {n}",
     "footerNudge": "Beauty DNA của bạn đang cảm nhận một làn sóng mới!",
@@ -279,8 +278,7 @@
     }
   },
   "core6": {
-    "title": "Tìm review đáng tin cậy nhất",
-    "question": "",
+    "title": "Tìm review đáng tin cậy nhất",
     "hint": "Soi kỹ từng manh mối để tìm review đáng tin nhất",
     "reviews": {
       "A": {
