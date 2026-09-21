@@ -412,7 +412,7 @@ const BRIDGE_MS = 3000;
  * VN 브릿지 이미지는 문구가 아직 구워져 있지 않은 축들이 있어 텍스트를 오버레이한다.
  * (progress dots 아래 / 사진 박스 아래, 모든 축이 같은 레이아웃 템플릿을 쓴다)
  */
-const BRIDGE_VN_OVERLAY: Partial<Record<string, { text1: string; text1Size?: string; text2: string }>> = {
+const BRIDGE_VN_OVERLAY: Partial<Record<string, { text1: string; text1Size?: string; text1Top?: string; text2: string }>> = {
   repick: {
     text1: 'Một lựa chọn đáng nhớ là lựa chọn bạn muốn tìm lại.',
     text2: 'Chờ một chút nhé ~ Hành trình Beauty DNA sẽ tiếp tục ngay sau đây...',
@@ -435,7 +435,13 @@ const BRIDGE_VN_OVERLAY: Partial<Record<string, { text1: string; text1Size?: str
   trust: {
     text1: 'Aépick không chỉ nhìn vào số đông, mà lắng nghe những trải nghiệm thật\nKhám phá những sản phẩm được tuyển chọn từ review chân thực, để mỗi lựa chọn làm đẹp đều thêm phần đáng tin cậy..',
     text1Size: 'clamp(15px, 2vh, 40px)',
+    text1Top: '17%',
     text2: 'Nơi niềm tin dẫn lối vẻ đẹp.',
+  },
+  localFit: {
+    text1: 'Aépick không chỉ tìm kiếm những sản phẩm được yêu thích tại Hàn Quốc, mà vẫn lựa chọn những sản phẩm thực sự phù hợp với nhịp sống của người Việt',
+    text1Size: 'clamp(15px, 2vh, 40px)',
+    text2: 'Khoảnh khắc chạm tới vẻ đẹp Việt',
   },
 };
 
@@ -487,9 +493,9 @@ export function BridgeScreen() {
               initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.35 }}
               style={{
-                position: 'absolute', top: '19%', left: '10%', width: '80%', whiteSpace: 'pre-line',
+                position: 'absolute', top: overlay.text1Top ?? '19%', left: '10%', width: '80%', whiteSpace: 'pre-line',
                 fontWeight: 800, fontSize: overlay.text1Size ?? 'clamp(15px, 2.5vh, 40px)', lineHeight: 1.35,
-                color: 'var(--accent-deep, var(--accent))', textAlign: 'center',
+                color: '#e05579', textAlign: 'center',
               }}>
               {overlay.text1}
             </motion.p>
@@ -499,7 +505,7 @@ export function BridgeScreen() {
               style={{
                 position: 'absolute', top: '75%', left: '9%', width: '82%', whiteSpace: 'pre-line',
                 fontWeight: 700, fontSize: 'clamp(12px, 2.5vh, 40px)', lineHeight: 1.5,
-                color: 'var(--ink)', textAlign: 'center',
+                color: '#a55f59', textAlign: 'center',
               }}>
               {overlay.text2}
             </motion.p>
