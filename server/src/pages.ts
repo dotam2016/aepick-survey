@@ -40,13 +40,11 @@ h2{font-size:17px;color:var(--accent);font-weight:800;letter-spacing:.02em}
 .brand-head{display:flex;align-items:center;gap:10px}
 .brand-logo{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;font-size:22px;background:#fdf2f1;border:1px solid var(--border);flex:none}
 .brand-name{font-weight:800;font-size:15px;letter-spacing:.02em}
-.brand-items{display:flex;flex-direction:column;gap:6px;margin-top:10px;padding-left:54px}
-.brand-item{display:flex;align-items:center;gap:8px;font-size:13px}
-.brand-item .nm{flex:1;font-weight:600}
-.brand-item .pr{color:var(--accent);font-weight:800;font-size:12.5px}
-.brand-item a{flex:none;font-size:11px;font-weight:800;color:#fff;background:linear-gradient(180deg,#fa9b93,var(--accent-deep));padding:5px 10px;border-radius:999px;text-decoration:none}
-.coupon{border:2px dashed var(--accent);text-align:center;background:#fef1f0;box-shadow:none}
-.coupon .code{font-size:24px;font-weight:900;letter-spacing:.12em;color:var(--accent-deep);margin:6px 0}
+.brand-items{display:flex;flex-direction:column;gap:6px;margin-top:10px;padding-left:10px}
+.brand-item{display:flex;align-items:center;gap:12px;font-size:13px}
+.brand-item .nm{flex:1;font-weight:600;text-align:left}
+.brand-item .pr-list{color:var(--dim);font-size:11px;text-decoration:line-through;flex:none}
+.brand-item .pr{color:var(--accent);font-weight:900;font-size:14.5px;flex:none}
 .danger{color:#c9645c;background:none;border:none;font:inherit;font-size:13px;text-decoration:underline;cursor:pointer;margin:8px auto;display:block}
 .center{text-align:center}
 #loading{text-align:center;padding:80px 0;font-size:15px;color:var(--dim)}
@@ -56,6 +54,9 @@ h2{font-size:17px;color:var(--accent);font-weight:800;letter-spacing:.02em}
 <div class="wrap" id="app"><div id="loading">Loading your Beauty DNA…</div></div>
 <script>
 const TOKEN=${JSON.stringify(token)};
+// API Gateway 등 스테이지 접두사(/prod 등) 뒤에 배포될 수 있어, 절대경로 '/api/...' 대신
+// 현재 페이지 경로에서 이 페이지 자신의 경로만 잘라내 접두사를 구한다.
+const ROOT=location.pathname.replace('/r/'+TOKEN,'');
 const DICTS=${JSON.stringify(dicts)};
 const PERSONAS=${JSON.stringify(PERSONAS)};
 const lookup=(d,p)=>p.split('.').reduce((n,k)=>n&&typeof n==='object'?n[k]:undefined,d);
@@ -64,7 +65,7 @@ const t=(k,v)=>{let r=lookup(DICTS[LANG],k)??lookup(DICTS.en,k);if(typeof r!=='s
   if(v)for(const[a,b]of Object.entries(v))r=r.replaceAll('{'+a+'}',b);return r};
 
 async function main(){
-  const res=await fetch('/api/results/'+TOKEN);
+  const res=await fetch(ROOT+'/api/results/'+TOKEN);
   const app=document.getElementById('app');
   if(res.status===410){app.innerHTML='<div id="loading">'+t('resultWeb.expired')+'</div>';return}
   if(!res.ok){app.innerHTML='<div id="loading">Error</div>';return}
@@ -77,11 +78,12 @@ async function main(){
 
   // 투표 여부에 따라 CTA 를 바꾼다. QR 은 한 번만 찍고 이 페이지에서 투표까지 간다.
   let voted=false;
-  try{ const vs=await fetch('/api/vote/'+TOKEN+'/status'); if(vs.ok) voted=(await vs.json()).data.voted; }catch(e){}
+  try{ const vs=await fetch(ROOT+'/api/vote/'+TOKEN+'/status'); if(vs.ok) voted=(await vs.json()).data.voted; }catch(e){}
 
   app.innerHTML=\`
     <div class="brand">aépick</div>
-    <h1>\${t('resultWeb.title')}</h1>
+    <h1>\${t('resultWeb.greeting',{name:data.fullName||''})}</h1>
+    <p class="dim center">\${t('resultWeb.subtitle')}</p>
     <div class="card center">
       <h2>\${p.name}</h2>
       <p class="dim" style="margin-top:8px">\${desc}</p>
@@ -91,15 +93,9 @@ async function main(){
     <div class="card">
       <h2>\${t('resultWeb.voteTitle')}</h2>
       <p class="dim" style="margin:6px 0 12px">\${voted?t('resultWeb.voteDone'):t('resultWeb.voteDesc')}</p>
-      <a class="btn" href="/v/\${TOKEN}\${voted?'/done':''}">\${voted?t('resultWeb.voteDone'):t('resultWeb.voteCta')}</a>
+      <a class="btn" href="\${ROOT}/v/\${TOKEN}\${voted?'/done':''}">\${voted?t('resultWeb.voteDone'):t('resultWeb.voteCta')}</a>
     </div>
 
-    <button class="btn ghost" onclick="shareResult()">↗ \${t('resultWeb.share')}</button>
-    <div class="card coupon">
-      <div class="dim">\${t('resultWeb.couponTitle')}</div>
-      <div class="code">\${data.coupon}</div>
-      <div class="dim">\${t('resultWeb.couponDesc')}</div>
-    </div>
     <div class="card">
       <h2>\${t('resultWeb.brandsTitle')}</h2>
       <p class="dim" style="margin:4px 0 6px">\${t('resultWeb.brandsDesc')}</p>
@@ -116,9 +112,8 @@ async function main(){
             \${b.products.map(p=>\`
               <div class="brand-item">
                 <span class="nm">\${p.name[LANG]||p.name.en||''}</span>
+                \${p.listPrice?'<span class="pr-list">'+p.listPrice+'</span>':''}
                 <span class="pr">\${p.price}</span>
-                <a target="_blank" rel="noopener" href="\${p.shopUrl}"
-                   onclick="fetch('/api/events',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({events:[{type:'product.clicked',payload:{productId:'\${p.id}',brandId:'\${b.id}'},ts:new Date().toISOString()}]})})">SHOP</a>
               </div>\`).join('')}
           </div>
         </div>\`).join('')}
@@ -126,14 +121,9 @@ async function main(){
     <p class="dim center">\${t('resultWeb.expiresIn',{h:hoursLeft})} · \${t('qr.deleteNotice')}</p>
     <button class="danger" onclick="delMine()">\${t('resultWeb.deleteNow')}</button>\`;
 }
-async function shareResult(){
-  if(navigator.share){try{await navigator.share({title:'My AEPICK Beauty DNA',url:location.href});
-    fetch('/api/events',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({events:[{type:'result.shared',payload:{channel:'webshare'},ts:new Date().toISOString()}]})});
-  }catch(e){}}else{await navigator.clipboard.writeText(location.href);alert('Link copied!')}
-}
 async function delMine(){
   if(!confirm(t('resultWeb.deleteConfirm')))return;
-  await fetch('/api/results/'+TOKEN,{method:'DELETE'});
+  await fetch(ROOT+'/api/results/'+TOKEN,{method:'DELETE'});
   document.getElementById('app').innerHTML='<div id="loading">'+t('resultWeb.deleted')+'</div>';
 }
 main();
@@ -185,10 +175,13 @@ th{color:var(--dim);font-weight:600}
 let KEY=localStorage.getItem('adminKey')||prompt('Admin key:',${JSON.stringify(ADMIN_KEY_IS_DEFAULT ? 'aepick-admin' : '')});
 localStorage.setItem('adminKey',KEY);
 const H={'X-Admin-Key':KEY};
+// API Gateway 등 스테이지 접두사(/prod 등) 뒤에 배포될 수 있어, 절대경로 '/api/...' 대신
+// 현재 페이지 경로에서 이 페이지 자신의 경로만 잘라내 접두사를 구한다.
+const ROOT=location.pathname.replace('/admin','');
 const el=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 el('exportBtn').onclick=async()=>{
-  const r=await fetch('/api/admin/export/sessions.xlsx',{headers:H});
+  const r=await fetch(ROOT+'/api/admin/export/sessions.xlsx',{headers:H});
   if(!r.ok){alert('Export failed');return}
   const blob=await r.blob();
   const url=URL.createObjectURL(blob);
@@ -202,9 +195,9 @@ const kpi=(label,value,suffix)=>'<div class="card"><h2>'+label+'</h2><div class=
 async function refresh(){
   try{
     const [ov,an,se]=await Promise.all([
-      fetch('/api/admin/overview',{headers:H}).then(r=>r.json()),
-      fetch('/api/admin/analytics',{headers:H}).then(r=>r.json()),
-      fetch('/api/admin/sessions',{headers:H}).then(r=>r.json()),
+      fetch(ROOT+'/api/admin/overview',{headers:H}).then(r=>r.json()),
+      fetch(ROOT+'/api/admin/analytics',{headers:H}).then(r=>r.json()),
+      fetch(ROOT+'/api/admin/sessions',{headers:H}).then(r=>r.json()),
     ]);
     if(!ov.ok){el('status').textContent='auth failed';localStorage.removeItem('adminKey');return}
     const o=ov.data,a=an.data;

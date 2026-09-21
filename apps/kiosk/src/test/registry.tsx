@@ -97,7 +97,7 @@ const bridge = (axis: string, label: string): ScreenEntry => ({
   id: `bridge-${axis}`,
   group: 'bridge',
   label,
-  note: 'Ảnh full-screen chèn giữa các game. Đổi ảnh: public/assets/ui/bridge-*.jpg (3 giây rồi tự chuyển).',
+  note: 'Ảnh full-screen chèn giữa các game (3 giây rồi tự chuyển). Đổi ảnh: tiếng Việt dùng public/assets/ui/vn/bridge-*-vn.png, ngôn ngữ khác dùng public/assets/ui/bridge-*.jpg.',
   source: FLOW,
   kind: 'kiosk',
   Comp: BridgeScreen,

@@ -29,9 +29,9 @@ export const MOCK_BRANDS = [
     personaTags: ['trendMuse', 'beautyExplorer'], axisAffinity: { trend: 0.97 },
     sortOrder: 1, active: true,
     products: [
-      { id: 'b04p1', brandId: 'b04-wavemuse', name: L('네온 웨이브 틴트', 'Neon Wave Tint', 'Son Tint Neon Wave'), price: '₫160,000', shopUrl: SHOP, imageUrl: null, sortOrder: 1, active: true },
-      { id: 'b04p2', brandId: 'b04-wavemuse', name: L('Y2K 글리터 팔레트', 'Y2K Glitter Palette', 'Bảng Mắt Y2K Glitter'), price: '₫260,000', shopUrl: SHOP, imageUrl: null, sortOrder: 2, active: true },
-      { id: 'b04p3', brandId: 'b04-wavemuse', name: L('미러 글로스 밤', 'Mirror Gloss Balm', 'Son Bóng Mirror'), price: '₫145,000', shopUrl: SHOP, imageUrl: null, sortOrder: 3, active: true },
+      { id: 'b04p1', brandId: 'b04-wavemuse', name: L('네온 웨이브 틴트', 'Neon Wave Tint', 'Son Tint Neon Wave'), price: '₫160,000', listPrice: '₫190,000', shopUrl: SHOP, imageUrl: null, sortOrder: 1, active: true },
+      { id: 'b04p2', brandId: 'b04-wavemuse', name: L('Y2K 글리터 팔레트', 'Y2K Glitter Palette', 'Bảng Mắt Y2K Glitter'), price: '₫260,000', listPrice: '₫310,000', shopUrl: SHOP, imageUrl: null, sortOrder: 2, active: true },
+      { id: 'b04p3', brandId: 'b04-wavemuse', name: L('미러 글로스 밤', 'Mirror Gloss Balm', 'Son Bóng Mirror'), price: '₫145,000', listPrice: '', shopUrl: SHOP, imageUrl: null, sortOrder: 3, active: true },
     ],
   },
   {
@@ -40,9 +40,9 @@ export const MOCK_BRANDS = [
     personaTags: ['localBeautyExpert'], axisAffinity: { localFit: 0.98, value: 0.5 },
     sortOrder: 2, active: true,
     products: [
-      { id: 'b03p1', brandId: 'b03-hanoifit', name: L('노멜트 선 플루이드', 'No-Melt Sun Fluid', 'Kem Chống Nắng Không Trôi'), price: '₫210,000', shopUrl: SHOP, imageUrl: null, sortOrder: 1, active: true },
-      { id: 'b03p2', brandId: 'b03-hanoifit', name: L('포켓 하이드라 미스트', 'Pocket Hydra Mist', 'Xịt Khoáng Bỏ Túi'), price: '₫140,000', shopUrl: SHOP, imageUrl: null, sortOrder: 2, active: true },
-      { id: 'b03p3', brandId: 'b03-hanoifit', name: L('오일 컨트롤 파우더', 'Oil Control Powder', 'Phấn Kiềm Dầu'), price: '₫175,000', shopUrl: SHOP, imageUrl: null, sortOrder: 3, active: true },
+      { id: 'b03p1', brandId: 'b03-hanoifit', name: L('노멜트 선 플루이드', 'No-Melt Sun Fluid', 'Kem Chống Nắng Không Trôi'), price: '₫210,000', listPrice: '₫250,000', shopUrl: SHOP, imageUrl: null, sortOrder: 1, active: true },
+      { id: 'b03p2', brandId: 'b03-hanoifit', name: L('포켓 하이드라 미스트', 'Pocket Hydra Mist', 'Xịt Khoáng Bỏ Túi'), price: '₫140,000', listPrice: '₫165,000', shopUrl: SHOP, imageUrl: null, sortOrder: 2, active: true },
+      { id: 'b03p3', brandId: 'b03-hanoifit', name: L('오일 컨트롤 파우더', 'Oil Control Powder', 'Phấn Kiềm Dầu'), price: '₫175,000', listPrice: '', shopUrl: SHOP, imageUrl: null, sortOrder: 3, active: true },
     ],
   },
   {
@@ -51,9 +51,9 @@ export const MOCK_BRANDS = [
     personaTags: ['loyalGlowKeeper', 'smartBeautyCurator'], axisAffinity: { repick: 0.9, value: 0.6 },
     sortOrder: 3, active: true,
     products: [
-      { id: 'b02p1', brandId: 'b02-glowdaily', name: L('데일리 글로우 토너', 'Daily Glow Toner', 'Toner Dưỡng Sáng Hằng Ngày'), price: '₫190,000', shopUrl: SHOP, imageUrl: null, sortOrder: 1, active: true },
-      { id: 'b02p2', brandId: 'b02-glowdaily', name: L('리필 글로우 로션', 'Refill Glow Lotion', 'Sữa Dưỡng Glow Có Refill'), price: '₫230,000', shopUrl: SHOP, imageUrl: null, sortOrder: 2, active: true },
-      { id: 'b02p3', brandId: 'b02-glowdaily', name: L('글로우 나이트 마스크', 'Glow Night Mask', 'Mặt Nạ Ngủ Dưỡng Sáng'), price: '₫250,000', shopUrl: SHOP, imageUrl: null, sortOrder: 3, active: true },
+      { id: 'b02p1', brandId: 'b02-glowdaily', name: L('데일리 글로우 토너', 'Daily Glow Toner', 'Toner Dưỡng Sáng Hằng Ngày'), price: '₫190,000', listPrice: '₫220,000', shopUrl: SHOP, imageUrl: null, sortOrder: 1, active: true },
+      { id: 'b02p2', brandId: 'b02-glowdaily', name: L('리필 글로우 로션', 'Refill Glow Lotion', 'Sữa Dưỡng Glow Có Refill'), price: '₫230,000', listPrice: '₫270,000', shopUrl: SHOP, imageUrl: null, sortOrder: 2, active: true },
+      { id: 'b02p3', brandId: 'b02-glowdaily', name: L('글로우 나이트 마스크', 'Glow Night Mask', 'Mặt Nạ Ngủ Dưỡng Sáng'), price: '₫250,000', listPrice: '', shopUrl: SHOP, imageUrl: null, sortOrder: 3, active: true },
     ],
   },
   {
@@ -62,8 +62,8 @@ export const MOCK_BRANDS = [
     personaTags: ['trustGuardian', 'loyalGlowKeeper'], axisAffinity: { care: 0.95, trust: 0.7 },
     sortOrder: 4, active: true,
     products: [
-      { id: 'b01p1', brandId: 'b01-purelab', name: L('시카 릴리프 세럼', 'Cica Relief Serum', 'Serum Cica Phục Hồi'), price: '₫320,000', shopUrl: SHOP, imageUrl: null, sortOrder: 1, active: true },
-      { id: 'b01p2', brandId: 'b01-purelab', name: L('판테놀 배리어 크림', 'Panthenol Barrier Cream', 'Kem Panthenol Bảo Vệ Da'), price: '₫280,000', shopUrl: SHOP, imageUrl: null, sortOrder: 2, active: true },
+      { id: 'b01p1', brandId: 'b01-purelab', name: L('시카 릴리프 세럼', 'Cica Relief Serum', 'Serum Cica Phục Hồi'), price: '₫320,000', listPrice: '₫380,000', shopUrl: SHOP, imageUrl: null, sortOrder: 1, active: true },
+      { id: 'b01p2', brandId: 'b01-purelab', name: L('판테놀 배리어 크림', 'Panthenol Barrier Cream', 'Kem Panthenol Bảo Vệ Da'), price: '₫280,000', listPrice: '', shopUrl: SHOP, imageUrl: null, sortOrder: 2, active: true },
     ],
   },
   {
@@ -72,8 +72,8 @@ export const MOCK_BRANDS = [
     personaTags: ['smartBeautyCurator', 'trustGuardian'], axisAffinity: { trust: 0.95, value: 0.7 },
     sortOrder: 5, active: true,
     products: [
-      { id: 'b05p1', brandId: 'b05-provenkit', name: L('5성 리뷰 마스크팩', '5-Star Reviewed Mask', 'Mặt Nạ Đánh Giá 5 Sao'), price: '₫120,000', shopUrl: SHOP, imageUrl: null, sortOrder: 1, active: true },
-      { id: 'b05p2', brandId: 'b05-provenkit', name: L('더마 테스트 앰플', 'Derma-Tested Ampoule', 'Ampoule Kiểm Nghiệm Da Liễu'), price: '₫340,000', shopUrl: SHOP, imageUrl: null, sortOrder: 2, active: true },
+      { id: 'b05p1', brandId: 'b05-provenkit', name: L('5성 리뷰 마스크팩', '5-Star Reviewed Mask', 'Mặt Nạ Đánh Giá 5 Sao'), price: '₫120,000', listPrice: '₫145,000', shopUrl: SHOP, imageUrl: null, sortOrder: 1, active: true },
+      { id: 'b05p2', brandId: 'b05-provenkit', name: L('더마 테스트 앰플', 'Derma-Tested Ampoule', 'Ampoule Kiểm Nghiệm Da Liễu'), price: '₫340,000', listPrice: '', shopUrl: SHOP, imageUrl: null, sortOrder: 2, active: true },
     ],
   },
 ];
