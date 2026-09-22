@@ -185,8 +185,11 @@ const setAff=(bi,a,v)=>{DATA[bi].axisAffinity=DATA[bi].axisAffinity||{};
   if(v===''){delete DATA[bi].axisAffinity[a]}else{DATA[bi].axisAffinity[a]=Number(v)}};
 function togP(bi,p){const t=DATA[bi].personaTags||[];const i=t.indexOf(p);
   if(i<0)t.push(p);else t.splice(i,1);DATA[bi].personaTags=t;render()}
+function fmtVND(v){const d=String(v).replace(/[^0-9]/g,'');return d?'₫'+Number(d).toLocaleString('en-US'):''}
 function setP(bi,pi,path,v){const p=DATA[bi].products[pi];
-  if(path.startsWith('name.')){p.name=p.name||{};p.name[path.slice(5)]=v}else{p[path]=v}}
+  if(path.startsWith('name.')){p.name=p.name||{};p.name[path.slice(5)]=v}
+  else if(path==='price'||path==='listPrice'){p[path]=fmtVND(v);render()}
+  else{p[path]=v}}
 
 async function saveB(bi){
   const b=DATA[bi];

@@ -89,8 +89,8 @@ function Router() {
   return (
     <div className="stage">
       <OperatorGesture />
-      {/* 전 화면 공통 브랜드 헤더 (대형 워드마크를 자체 표시하는 화면·브릿지 이미지에 로고가 포함된 화면 제외) */}
-      {s.screen !== 'attract' && s.screen !== 'intro' && s.screen !== 'bridge' && (
+      {/* 전 화면 공통 브랜드 헤더 (대형 워드마크를 자체 표시하는 화면·이미지에 로고가 이미 포함된 화면 제외) */}
+      {s.screen !== 'attract' && s.screen !== 'intro' && s.screen !== 'bridge' && s.screen !== 'end' && (
         <img src={ASSET('logo')} alt="aépick" className="brand-header" />
       )}
       {timeout !== null ? <TimeoutGuard seconds={timeout}>{body}</TimeoutGuard> : body}
