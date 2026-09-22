@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { StateProvider, useStore, type ScreenId } from './state';
+import { BRIDGE_AXES, StateProvider, useStore, type ScreenId } from './state';
 import { ASSET, TimeoutGuard } from './components';
 import {
   AttractScreen, LanguageScreen, ConsentScreen, IntroScreen, BridgeScreen,
@@ -59,8 +59,20 @@ const QS = new URLSearchParams(window.location.search);
 const DISABLE_TIMEOUT = QS.has('noTimeout');
 const TIMEOUT_OVERRIDE = Number(QS.get('timeout')) || null;
 
+// 브릿지 화면 진입 시 이미지가 늦게 뜨는 문제 방지 — 언어 선택 직후(코어 게임을 하는 동안)
+// 6개 브릿지 이미지를 미리 받아 브라우저 캐시에 올려둔다.
+function useBridgePreload(language: string) {
+  useEffect(() => {
+    BRIDGE_AXES.forEach((axis) => {
+      const src = language === 'vi' ? `/assets/ui/vn/bridge-${axis}-vn.png` : ASSET(`bridge-${axis}`, 'jpg');
+      new Image().src = src;
+    });
+  }, [language]);
+}
+
 function Router() {
   const { s } = useStore();
+  useBridgePreload(s.language);
   const Screen = SCREENS[s.screen];
   const base = TIMEOUTS[s.screen];
   const timeout = DISABLE_TIMEOUT ? null : (base === null ? null : (TIMEOUT_OVERRIDE ?? base));

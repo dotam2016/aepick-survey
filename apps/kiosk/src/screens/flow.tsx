@@ -312,7 +312,6 @@ export function ConsentScreen() {
       <div style={{ height: 8 }} />
       <input className="text" placeholder={t('consent.fullNamePlaceholder')}
         value={fullName} onChange={(e) => setFullName(e.target.value)} />
-      <p className="hint">{t('consent.genderShare')}</p>
       <div style={{ display: 'flex', gap: 8, width: '100%', justifyContent: 'center' }}>
         {(['male', 'female'] as const).map((g) => (
           <button key={g} className="btn ghost small" style={{
@@ -428,7 +427,7 @@ const BRIDGE_VN_OVERLAY: Partial<Record<string, { text1: string; text1Size?: str
     text2: 'Nơi vẻ đẹp bắt đầu từ thành phần và sự tin cậy',
   },
   trend: {
-    text1: 'Không chạy theo xu hướng, Aépick đón đầu vẻ đẹp tiếp theo.\nKhám phá những sản phẩm được tuyển chọn với cảm quan dẫn đầu xu hướng, mang đến những phong cách làm đẹp đang được yêu thích.',
+    text1: 'Không chạy theo xu hướng, Aépick đón đầu vẻ đẹp tiếp theo.\nKhám phá những sản phẩm tuyển chọn, dẫn lối phong cách làm đẹp mới.',
     text1Size: 'clamp(15px, 2vh, 40px)',
     text2: 'Chạm đến vẻ đẹp của ngày mai',
   },
@@ -464,6 +463,11 @@ const BRIDGE_VN_ASPECT: Partial<Record<string, string>> = {
 export function BridgeScreen() {
   const { s, go, update } = useStore();
   const key = s.bridgeAxis;
+  const [imgLoaded, setImgLoaded] = useState(false);
+
+  useEffect(() => {
+    setImgLoaded(false);
+  }, [key]);
 
   useEffect(() => {
     const id = setTimeout(() => {
@@ -485,9 +489,10 @@ export function BridgeScreen() {
     <div className="screen" style={{ padding: 0, justifyContent: 'center' }}>
       <div style={{ position: 'relative', height: '100%', aspectRatio: aspect, maxWidth: '100%' }}>
         <motion.img key={key} src={src} alt="" draggable={false}
+          onLoad={() => setImgLoaded(true)}
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.35 }}
           style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} />
-        {overlay && (
+        {overlay && imgLoaded && (
           <>
             <motion.p key={`${key}-t1`}
               initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
