@@ -139,11 +139,11 @@ async function load(){
   if(r.status===401){localStorage.removeItem('adminKey');alert('관리자 키가 올바르지 않습니다.');location.reload();return}
   const j=await r.json();
   DATA=j.data.brands;
-  el('count').textContent='브랜드 '+DATA.length+'개 · 제품 '+DATA.reduce((n,b)=>n+b.products.length,0)+'개';
   render();
 }
 
 function render(){
+  el('count').textContent='브랜드 '+DATA.length+'개 · 제품 '+DATA.reduce((n,b)=>n+b.products.length,0)+'개';
   el('list').innerHTML=DATA.map((b,bi)=>\`
   <div class="brand \${b.active?'':'off'}" data-b="\${bi}">
     <div class="brow">
@@ -168,8 +168,8 @@ function render(){
       <tr><th>제품명 (ko / en / vi)</th><th style="width:100px">정가 (취소선)</th><th style="width:100px">판매가 (팝업 전용)</th><th style="width:150px">구매 링크</th><th style="width:60px">노출</th><th style="width:110px"></th></tr>
       \${b.products.map((p,pi)=>\`<tr>
         <td>\${LANGS.map(l=>\`<input style="width:31%" value="\${esc((p.name||{})[l]||'')}" onchange="setP(\${bi},\${pi},'name.\${l}',this.value)" placeholder="\${l}"/>\`).join(' ')}</td>
-        <td><input style="width:100%" value="\${esc(p.listPrice)}" onchange="setP(\${bi},\${pi},'listPrice',this.value)"/></td>
-        <td><input style="width:100%" value="\${esc(p.price)}" onchange="setP(\${bi},\${pi},'price',this.value)"/></td>
+        <td><input style="width:100%" value="\${esc(p.listPrice)}" oninput="setPrice(\${bi},\${pi},'listPrice',this)"/></td>
+        <td><input style="width:100%" value="\${esc(p.price)}" oninput="setPrice(\${bi},\${pi},'price',this)"/></td>
         <td><input style="width:100%" value="\${esc(p.shopUrl)}" onchange="setP(\${bi},\${pi},'shopUrl',this.value)"/></td>
         <td><input type="checkbox" \${p.active?'checked':''} onchange="setP(\${bi},\${pi},'active',this.checked)"/></td>
         <td><button onclick="saveP(\${bi},\${pi})">저장</button> <button class="danger" onclick="delP(\${bi},\${pi})">×</button></td>
@@ -185,6 +185,13 @@ const setAff=(bi,a,v)=>{DATA[bi].axisAffinity=DATA[bi].axisAffinity||{};
   if(v===''){delete DATA[bi].axisAffinity[a]}else{DATA[bi].axisAffinity[a]=Number(v)}};
 function togP(bi,p){const t=DATA[bi].personaTags||[];const i=t.indexOf(p);
   if(i<0)t.push(p);else t.splice(i,1);DATA[bi].personaTags=t;render()}
+function fmtVND(v){const d=String(v).replace(/[^0-9]/g,'');return d?'₫'+Number(d).toLocaleString('en-US'):''}
+function setPrice(bi,pi,path,el){
+  const f=fmtVND(el.value);
+  DATA[bi].products[pi][path]=f;
+  el.value=f;
+  el.setSelectionRange(f.length,f.length);
+}
 function setP(bi,pi,path,v){const p=DATA[bi].products[pi];
   if(path.startsWith('name.')){p.name=p.name||{};p.name[path.slice(5)]=v}else{p[path]=v}}
 
@@ -195,7 +202,7 @@ async function saveB(bi){
   // 안 그러면 제품 칸만 고치고 브랜드 저장을 누른 사용자는 반영 안 된 줄 모르고 넘어간다.
   if(r.ok) for(const p of b.products){ p.brandId=b.id;
     await fetch(ROOT+'/api/catalog/admin/products/'+encodeURIComponent(p.id),{method:'PUT',headers:H,body:JSON.stringify(p)}); }
-  toast(r.ok?'브랜드 저장됨':'저장 실패'); if(r.ok) load();
+  toast(r.ok?'브랜드 저장됨':'저장 실패'); if(r.ok) render();
 }
 async function delB(bi){
   if(!confirm('브랜드와 그 제품을 모두 삭제할까요?'))return;
@@ -205,7 +212,7 @@ async function delB(bi){
 async function saveP(bi,pi){
   const p=DATA[bi].products[pi]; p.brandId=DATA[bi].id;
   const r=await fetch(ROOT+'/api/catalog/admin/products/'+encodeURIComponent(p.id),{method:'PUT',headers:H,body:JSON.stringify(p)});
-  toast(r.ok?'제품 저장됨':'저장 실패'); if(r.ok) load();
+  toast(r.ok?'제품 저장됨':'저장 실패'); if(r.ok) render();
 }
 async function delP(bi,pi){
   if(!confirm('이 제품을 삭제할까요?'))return;

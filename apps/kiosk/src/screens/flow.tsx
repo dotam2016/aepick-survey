@@ -800,7 +800,7 @@ export function EndScreen() {
         <motion.img src={src} alt={t('end.thanks')} draggable={false}
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6 }}
           style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} />
-        {s.language === 'vi' && (
+        {false && s.language === 'vi' && (
           <motion.p
             initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
