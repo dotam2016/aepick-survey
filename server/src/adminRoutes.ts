@@ -140,7 +140,7 @@ export function registerAdminRoutes(app: FastifyInstance) {
       { header: 'Persona', key: 'persona', width: 22 },
       { header: 'Status', key: 'status', width: 12 },
     ];
-    sheet.addRows(rows);
+    sheet.addRows(rows.map((r) => ({ ...r, age_group: r.age_group?.split('T')[0] ?? r.age_group })));
 
     const answers = await many<{
       session_id: string; full_name: string | null; core_key: string; subtype: string; score: number; answered_at: string;
