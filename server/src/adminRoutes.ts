@@ -108,7 +108,7 @@ export function registerAdminRoutes(app: FastifyInstance) {
   app.get('/api/admin/sessions', async (req) => {
     const { status, page } = (req.query ?? {}) as { status?: string; page?: string };
     const p = Math.max(1, Number(page ?? 1));
-    const cols = `id, device_id, language, status, full_name, gender, age_group, persona, started_at, completed_at`;
+    const cols = `id, device_id, language, status, full_name, gender, age_group, phone, persona, started_at, completed_at`;
     const rows = status
       ? await many(`SELECT ${cols} FROM sessions WHERE status=$1 ORDER BY started_at DESC LIMIT 50 OFFSET $2`, [status, (p - 1) * 50])
       : await many(`SELECT ${cols} FROM sessions ORDER BY started_at DESC LIMIT 50 OFFSET $1`, [(p - 1) * 50]);
@@ -119,10 +119,10 @@ export function registerAdminRoutes(app: FastifyInstance) {
   app.get('/api/admin/export/sessions.xlsx', async (_req, reply) => {
     const rows = await many<{
       id: string; started_at: string; completed_at: string | null; language: string;
-      full_name: string | null; gender: string | null; age_group: string | null;
+      full_name: string | null; gender: string | null; age_group: string | null; phone: string | null;
       persona: string | null; status: string;
     }>(
-      `SELECT id, started_at, completed_at, language, full_name, gender, age_group, persona, status
+      `SELECT id, started_at, completed_at, language, full_name, gender, age_group, phone, persona, status
        FROM sessions ORDER BY started_at DESC`,
     );
 
@@ -136,6 +136,7 @@ export function registerAdminRoutes(app: FastifyInstance) {
       { header: 'Full Name', key: 'full_name', width: 24 },
       { header: 'Gender', key: 'gender', width: 10 },
       { header: 'Age Group', key: 'age_group', width: 12 },
+      { header: 'Phone', key: 'phone', width: 16 },
       { header: 'Persona', key: 'persona', width: 22 },
       { header: 'Status', key: 'status', width: 12 },
     ];

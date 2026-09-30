@@ -275,7 +275,7 @@ export function ConsentScreen() {
   /** QR로 인적 정보를 받으면 수동 입력 없이 바로 체험을 시작한다 (약관 동의 체크와 무관). */
   const onQrResult = (profile: QrProfile) => {
     setScanning(false);
-    update({ fullName: profile.fullName, gender: profile.gender, ageGroup: profile.ageGroup });
+    update({ fullName: profile.fullName, gender: profile.gender, ageGroup: profile.ageGroup, phone: profile.phone });
     if (s.sessionId) api.setProfile(s.sessionId, profile);
     go('intro');
   };

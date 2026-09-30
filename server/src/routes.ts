@@ -22,6 +22,45 @@ import { recommendBrands, recommendProducts, type CatalogProduct } from './catal
 const ok = (data: unknown) => ({ ok: true, data });
 const err = (code: string, message: string) => ({ ok: false, error: { code, message } });
 
+// 이벤트 체크인 시스템(Zalo)에서 QR로 받은 전화번호로 이름·성별·생년월일을 조회한다.
+// 브라우저에서 직접 부르면 이 람다의 CORS가 운영 프론트 origin 하나만 허용해
+// 로컬 개발(localhost) 등 다른 origin에서는 항상 실패한다 — 서버를 거쳐 대신 호출한다.
+const PHONE_LOOKUP_URL = 'https://qjqcjuvb3x5uqdebkjtcvu52vq0lulze.lambda-url.ap-southeast-1.on.aws/';
+const PHONE_RE = /^0\d{9}$/;
+
+interface PhoneLookupResponse {
+  ok: boolean;
+  data?: {
+    name?: string | null;
+    gender?: string | null;
+    dob?: string | null;
+    data?: { full_name?: string | null; gender?: string | null; dob?: string | null } | null;
+  };
+}
+
+function mapGender(raw: string | null | undefined): 'male' | 'female' | null {
+  if (!raw) return null;
+  const v = raw.toLowerCase().trim();
+  if (v === 'nam' || v === 'male') return 'male';
+  if (v === 'nữ' || v === 'nu' || v === 'female') return 'female';
+  return null;
+}
+
+function ageGroupFromDob(dob: string | null | undefined): string | null {
+  if (!dob) return null;
+  const birth = new Date(dob);
+  if (Number.isNaN(birth.getTime())) return null;
+  const now = new Date();
+  let age = now.getFullYear() - birth.getFullYear();
+  if (now.getMonth() < birth.getMonth() || (now.getMonth() === birth.getMonth() && now.getDate() < birth.getDate())) {
+    age -= 1;
+  }
+  if (age < 20) return 'teen';
+  if (age < 30) return 'twenties';
+  if (age < 40) return 'thirties';
+  return 'fortyPlus';
+}
+
 const SCORERS: Record<Axis, (a: never) => GameResult> = {
   repick: scoreRepick as never,
   value: scoreValue as never,
@@ -71,20 +110,45 @@ export function registerRoutes(app: FastifyInstance) {
     return ok({ language });
   });
 
-  /* 1b. 동의 화면에서 입력한 이름·성별·연령대 저장 */
+  /* 1b. 동의 화면(또는 QR 스캔)에서 얻은 이름·성별·연령대·전화번호 저장 */
   app.patch('/api/sessions/:id/profile', async (req, reply) => {
     const { id } = req.params as { id: string };
-    const { fullName, gender, ageGroup } = (req.body ?? {}) as {
-      fullName?: string; gender?: 'male' | 'female'; ageGroup?: string;
+    const { fullName, gender, ageGroup, phone } = (req.body ?? {}) as {
+      fullName?: string; gender?: 'male' | 'female'; ageGroup?: string; phone?: string;
     };
     if (gender !== undefined && gender !== 'male' && gender !== 'female')
       return reply.code(400).send(err('bad_request', 'gender must be male or female'));
     const res = await run(
-      `UPDATE sessions SET full_name=$1, gender=$2, age_group=$3 WHERE id=$4`,
-      [fullName?.trim() || null, gender ?? null, ageGroup ?? null, id],
+      `UPDATE sessions SET full_name=$1, gender=$2, age_group=$3, phone=$4 WHERE id=$5`,
+      [fullName?.trim() || null, gender ?? null, ageGroup ?? null, phone?.trim() || null, id],
     );
     if (res.rowCount === 0) return reply.code(404).send(err('not_found', 'session not found'));
-    return ok({ fullName, gender, ageGroup });
+    return ok({ fullName, gender, ageGroup, phone });
+  });
+
+  /* 1c. QR로 읽은 전화번호로 체크인 정보(이름·성별·생년월일) 조회 — 동의 화면 QR 스캔 전용 */
+  app.get('/api/qr-lookup', async (req, reply) => {
+    const { phone } = (req.query ?? {}) as { phone?: string };
+    if (!phone || !PHONE_RE.test(phone.trim()))
+      return reply.code(400).send(err('bad_request', 'phone must be 8-11 digits'));
+
+    let json: PhoneLookupResponse;
+    try {
+      const url = new URL(PHONE_LOOKUP_URL);
+      url.searchParams.set('phone', phone.trim());
+      const res = await fetch(url.toString());
+      if (!res.ok) return reply.code(502).send(err('lookup_failed', `upstream HTTP ${res.status}`));
+      json = (await res.json()) as PhoneLookupResponse;
+    } catch {
+      return reply.code(502).send(err('lookup_failed', 'upstream unreachable'));
+    }
+    if (!json.ok || !json.data) return reply.code(404).send(err('not_found', 'no matching check-in for this phone'));
+
+    const d = json.data;
+    const fullName = (d.data?.full_name ?? d.name ?? '').trim();
+    const gender = mapGender(d.data?.gender ?? d.gender);
+    const ageGroup = ageGroupFromDob(d.data?.dob ?? d.dob);
+    return ok({ fullName, gender, ageGroup, phone: phone.trim() });
   });
 
   /* 4. 게임 답변 */

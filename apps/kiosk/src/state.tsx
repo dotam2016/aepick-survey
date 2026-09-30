@@ -24,10 +24,12 @@ export interface SessionState {
   sessionId: string | null;
   /** app 계정 기준 몇 번째 방문인지. 첫 방문은 1. */
   visitCount: number;
-  /** 동의 화면에서 입력한 비필수 정보 */
+  /** 동의 화면(또는 QR 스캔)에서 얻은 비필수 정보 */
   fullName: string;
   gender: 'male' | 'female' | null;
   ageGroup: string | null;
+  /** QR 스캔으로만 채워진다 — 수동 입력 폼에는 없음 */
+  phone: string;
   results: Partial<Record<Axis, GameResult>>;
   scores: Scores | null;
   persona: PersonaId | null;
@@ -48,6 +50,7 @@ const initial: SessionState = {
   fullName: '',
   gender: null,
   ageGroup: null,
+  phone: '',
   results: {},
   scores: null,
   persona: null,
