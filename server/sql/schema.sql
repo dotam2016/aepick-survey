@@ -15,6 +15,7 @@ create table if not exists sessions (
   full_name text,
   gender text check (gender in ('male', 'female')),
   age_group text,
+  phone text,
   started_at text not null,
   completed_at text
 );
@@ -141,4 +142,5 @@ create unique index if not exists idx_event_registrations_external_id
 alter table sessions add column if not exists full_name text;
 alter table sessions add column if not exists gender text check (gender in ('male', 'female'));
 alter table sessions add column if not exists age_group text;
+alter table sessions add column if not exists phone text;
 alter table brand_products add column if not exists list_price text;

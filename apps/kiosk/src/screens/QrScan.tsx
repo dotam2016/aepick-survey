@@ -2,31 +2,26 @@ import React, { useEffect, useRef, useState } from 'react';
 import jsQR from 'jsqr';
 import { useStore } from '../state';
 import { makeT } from '../i18n';
+import { api } from '../api';
 
-const VALID_GENDERS = new Set(['male', 'female']);
-const VALID_AGE_GROUPS = new Set(['teen', 'twenties', 'thirties', 'fortyPlus', 'skip']);
+// 이벤트 체크인 시스템(Zalo)이 발급한 QR에는 전화번호 하나만 들어있다.
+// 이름·성별·생년월일 조회는 서버(/api/qr-lookup)를 거친다 — 조회용 람다의 CORS가
+// 운영 프론트 origin 하나만 허용해, 브라우저에서 직접 부르면 로컬 개발 등 다른
+// origin에서는 항상 막힌다.
+const PHONE_RE = /^0\d{9}$/;
 
 export interface QrProfile {
   fullName: string;
   gender: 'male' | 'female' | null;
   ageGroup: string | null;
+  phone: string;
 }
 
-/** QR 내용은 `{"fullName":"...","gender":"male|female","ageGroup":"teen|twenties|thirties|fortyPlus|skip"}` 형태의 JSON이어야 한다.
- *  개별 필드가 유효하지 않으면 그 필드만 비워두고, 파싱 자체가 실패하면 null을 반환해 재스캔을 유도한다. */
-export function parseQrPayload(raw: string): QrProfile | null {
-  let obj: unknown;
-  try {
-    obj = JSON.parse(raw);
-  } catch {
-    return null;
-  }
-  if (!obj || typeof obj !== 'object') return null;
-  const o = obj as Record<string, unknown>;
-  const fullName = typeof o.fullName === 'string' ? o.fullName.trim() : '';
-  const gender = typeof o.gender === 'string' && VALID_GENDERS.has(o.gender) ? (o.gender as 'male' | 'female') : null;
-  const ageGroup = typeof o.ageGroup === 'string' && VALID_AGE_GROUPS.has(o.ageGroup) ? o.ageGroup : null;
-  return { fullName, gender, ageGroup };
+/** QR에서 읽은 문자열이 전화번호 형태가 아니면 조회 없이 바로 무효 처리한다. */
+export async function lookupProfileByPhone(raw: string): Promise<QrProfile | null> {
+  const phone = raw.trim();
+  if (!PHONE_RE.test(phone)) return null;
+  return api.lookupPhone(phone);
 }
 
 /** 동의 화면 위에 뜨는 QR 스캔 오버레이. 후면 카메라로 프레임을 계속 읽어 jsQR로 디코딩한다. */
@@ -42,6 +37,7 @@ export function QrScanOverlay({ onResult, onClose }: { onResult: (profile: QrPro
     let stream: MediaStream | null = null;
     let rafId: number | null = null;
     let done = false;
+    let looking = false;
 
     function tick() {
       const video = videoRef.current;
@@ -54,18 +50,23 @@ export function QrScanOverlay({ onResult, onClose }: { onResult: (profile: QrPro
           ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
           const frame = ctx.getImageData(0, 0, canvas.width, canvas.height);
           const code = jsQR(frame.data, frame.width, frame.height);
-          if (code && code.data && !done) {
-            const profile = parseQrPayload(code.data);
-            if (profile) {
-              done = true;
-              onResult(profile);
-              return;
-            }
-            setError('invalid');
+          // 조회 중엔(looking) 같은 QR을 계속 들이대도 매 프레임 재요청하지 않는다.
+          if (code && code.data && !done && !looking) {
+            looking = true;
+            lookupProfileByPhone(code.data).then((profile) => {
+              if (cancelled) return;
+              looking = false;
+              if (profile) {
+                done = true;
+                onResult(profile);
+              } else {
+                setError('invalid');
+              }
+            });
           }
         }
       }
-      rafId = requestAnimationFrame(tick);
+      if (!done) rafId = requestAnimationFrame(tick);
     }
 
     (async () => {

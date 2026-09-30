@@ -87,11 +87,17 @@ export const api = {
   submitAnswer: (sessionId: string, coreKey: CoreKey, payload: GameAnswer) =>
     tryReq<{ score: number; subtype: string }>('POST', `/sessions/${sessionId}/answers/${coreKey}`, payload),
 
-  /* ── 동의 화면에서 입력한 이름·성별·연령대 저장 ── */
+  /* ── 동의 화면(또는 QR 스캔)에서 얻은 이름·성별·연령대·전화번호 저장 ── */
   setProfile: (
     sessionId: string,
-    profile: { fullName?: string; gender?: 'male' | 'female' | null; ageGroup?: string | null },
+    profile: { fullName?: string; gender?: 'male' | 'female' | null; ageGroup?: string | null; phone?: string | null },
   ) => tryReq('PATCH', `/sessions/${sessionId}/profile`, profile),
+
+  /* ── QR로 읽은 전화번호로 체크인 정보 조회 (동의 화면 QR 스캔) ── */
+  lookupPhone: (phone: string) =>
+    tryReq<{ fullName: string; gender: 'male' | 'female' | null; ageGroup: string | null; phone: string }>(
+      'GET', `/qr-lookup?phone=${encodeURIComponent(phone)}`,
+    ),
 
   complete: (sessionId: string) => tryReq<CompleteResponse>('POST', `/sessions/${sessionId}/complete`, {}),
 
