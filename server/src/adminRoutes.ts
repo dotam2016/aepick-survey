@@ -127,6 +127,11 @@ export function registerAdminRoutes(app: FastifyInstance) {
     );
 
     const workbook = new ExcelJS.Workbook();
+    // 헤더 행(컬럼명)에 회색 배경을 줘서 데이터 행과 한눈에 구분되게 한다.
+    const styleHeader = (ws: ExcelJS.Worksheet) => ws.getRow(1).eachCell((cell) => {
+      cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD9D9D9' } };
+      cell.font = { bold: true };
+    });
     const sheet = workbook.addWorksheet('Sessions');
     sheet.columns = [
       { header: 'Session ID', key: 'id', width: 38 },
@@ -149,6 +154,7 @@ export function registerAdminRoutes(app: FastifyInstance) {
       completed_at: toVNTime(r.completed_at),
       age_group: r.age_group?.split('T')[0] ?? r.age_group,
     })));
+    styleHeader(sheet);
 
     const answers = await many<{
       session_id: string; full_name: string | null; core_key: string; subtype: string; score: number; answered_at: string;
@@ -167,6 +173,7 @@ export function registerAdminRoutes(app: FastifyInstance) {
       { header: 'Answered At', key: 'answered_at', width: 22 },
     ];
     answersSheet.addRows(answers.map((a) => ({ ...a, answered_at: toVNTime(a.answered_at) })));
+    styleHeader(answersSheet);
 
     const votes = await many<{ session_id: string | null; full_name: string | null; product_ids: string; voted_at: string }>(
       `SELECT v.session_id, s.full_name, v.product_ids, v.voted_at
@@ -192,6 +199,7 @@ export function registerAdminRoutes(app: FastifyInstance) {
         voted_at: toVNTime(v.voted_at),
       })),
     );
+    styleHeader(votesSheet);
 
     const buffer = await workbook.xlsx.writeBuffer();
     return reply
