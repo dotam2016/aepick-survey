@@ -13,7 +13,7 @@ create table if not exists sessions (
   subtypes text,
   persona text,
   full_name text,
-  gender text check (gender in ('male', 'female')),
+  gender text,
   age_group text,
   phone text,
   started_at text not null,
@@ -140,7 +140,11 @@ create unique index if not exists idx_event_registrations_external_id
 -- Re-running this file against a project that already has `sessions`
 -- without the profile columns (e.g. you applied an older copy) adds them:
 alter table sessions add column if not exists full_name text;
-alter table sessions add column if not exists gender text check (gender in ('male', 'female'));
+alter table sessions add column if not exists gender text;
 alter table sessions add column if not exists age_group text;
 alter table sessions add column if not exists phone text;
 alter table brand_products add column if not exists list_price text;
+
+-- gender 값 종류는 앱 코드(server/src/routes.ts)에서만 검증한다 — DB에 고정 목록으로
+-- 제약을 걸면 값 종류가 늘 때마다 매번 마이그레이션이 필요해진다.
+alter table sessions drop constraint if exists sessions_gender_check;
