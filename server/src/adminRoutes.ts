@@ -135,7 +135,7 @@ export function registerAdminRoutes(app: FastifyInstance) {
       { header: 'Language', key: 'language', width: 10 },
       { header: 'Full Name', key: 'full_name', width: 24 },
       { header: 'Gender', key: 'gender', width: 10 },
-      { header: 'Age Group', key: 'age_group', width: 12 },
+      { header: 'DOB', key: 'age_group', width: 22 },
       { header: 'Phone', key: 'phone', width: 16 },
       { header: 'Persona', key: 'persona', width: 22 },
       { header: 'Status', key: 'status', width: 12 },
