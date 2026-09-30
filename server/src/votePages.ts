@@ -13,7 +13,8 @@ const SHELL_CSS = `
   :root{--bg:#fff6f5;--card:#fff;--accent:#f2675c;--ink:#2b2b2b;--muted:#8a8a8a;--line:#f2e4e3}
   *{box-sizing:border-box}
   body{margin:0;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;background:var(--bg);
-       color:var(--ink);padding:0 0 96px}
+       color:var(--ink);padding:0 0 96px;
+       -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
   header{padding:22px 20px 14px;text-align:center}
   h1{font-size:20px;margin:0 0 6px;line-height:1.35}
   .sub{color:var(--muted);font-size:13.5px;line-height:1.6;margin:0}
@@ -42,6 +43,19 @@ const SHELL_CSS = `
             border:0;border-radius:12px;cursor:pointer}
   button.go:disabled{background:#e8d5d3;cursor:default}
   .msg{text-align:center;padding:40px 20px;color:var(--muted);font-size:14px}
+  /* alert()/confirm() 대신 쓰는 공용 팝업 — 두 페이지에서 공유.
+     z-index를 우측 하단 직원 전용 히트박스(.staff, z-index:5)보다 높여야
+     팝업이 떠 있는 동안 그 아래 버튼 탭이 숨은 히트박스에 가로채이지 않는다. */
+  .sheet{position:fixed;inset:0;z-index:10;background:rgba(0,0,0,.45);display:none;
+         align-items:center;justify-content:center;padding:24px}
+  .sheet.on{display:flex}
+  .sbox{background:#fff;border-radius:16px;padding:22px;max-width:360px;width:100%}
+  .sbox h2{font-size:16px;margin:0 0 12px}
+  .sbox p{margin:0 0 16px;font-size:14px;line-height:1.6;color:var(--ink)}
+  .sbox button{width:100%;padding:12px;font-size:14px;font-weight:700;border-radius:10px;border:0;
+               background:var(--accent);color:#fff;cursor:pointer;margin-bottom:8px}
+  .sbox button.sec{background:#f2f2f2;color:#555}
+  .sbox button:last-child{margin-bottom:0}
 `;
 
 /** 클라이언트 스크립트에서 쓰는 다국어 조회 헬퍼 (server/src/pages.ts와 동일 규약). */
@@ -72,6 +86,12 @@ export function votePageHtml(token: string): string {
   <span class="cnt"><b id="n">0</b> / ${VOTE_PICK_COUNT}</span>
   <button class="go" id="go" disabled></button>
 </div>
+<div class="sheet" id="limitSheet">
+  <div class="sbox">
+    <p id="limitMsg"></p>
+    <button id="limitOk" onclick="el('limitSheet').classList.remove('on')"></button>
+  </div>
+</div>
 <script>
 const TOKEN=${JSON.stringify(token)};
 const NEED=${VOTE_PICK_COUNT};
@@ -89,6 +109,7 @@ el('h1').innerHTML=t('vote.pickTitle',{n:NEED});
 el('sub').innerHTML=t('vote.pickSub');
 el('loadingMsg').textContent=t('vote.loading');
 el('go').textContent=t('vote.voteBtn');
+el('limitOk').textContent=t('vote.staff.closeBtn');
 
 async function load(){
   const r=await fetch(ROOT+'/api/vote/'+TOKEN+'/options');
@@ -116,7 +137,7 @@ function tog(node){
   const id=node.dataset.id;
   if(picked.has(id)){picked.delete(id);node.classList.remove('on')}
   else{
-    if(picked.size>=NEED){alert(t('vote.limitAlert',{n:NEED}));return}
+    if(picked.size>=NEED){el('limitMsg').textContent=t('vote.limitAlert',{n:NEED});el('limitSheet').classList.add('on');return}
     picked.add(id);node.classList.add('on');
   }
   el('n').textContent=picked.size;
@@ -175,17 +196,14 @@ export function voteDonePageHtml(token: string): string {
   .pick .b{color:var(--muted);font-size:11.5px}
   .note{margin-top:20px;padding:13px;background:#fff1f0;border-radius:12px;font-size:13px;
         color:#b0514a;line-height:1.55;font-weight:600}
-  /* 직원 전용 — 눈에 띄지 않게 두되 위치는 고정 */
-  .staff{position:fixed;right:0;bottom:0;width:64px;height:64px;opacity:0;cursor:default}
-  .sheet{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;padding:24px}
-  .sheet.on{display:flex}
-  .sbox{background:#fff;border-radius:16px;padding:22px;max-width:360px;width:100%}
-  .sbox h2{font-size:16px;margin:0 0 12px}
+  /* 직원 전용 — 눈에 띄지 않게 두되 위치는 고정.
+     화면 맨 끝(0,0)에 붙이면 모바일 브라우저 주소창/제스처 바나 화면 모서리 라운드에
+     가려 길게 눌러도 안 먹는 경우가 있어, 세이프에어리어만큼 안쪽으로 띄우고 영역을 키운다. */
+  .staff{position:fixed;right:max(4px,env(safe-area-inset-right));
+         bottom:max(4px,env(safe-area-inset-bottom));width:96px;height:96px;opacity:0;cursor:default;z-index:5;
+         -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
   .sbox input{width:100%;padding:12px;font-size:16px;border:1.5px solid var(--line);border-radius:10px;
               text-align:center;margin-bottom:10px}
-  .sbox button{width:100%;padding:12px;font-size:14px;font-weight:700;border-radius:10px;border:0;
-               background:var(--accent);color:#fff;cursor:pointer;margin-bottom:8px}
-  .sbox button.sec{background:#f2f2f2;color:#555}
   .visit{font-size:15px;line-height:1.7}
   .visit .n{font-size:40px;font-weight:900;color:var(--accent);display:block;margin:6px 0}
   .serr{color:#c33;font-size:13px;min-height:18px}

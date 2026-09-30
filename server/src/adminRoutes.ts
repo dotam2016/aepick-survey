@@ -140,7 +140,15 @@ export function registerAdminRoutes(app: FastifyInstance) {
       { header: 'Persona', key: 'persona', width: 22 },
       { header: 'Status', key: 'status', width: 12 },
     ];
-    sheet.addRows(rows.map((r) => ({ ...r, age_group: r.age_group?.split('T')[0] ?? r.age_group })));
+    // DB엔 UTC(now().toISOString())로 저장돼 있다 — Lambda 등 서버 실행 환경은 타임존이
+    // 늘 UTC라 브라우저처럼 "보는 사람 기기 시간"에 맡길 수 없어, 베트남 시간으로 직접 변환한다.
+    const toVNTime = (iso: string | null) => iso ? new Date(iso).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' }) : '';
+    sheet.addRows(rows.map((r) => ({
+      ...r,
+      started_at: toVNTime(r.started_at),
+      completed_at: toVNTime(r.completed_at),
+      age_group: r.age_group?.split('T')[0] ?? r.age_group,
+    })));
 
     const answers = await many<{
       session_id: string; full_name: string | null; core_key: string; subtype: string; score: number; answered_at: string;
@@ -158,7 +166,7 @@ export function registerAdminRoutes(app: FastifyInstance) {
       { header: 'Score', key: 'score', width: 8 },
       { header: 'Answered At', key: 'answered_at', width: 22 },
     ];
-    answersSheet.addRows(answers);
+    answersSheet.addRows(answers.map((a) => ({ ...a, answered_at: toVNTime(a.answered_at) })));
 
     const votes = await many<{ session_id: string | null; full_name: string | null; product_ids: string; voted_at: string }>(
       `SELECT v.session_id, s.full_name, v.product_ids, v.voted_at
@@ -181,7 +189,7 @@ export function registerAdminRoutes(app: FastifyInstance) {
         session_id: v.session_id,
         full_name: v.full_name,
         products: (JSON.parse(v.product_ids) as string[]).map((id) => productLabel.get(id) ?? id).join(', '),
-        voted_at: v.voted_at,
+        voted_at: toVNTime(v.voted_at),
       })),
     );
 
