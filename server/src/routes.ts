@@ -38,27 +38,12 @@ interface PhoneLookupResponse {
   };
 }
 
-function mapGender(raw: string | null | undefined): 'male' | 'female' | null {
+function mapGender(raw: string | null | undefined): 'male' | 'female' | 'other' | null {
   if (!raw) return null;
   const v = raw.toLowerCase().trim();
   if (v === 'nam' || v === 'male') return 'male';
   if (v === 'nữ' || v === 'nu' || v === 'female') return 'female';
-  return null;
-}
-
-function ageGroupFromDob(dob: string | null | undefined): string | null {
-  if (!dob) return null;
-  const birth = new Date(dob);
-  if (Number.isNaN(birth.getTime())) return null;
-  const now = new Date();
-  let age = now.getFullYear() - birth.getFullYear();
-  if (now.getMonth() < birth.getMonth() || (now.getMonth() === birth.getMonth() && now.getDate() < birth.getDate())) {
-    age -= 1;
-  }
-  if (age < 20) return 'teen';
-  if (age < 30) return 'twenties';
-  if (age < 40) return 'thirties';
-  return 'fortyPlus';
+  return 'other';
 }
 
 const SCORERS: Record<Axis, (a: never) => GameResult> = {
@@ -114,10 +99,10 @@ export function registerRoutes(app: FastifyInstance) {
   app.patch('/api/sessions/:id/profile', async (req, reply) => {
     const { id } = req.params as { id: string };
     const { fullName, gender, ageGroup, phone } = (req.body ?? {}) as {
-      fullName?: string; gender?: 'male' | 'female'; ageGroup?: string; phone?: string;
+      fullName?: string; gender?: 'male' | 'female' | 'other'; ageGroup?: string; phone?: string;
     };
-    if (gender !== undefined && gender !== 'male' && gender !== 'female')
-      return reply.code(400).send(err('bad_request', 'gender must be male or female'));
+    if (gender !== undefined && gender !== 'male' && gender !== 'female' && gender !== 'other')
+      return reply.code(400).send(err('bad_request', 'gender must be male, female or other'));
     const res = await run(
       `UPDATE sessions SET full_name=$1, gender=$2, age_group=$3, phone=$4 WHERE id=$5`,
       [fullName?.trim() || null, gender ?? null, ageGroup ?? null, phone?.trim() || null, id],
@@ -147,7 +132,9 @@ export function registerRoutes(app: FastifyInstance) {
     const d = json.data;
     const fullName = (d.data?.full_name ?? d.name ?? '').trim();
     const gender = mapGender(d.data?.gender ?? d.gender);
-    const ageGroup = ageGroupFromDob(d.data?.dob ?? d.dob);
+    // 별도 컬럼을 늘리지 않고, 기존 age_group 컬럼에 생년월일 원본 문자열을 그대로 저장한다
+    // (수동 입력 폼에서만 teen/twenties 같은 버킷 값이 들어간다 — QR 스캔 값과 포맷이 다르다).
+    const ageGroup = d.data?.dob ?? d.dob ?? null;
     return ok({ fullName, gender, ageGroup, phone: phone.trim() });
   });
 
