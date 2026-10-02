@@ -14,6 +14,7 @@ export default defineConfig({
   plugins: [react(), feTestPages()],
   server: {
     port: 5173,
+    host: true, // LAN IP로도 접속 가능하게 (태블릿/폰에서 테스트용)
     // server/src, packages/shared 를 dev 서버가 읽을 수 있도록 워크스페이스 루트를 허용
     fs: { allow: [resolve(__dirname, '../..')] },
     proxy: {

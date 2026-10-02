@@ -102,12 +102,12 @@ function Lazy({ height, children }: { height: number; children: React.ReactNode 
  * - 기본(잠금): 고른 화면 하나만 그대로 보여 준다.
  * - "Tự chuyển màn"(자동 전환): 실제 앱처럼 state.screen을 따라가며 흐름을 재생한다.
  */
-function StageBody({ entry, autoplay }: { entry: ScreenEntry; autoplay: boolean }) {
+function StageBody({ entry, lang, autoplay }: { entry: ScreenEntry; lang: Language; autoplay: boolean }) {
   const { s } = useStore();
   const Comp = autoplay ? (APP_SCREENS[s.screen] ?? entry.Comp!) : entry.Comp!;
-  const header = autoplay
+  const header = lang !== 'vi' && (autoplay
     ? s.screen !== 'attract' && s.screen !== 'intro'
-    : showsHeader(entry);
+    : showsHeader(entry));
   return (
     <>
       {header && <img src={ASSET('logo')} alt="aépick" className="brand-header" />}
@@ -131,7 +131,7 @@ function KioskFrame({ entry, lang, autoplay, scale, replay }: {
           initialState={{ ...entry.state, language: lang }}
           freezeNavigation={!autoplay}
         >
-          <StageBody entry={entry} autoplay={autoplay} />
+          <StageBody entry={entry} lang={lang} autoplay={autoplay} />
         </StateProvider>
       </div>
     </div>

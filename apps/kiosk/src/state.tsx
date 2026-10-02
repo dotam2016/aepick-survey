@@ -26,7 +26,7 @@ export interface SessionState {
   visitCount: number;
   /** 동의 화면(또는 QR 스캔)에서 얻은 비필수 정보 */
   fullName: string;
-  gender: 'male' | 'female' | null;
+  gender: 'male' | 'female' | 'other' | null;
   ageGroup: string | null;
   /** QR 스캔으로만 채워진다 — 수동 입력 폼에는 없음 */
   phone: string;

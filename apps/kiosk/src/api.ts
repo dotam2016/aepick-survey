@@ -37,7 +37,7 @@ export const DEVICE_ID = resolveDeviceId();
  * 로컬 개발(vite dev 프록시)이나 server/가 kiosk 빌드를 같이 서빙하는 기존 방식에서는
  * 비워두면 그대로 상대 경로로 동작한다 (동작 변경 없음).
  */
-const API_BASE = import.meta.env.VITE_API_BASE ?? '';
+export const API_BASE = import.meta.env.VITE_API_BASE ?? '';
 
 async function req<T>(method: string, path: string, body?: unknown): Promise<T> {
   const res = await fetch(`${API_BASE}/api${path}`, {
@@ -90,14 +90,8 @@ export const api = {
   /* ── 동의 화면(또는 QR 스캔)에서 얻은 이름·성별·연령대·전화번호 저장 ── */
   setProfile: (
     sessionId: string,
-    profile: { fullName?: string; gender?: 'male' | 'female' | null; ageGroup?: string | null; phone?: string | null },
+    profile: { fullName?: string; gender?: 'male' | 'female' | 'other' | null; ageGroup?: string | null; phone?: string | null },
   ) => tryReq('PATCH', `/sessions/${sessionId}/profile`, profile),
-
-  /* ── QR로 읽은 전화번호로 체크인 정보 조회 (동의 화면 QR 스캔) ── */
-  lookupPhone: (phone: string) =>
-    tryReq<{ fullName: string; gender: 'male' | 'female' | null; ageGroup: string | null; phone: string }>(
-      'GET', `/qr-lookup?phone=${encodeURIComponent(phone)}`,
-    ),
 
   complete: (sessionId: string) => tryReq<CompleteResponse>('POST', `/sessions/${sessionId}/complete`, {}),
 

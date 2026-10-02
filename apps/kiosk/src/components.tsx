@@ -1,6 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useId, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { AXES, PERSONAS, type Axis, type Scores } from '@aepick/shared';
+import { AXES, PERSONAS, type Axis, type PersonaId, type Scores } from '@aepick/shared';
 import { useStore, CORE_ORDER, type ScreenId } from './state';
 import { makeT } from './i18n';
 import { api } from './api';
@@ -121,11 +121,13 @@ export function CompleteToast({ message, onDone }: { message: string; onDone: ()
 }
 
 /** 6축 레이더 차트 (SVG) — withIcons: 축마다 시안 아이콘 표시 */
-export function RadarChart({ scores, size = 300, color, withIcons = false }: {
-  scores: Scores; size?: number; color?: string; withIcons?: boolean;
+export function RadarChart({ scores, size = 300, color, dashedColor, fillGradient, outerGradient, withIcons = false }: {
+  scores: Scores; size?: number; color?: string; dashedColor?: string;
+  fillGradient?: { from: string; to: string }; outerGradient?: { from: string; to: string }; withIcons?: boolean;
 }) {
   const { s } = useStore();
   const t = makeT(s.language);
+  const fillId = useId();
   const cx = size / 2;
   const cy = size / 2;
   const R = size * (withIcons ? 0.26 : 0.36);
@@ -134,23 +136,51 @@ export function RadarChart({ scores, size = 300, color, withIcons = false }: {
   const poly = (frac: number) => AXES.map((_, i) => pt(i, R * frac).join(',')).join(' ');
   const valuePoly = AXES.map((a, i) => pt(i, (R * scores[a as Axis]) / 100).join(',')).join(' ');
   const c = color ?? '#f2675c';
+  const dc = dashedColor ?? c;
   const ICON = size * 0.115; // 축 아이콘 지름
+  const BADGE = ICON; // 배경 원 지름 (아이콘과 동일, 아이콘 자체는 안쪽에 여백을 두고 그린다)
   return (
     <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+      <defs>
+        {fillGradient && (
+          <linearGradient id={`fill-${fillId}`} x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor={fillGradient.from} />
+            <stop offset="100%" stopColor={fillGradient.to} />
+          </linearGradient>
+        )}
+        {outerGradient && (
+          <linearGradient id={`outer-${fillId}`} x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor={outerGradient.from} />
+            <stop offset="100%" stopColor={outerGradient.to} />
+          </linearGradient>
+        )}
+        {withIcons && (
+          /* 배지 유리광택 하이라이트 — 우상단에 치우친 밝은 반점 (시안 참고) */
+          <radialGradient id={`axisGloss-${fillId}`} cx="78%" cy="20%" r="30%">
+            <stop offset="0%" stopColor="#ffffff" stopOpacity="0.45" />
+            <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
+          </radialGradient>
+        )}
+      </defs>
       {/* 시안: 바깥 점선 원 */}
       {withIcons && (
-        <circle cx={cx} cy={cy} r={R * 1.42} fill="none" stroke="rgba(242,103,92,0.28)" strokeWidth={1} strokeDasharray="3 6" />
+        <circle cx={cx} cy={cy} r={R * 1.42} fill="none" stroke={hexA(dc, 0.28)} strokeWidth={1} strokeDasharray="3 6" />
       )}
-      {[0.33, 0.66, 1].map((f) => (
-        <polygon key={f} points={poly(f)} fill="none" stroke="rgba(84,62,55,0.16)" strokeWidth={1} />
+      {[1, 0.66, 0.33].map((f) => (
+        <polygon
+          key={f} points={poly(f)}
+          fill={f === 1 && outerGradient ? `url(#outer-${fillId})` : 'none'}
+          stroke={hexA(dc, 0.25)} strokeWidth={1}
+        />
       ))}
       {AXES.map((_, i) => {
         const [x, y] = pt(i, R);
-        return <line key={i} x1={cx} y1={cy} x2={x} y2={y} stroke="rgba(84,62,55,0.1)" />;
+        return <line key={i} x1={cx} y1={cy} x2={x} y2={y} stroke={hexA(dc, 0.18)} />;
       })}
       <motion.polygon
         points={valuePoly}
-        fill={`${c}44`}
+        fill={fillGradient ? `url(#fill-${fillId})` : '#fff'}
+        fillOpacity={0.55}
         stroke={c}
         strokeWidth={3}
         strokeLinejoin="round"
@@ -173,7 +203,17 @@ export function RadarChart({ scores, size = 300, color, withIcons = false }: {
         return (
           <g key={a}>
             {withIcons && (
-              <image href={ASSET(`axis-${a}`)} x={ix - ICON / 2} y={iy - ICON / 2} width={ICON} height={ICON} />
+              <>
+                <circle
+                  cx={ix} cy={iy} r={BADGE / 2}
+                  fill={fillGradient ? `url(#fill-${fillId})` : AXIS_COLORS[a as Axis]}
+                />
+                <circle cx={ix} cy={iy} r={BADGE / 2} fill={`url(#axisGloss-${fillId})`} />
+                <image
+                  href={ASSET(`axis-${a}`)}
+                  x={ix - ICON * 0.32} y={iy - ICON * 0.32} width={ICON * 0.64} height={ICON * 0.64}
+                />
+              </>
             )}
             <text
               x={withIcons ? ix : fx} y={withIcons ? ly : fy}
@@ -203,4 +243,21 @@ export const AXIS_COLORS: Record<Axis, string> = {
   trend: '#FF7A6F',
   localFit: '#5DBB63',
   trust: '#8A2BE2',
+};
+
+const hexA = (hex: string, alpha: number) => {
+  const n = parseInt(hex.replace('#', ''), 16);
+  return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${alpha})`;
+};
+
+/** 페르소나별 레이더 차트 색상 (데이터 폴리곤 테두리 / 배경 그리드·점선 테두리 / 폴리곤 내부 그라디언트 / 바깥 육각형 배경 그라디언트) */
+export const PERSONA_CHART_COLORS: Record<PersonaId, {
+  solid: string; dashed: string; fillFrom: string; fillTo: string; outerFrom: string; outerTo: string;
+}> = {
+  localBeautyExpert: { solid: '#467c45', dashed: '#467c45', fillFrom: '#D2FEAB', fillTo: '#5F9B5A', outerFrom: '#FFFFFF', outerTo: '#FEFFD3' },
+  loyalGlowKeeper: { solid: '#bba47a', dashed: '#bba47a', fillFrom: '#F5DFC0', fillTo: '#C49B69', outerFrom: '#FFFFFF', outerTo: '#FDEFE4' },
+  smartBeautyCurator: { solid: '#405ebb', dashed: '#405ebb', fillFrom: '#A5C1F5', fillTo: '#3270C5', outerFrom: '#FFFFFF', outerTo: '#E5E6E8' },
+  beautyExplorer: { solid: '#ea6e00', dashed: '#f7931d', fillFrom: '#F9E6B0', fillTo: '#F9C238', outerFrom: '#FFFFFF', outerTo: '#FDE4D4' },
+  trendMuse: { solid: '#5b41cc', dashed: '#d51766', fillFrom: '#D2BFF5', fillTo: '#9670E3', outerFrom: '#FFFCFD', outerTo: '#FCDCE8' },
+  trustGuardian: { solid: '#12aeab', dashed: '#40cccc', fillFrom: '#AAF4F4', fillTo: '#76D9DA', outerFrom: '#FFFFFF', outerTo: '#FDEFE4' },
 };

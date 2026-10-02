@@ -6,12 +6,13 @@ import {
   determinePersona,
   type Axis,
   type Language,
+  type PersonaId,
   type Scores,
 } from '@aepick/shared';
 import { screenAfterBridge, useStore } from '../state';
 import { makeT, makeTr } from '../i18n';
 import { api, type TodayStats } from '../api';
-import { ASSET, Deco, Logo, RadarChart, personaColors } from '../components';
+import { ASSET, Deco, Logo, RadarChart, personaColors, PERSONA_CHART_COLORS } from '../components';
 import { QrScanOverlay, type QrProfile } from './QrScan';
 
 /* ────────────────────── S00. Attract ────────────────────── */
@@ -60,6 +61,26 @@ export function AttractScreen() {
   }, []);
 
   const bullets = tr<string[]>('attract.bullets') ?? [];
+
+  // VN 시안 이미지에 문구·버튼까지 모두 포함돼 있어, 베트남어일 땐 이 이미지 한 장만 보여준다
+  // (START 버튼이 그려진 영역에만 클릭 히트박스를 겹쳐 다음 화면으로 진행한다).
+  if (s.language === 'vi') {
+    return (
+      <div className="screen" style={{ padding: 0, justifyContent: 'center' }}>
+        <div style={{ position: 'relative', height: '100%', aspectRatio: '4500 / 6833', maxWidth: '100%' }}>
+          <img src="/assets/ui/vn/anh1.png" alt="" draggable={false}
+            style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} />
+          <button
+            onClick={() => go('language')}
+            aria-label={t('common.start')}
+            style={{
+              position: 'absolute', top: '88.3%', left: '22%', width: '56%', height: '6.5%',
+              background: 'transparent', border: 'none', cursor: 'pointer', padding: 0,
+            }} />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="screen" style={{ justifyContent: 'space-between', padding: '3.5% 6% 3%' }}>
@@ -178,33 +199,45 @@ export function LanguageScreen() {
     else update({ offline: true });
   };
 
-  return (
-    <div className="screen" style={{ justifyContent: 'center', gap: '2.4vh', paddingTop: '9%' }}>
-      {/* 장식 — 화면 가장자리에 걸치게 배치 (텍스트 간섭 방지) */}
-      <Deco name="heart-glossy" style={{ top: '3%', left: '-9%', width: '18%', opacity: 0.7 }} />
-      <Deco name="heart-diamond" style={{ top: '7%', right: '-8%', width: '22%', animationDelay: '1.6s' }} />
-      <Deco name="heart-small" style={{ bottom: '3%', left: '-2%', width: '13%', animationDelay: '2.6s' }} />
-      <Deco name="heart-glossy" style={{ bottom: '6%', right: '-6%', width: '18%', animationDelay: '3.4s', opacity: 0.7 }} />
-      <span className="sparkle" style={{ top: '4.5%', left: '11%', fontSize: 20 }}>✦</span>
-      <span className="sparkle" style={{ top: '15%', right: '20%', fontSize: 15 }}>✧</span>
-      <span className="sparkle" style={{ bottom: '11%', right: '12%', fontSize: 18 }}>✦</span>
+  // VN 시안 이미지(s1-vn.png)에 로고·헤드라인·힌트가 이미 그려져 있어,
+  // 베트남어일 땐 그 부분은 이미지로 대체하고 언어 카드·NEXT 버튼만 코드로 유지한다.
+  const viBg = s.language === 'vi';
 
-      {/* 세리프 헤드라인 + 하트 디바이더 (시안: 언어 선택 전이므로 영문 고정) */}
-      <div>
-        <h1 style={{
-          fontFamily: "Georgia, 'Palatino Linotype', 'Times New Roman', serif",
-          fontSize: 'clamp(30px, 4.8vh, 48px)', fontWeight: 700, color: 'var(--ink)', letterSpacing: '-0.01em',
-          whiteSpace: 'nowrap',
-        }}>
-          Choose Your <span style={{ color: 'var(--accent)' }}>Language</span>
-        </h1>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, justifyContent: 'center', marginTop: '1.4vh', color: 'var(--accent)' }}>
-          <span style={{ width: 44, borderTop: '1.5px solid rgba(242,103,92,0.45)' }} />
-          <span style={{ fontSize: 13 }}>♥</span>
-          <span style={{ width: 44, borderTop: '1.5px solid rgba(242,103,92,0.45)' }} />
+  return (
+    <div className="screen" style={{
+      justifyContent: 'center', gap: '2.4vh', paddingTop: viBg ? '36%' : '9%',
+      ...(viBg ? {
+        backgroundImage: "url(/assets/ui/vn/s1-vn.png)",
+        backgroundSize: '100% 100%', backgroundPosition: 'top center', backgroundRepeat: 'no-repeat',
+      } : {}),
+    }}>
+      {!viBg && <>
+        {/* 장식 — 화면 가장자리에 걸치게 배치 (텍스트 간섭 방지) */}
+        <Deco name="heart-glossy" style={{ top: '3%', left: '-9%', width: '18%', opacity: 0.7 }} />
+        <Deco name="heart-diamond" style={{ top: '7%', right: '-8%', width: '22%', animationDelay: '1.6s' }} />
+        <Deco name="heart-small" style={{ bottom: '3%', left: '-2%', width: '13%', animationDelay: '2.6s' }} />
+        <Deco name="heart-glossy" style={{ bottom: '6%', right: '-6%', width: '18%', animationDelay: '3.4s', opacity: 0.7 }} />
+        <span className="sparkle" style={{ top: '4.5%', left: '11%', fontSize: 20 }}>✦</span>
+        <span className="sparkle" style={{ top: '15%', right: '20%', fontSize: 15 }}>✧</span>
+        <span className="sparkle" style={{ bottom: '11%', right: '12%', fontSize: 18 }}>✦</span>
+
+        {/* 세리프 헤드라인 + 하트 디바이더 (시안: 언어 선택 전이므로 영문 고정) */}
+        <div>
+          <h1 style={{
+            fontFamily: "Georgia, 'Palatino Linotype', 'Times New Roman', serif",
+            fontSize: 'clamp(30px, 4.8vh, 48px)', fontWeight: 700, color: 'var(--ink)', letterSpacing: '-0.01em',
+            whiteSpace: 'nowrap',
+          }}>
+            Choose Your <span style={{ color: 'var(--accent)' }}>Language</span>
+          </h1>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, justifyContent: 'center', marginTop: '1.4vh', color: 'var(--accent)' }}>
+            <span style={{ width: 44, borderTop: '1.5px solid rgba(242,103,92,0.45)' }} />
+            <span style={{ fontSize: 13 }}>♥</span>
+            <span style={{ width: 44, borderTop: '1.5px solid rgba(242,103,92,0.45)' }} />
+          </div>
+          <p className="hint" style={{ marginTop: '1.6vh' }}>Please select your preferred language to begin.</p>
         </div>
-        <p className="hint" style={{ marginTop: '1.6vh' }}>Please select your preferred language to begin.</p>
-      </div>
+      </>}
 
       {/* 언어 카드 */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '2.2vh', width: '100%', marginTop: '2.4vh' }}>
@@ -354,6 +387,52 @@ export function IntroScreen() {
   const R = 110; // 젬 원형 배치 반경
   const GEM = 74; // 젬 크기
 
+  const gemRing = (
+    <div style={{ position: 'relative', width: R * 2 + GEM, height: R * 2 + GEM }}>
+      <span style={{
+        position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%,-50%)',
+        fontSize: 34, color: '#f8bcb7', textShadow: '0 0 18px rgba(242,103,92,0.5)',
+      }}>✦</span>
+      {INTRO_GEMS.map((gem, i) => {
+        const ang = (Math.PI * 2 * i) / 6 - Math.PI / 2;
+        return (
+          <motion.img key={gem} src={ASSET(gem)} alt=""
+            initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.12 * i, type: 'spring', damping: 12 }}
+            style={{
+              position: 'absolute', width: GEM, height: GEM,
+              left: R + R * Math.cos(ang), top: R + R * Math.sin(ang),
+              filter: 'drop-shadow(0 8px 18px rgba(242,103,92,0.28))',
+            }} />
+        );
+      })}
+    </div>
+  );
+
+  // VN 시안 이미지(a_05.png)에 로고·헤드라인·슬로건·START 버튼이 이미 그려져 있어,
+  // 베트남어일 땐 그 부분은 이미지로 대체하고 6개 젬 원형 아이콘만 그 위에 겹쳐 그린다.
+  if (s.language === 'vi') {
+    return (
+      <div className="screen" style={{ padding: 0, justifyContent: 'center' }}>
+        <div style={{ position: 'relative', height: '100%', aspectRatio: '3334 / 4634', maxWidth: '100%' }}>
+          <img src="/assets/ui/vn/a_05.png" alt="" draggable={false}
+            style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} />
+          <div style={{ position: 'absolute', top: '40%', left: '50%', transform: 'translate(-50%,-50%)' }}>
+            {gemRing}
+          </div>
+          {/* START 버튼 — 시안 이미지 위 좌표, 정확한 위치는 추후 디자이너 수치로 조정 */}
+          <button
+            onClick={() => go('core1')}
+            aria-label={t('intro.start')}
+            style={{
+              position: 'absolute', top: '74.8%', left: '25%', width: '50%', height: '6%',
+              background: 'transparent', border: 'none', cursor: 'pointer', padding: 0,
+            }} />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="screen" style={{ justifyContent: 'center', gap: '2.6vh' }}>
       {/* 장식 하트 (가장자리) */}
@@ -368,25 +447,7 @@ export function IntroScreen() {
       </div>
 
       {/* 글로시 젬 6개 원형 배치 + 중앙 스파클 */}
-      <div style={{ position: 'relative', width: R * 2 + GEM, height: R * 2 + GEM }}>
-        <span style={{
-          position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%,-50%)',
-          fontSize: 34, color: '#f8bcb7', textShadow: '0 0 18px rgba(242,103,92,0.5)',
-        }}>✦</span>
-        {INTRO_GEMS.map((gem, i) => {
-          const ang = (Math.PI * 2 * i) / 6 - Math.PI / 2;
-          return (
-            <motion.img key={gem} src={ASSET(gem)} alt=""
-              initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: 0.12 * i, type: 'spring', damping: 12 }}
-              style={{
-                position: 'absolute', width: GEM, height: GEM,
-                left: R + R * Math.cos(ang), top: R + R * Math.sin(ang),
-                filter: 'drop-shadow(0 8px 18px rgba(242,103,92,0.28))',
-              }} />
-          );
-        })}
-      </div>
+      {gemRing}
 
       {/* 헤드라인 (Beauty DNA 핑크 강조) + 서브 + 슬로건 */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1.4vh', alignItems: 'center', marginTop: '1vh' }}>
@@ -480,42 +541,14 @@ export function BridgeScreen() {
   if (!key) return null;
 
   const src = s.language === 'vi' ? `/assets/ui/vn/bridge-${key}-vn.png` : ASSET(`bridge-${key}`, 'jpg');
-  // 래퍼를 원본 이미지 비율로 고정해두면 objectFit:contain과 동일하게 렌더링되므로,
-  // 오버레이 위치를 화면이 아닌 "이미지 안" 기준 %로 정확히 맞출 수 있다.
-  const overlay = s.language === 'vi' ? BRIDGE_VN_OVERLAY[key] : undefined;
-  const aspect = (s.language === 'vi' ? BRIDGE_VN_ASPECT[key] : undefined) ?? '1024 / 1536';
 
   return (
     <div className="screen" style={{ padding: 0, justifyContent: 'center' }}>
-      <div style={{ position: 'relative', height: '100%', aspectRatio: aspect, maxWidth: '100%' }}>
+      <div style={{ position: 'relative', height: '100%', maxWidth: '100%' }}>
         <motion.img key={key} src={src} alt="" draggable={false}
           onLoad={() => setImgLoaded(true)}
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.35 }}
           style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} />
-        {overlay && imgLoaded && (
-          <>
-            <motion.p key={`${key}-t1`}
-              initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.35 }}
-              style={{
-                position: 'absolute', top: overlay.text1Top ?? '19%', left: '10%', width: '80%', whiteSpace: 'pre-line',
-                fontWeight: 800, fontSize: overlay.text1Size ?? 'clamp(15px, 2.5vh, 40px)', lineHeight: 1.35,
-                color: '#e05579', textAlign: 'center',
-              }}>
-              {overlay.text1}
-            </motion.p>
-            <motion.p key={`${key}-t2`}
-              initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.35 }}
-              style={{
-                position: 'absolute', top: '75%', left: '9%', width: '82%', whiteSpace: 'pre-line',
-                fontWeight: 700, fontSize: 'clamp(12px, 2.5vh, 40px)', lineHeight: 1.5,
-                color: '#a55f59', textAlign: 'center',
-              }}>
-              {overlay.text2}
-            </motion.p>
-          </>
-        )}
       </div>
     </div>
   );
@@ -655,6 +688,16 @@ export function AnalyzingScreen() {
 
 /* ────────────────────── S13. DNA 결과 ────────────────────── */
 
+/** 페르소나별 VN 결과 시안 이미지 (public/assets/ui/vn) */
+const RESULT_VN_IMAGE: Record<PersonaId, string> = {
+  loyalGlowKeeper: 'local-glow',
+  smartBeautyCurator: 'smart-beauty',
+  trendMuse: 'trend-muse',
+  localBeautyExpert: 'local-beauty',
+  trustGuardian: 'trust-guardian',
+  beautyExplorer: 'beauty-explorer',
+};
+
 export function DnaResultScreen() {
   const { s, go } = useStore();
   const t = makeT(s.language);
@@ -662,6 +705,52 @@ export function DnaResultScreen() {
   if (!s.persona || !s.scores) return null;
   const p = PERSONAS[s.persona];
   const keywords = tr<string[]>(`dna.personas.${s.persona}.keywords`) ?? [];
+
+  // VN 시안 이미지(persona별 1장)에 로고·배지·페르소나명·키워드·설명·CTA 버튼이 이미 그려져 있어,
+  // 베트남어일 땐 그 이미지 한 장 위에 레이더 차트만 겹쳐 그린다 (차트는 결과마다 모양이 달라 코드로 유지).
+  // TODO: 확정되면 아래 주석 처리된 기존 글래스 카드 코드는 완전히 삭제한다.
+  if (s.language === 'vi') {
+    return (
+      <div className="screen" style={{ padding: 0, justifyContent: 'center' }}>
+        <div style={{ position: 'relative', height: '100%', aspectRatio: '3334 / 4634', maxWidth: '100%' }}>
+          <img src={`/assets/ui/vn/${RESULT_VN_IMAGE[s.persona]}.png`} alt="" draggable={false}
+            style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} />
+          <div style={{ position: 'absolute', top: '62%', left: '50%', transform: 'translate(-50%,-50%)' }}>
+            <RadarChart
+              scores={s.scores} size={330} withIcons
+              color={PERSONA_CHART_COLORS[s.persona].solid}
+              dashedColor={PERSONA_CHART_COLORS[s.persona].dashed}
+              fillGradient={{ from: PERSONA_CHART_COLORS[s.persona].fillFrom, to: PERSONA_CHART_COLORS[s.persona].fillTo }}
+              outerGradient={{ from: PERSONA_CHART_COLORS[s.persona].outerFrom, to: PERSONA_CHART_COLORS[s.persona].outerTo }}
+            />
+          </div>
+          {/* 참여자 비율 배지 — 위치는 임시, 추후 스타일/좌표 조정 예정 */}
+          {!s.offline && (
+            <div style={{
+              position: 'absolute', top: '79.5%', left: '50%', transform: 'translateX(-50%)', whiteSpace: 'nowrap',
+              display: 'inline-flex', alignItems: 'center', gap: 10, padding: '8px 20px 8px 8px', borderRadius: 999,
+              background: 'rgba(255,255,255,0.9)', border: '1px solid var(--card-border)',
+              boxShadow: '0 4px 14px rgba(242,103,92,0.12)',
+            }}>
+              <img src={ASSET('heart-badge')} alt="" draggable={false} style={{ width: 32, height: 32 }} />
+              <span style={{ fontSize: 'clamp(12px, 1.8vh, 16px)', fontWeight: 700, color: '#000' }}>
+                {t('dna.percentile', { p: s.percentile })}
+              </span>
+            </div>
+          )}
+          <button
+            onClick={() => go('qr')}
+            aria-label={t('dna.viewAura')}
+            style={{
+              position: 'absolute', top: '90.7%', left: '19%', width: '62%', height: '5.7%',
+              background: 'transparent', border: 'none', cursor: 'pointer', padding: 0,
+            }} />
+        </div>
+      </div>
+    );
+    /* 기존 글래스 카드 (이미지에 없는 en/ko 등 다른 언어 대비 — 아래 비-vi 분기에서 그대로 사용) */
+  }
+
   return (
     <div className="screen" style={{ justifyContent: 'center', padding: '6% 5% 4%' }}>
       <Deco name="heart-glossy" style={{ bottom: '6%', left: '-7%', width: '17%', opacity: 0.7 }} />
@@ -728,7 +817,13 @@ export function DnaResultScreen() {
         </div>
 
         {/* 레이더 차트 (축 아이콘 포함) */}
-        <RadarChart scores={s.scores} size={330} withIcons />
+        <RadarChart
+          scores={s.scores} size={330} withIcons
+          color={PERSONA_CHART_COLORS[s.persona].solid}
+          dashedColor={PERSONA_CHART_COLORS[s.persona].dashed}
+          fillGradient={{ from: PERSONA_CHART_COLORS[s.persona].fillFrom, to: PERSONA_CHART_COLORS[s.persona].fillTo }}
+          outerGradient={{ from: PERSONA_CHART_COLORS[s.persona].outerFrom, to: PERSONA_CHART_COLORS[s.persona].outerTo }}
+        />
 
         {/* 참여자 비율 배지 */}
         {!s.offline && (

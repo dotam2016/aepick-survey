@@ -71,13 +71,31 @@ function GameShell({ screen, title, question, hint, children, toast, onToastDone
   screen: ScreenId; title: string; question?: string; hint?: string;
   children: React.ReactNode; toast: string | null; onToastDone: () => void;
 }) {
+  const { s } = useStore();
+  // VN 시안 이미지(coreN-vn.png)에 로고·타이틀·질문·힌트가 이미 그려져 있어,
+  // 베트남어일 땐 그 부분은 이미지로 대체하고 인터랙션(게임 본문)만 코드로 유지한다.
+  if (s.language === 'vi') {
+    return (
+      <div className="screen" style={{
+        justifyContent: 'flex-start', paddingTop: screen === 'core5' ? '36%' : '30%',
+        backgroundImage: `url(/assets/ui/vn/${screen}-vn.png)`,
+        backgroundSize: '100% 100%', backgroundPosition: 'top center', backgroundRepeat: 'no-repeat',
+      }}>
+        <div style={{ position: 'absolute', top: '11.8%', left: 0, right: 0 }}>
+          {/* <ProgressGems current={screen} /> */}
+        </div>
+        <div className={`game-body${screen === 'core6' ? ' game-body--core6' : ''}`}>{children}</div>
+        {toast && <CompleteToast message={toast} onDone={onToastDone} />}
+      </div>
+    );
+  }
   return (
     <div className="screen" style={{ justifyContent: 'flex-start', paddingTop: '7%' }}>
       {/* 시안 공통 장식 */}
       <Deco name="dna-helix" style={{ top: '1%', left: '-6%', width: '15%', opacity: 0.75 }} />
       <Deco name="diamond" style={{ top: '0.5%', right: '-3%', width: '13%', animationDelay: '1.4s' }} />
       <Deco name="heart-glossy" style={{ top: '7%', right: '-6%', width: '17%', animationDelay: '2.2s', opacity: 0.75 }} />
-      <ProgressGems current={screen} />
+      {/* <ProgressGems current={screen} /> */}
       <h2 className="title">{title}</h2>
       {question && <p className="question" style={{ marginTop: 8 }}><AccentText text={question} /></p>}
       {hint && <p className="hint" style={{ marginTop: 6 }}>{hint}</p>}
@@ -443,7 +461,7 @@ export function Core3Screen() {
       </div>
 
       {/* 하단 넛지 + 다음 버튼 */}
-      <p style={{ fontSize: 'clamp(12px, 1.7vh, 16px)', fontWeight: 700, color: 'var(--accent)' }}>
+      <p style={{ fontSize: 'clamp(12px, 1.7vh, 16px)', fontWeight: 700, color: 'var(--accent)', marginTop: '2vh' }}>
         🛡 {t('core3.footerNudge')}
       </p>
       <button className="btn" style={{ width: '86%', padding: '20px 0' }} disabled={!canProceed}
@@ -493,7 +511,7 @@ export function Core4Screen() {
   const SideHint = ({ dir }: { dir: 'notme' | 'love' }) => (
     <div style={{
       position: 'absolute', top: '50%', transform: 'translateY(-50%)',
-      [dir === 'notme' ? 'left' : 'right']: 0, zIndex: 3,
+      [dir === 'notme' ? 'left' : 'right']: dir === 'notme' ? '-15px' : 0, zIndex: 3,
       display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, pointerEvents: 'none',
     }}>
       <div style={{
@@ -561,18 +579,6 @@ export function Core4Screen() {
             </motion.div>
           </motion.div>
         </AnimatePresence>
-        {/* 상단 ↑ 방향 배지 + 라벨 (위로 스와이프 = 다음에 해볼래요) */}
-        <div style={{
-          position: 'absolute', top: '12px', left: '50%', transform: 'translate(-50%, -100%)', zIndex: 3,
-          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, pointerEvents: 'none',
-        }}>
-          <div style={{
-            width: 42, height: 42, borderRadius: '50%', display: 'grid', placeItems: 'center',
-            background: 'rgba(255,255,255,0.92)', border: '2px solid rgba(242,103,92,0.35)',
-            color: 'var(--accent)', fontSize: 19, fontWeight: 900,
-            boxShadow: '0 4px 14px rgba(242,103,92,0.25)',
-          }}>↑</div>
-        </div>
       </div>
 
       {/* 하단 3버튼 — 화살표(방향) + 라벨 2줄 구성 */}
