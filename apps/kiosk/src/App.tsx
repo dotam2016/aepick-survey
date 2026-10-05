@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { BRIDGE_AXES, StateProvider, useStore, type ScreenId } from './state';
+import { TREND_CARDS } from '@aepick/shared';
+import { BRIDGE_AXES, CORE_ORDER, StateProvider, useStore, type ScreenId } from './state';
 import { ASSET, TimeoutGuard } from './components';
 import {
   AttractScreen, LanguageScreen, ConsentScreen, IntroScreen, BridgeScreen,
@@ -59,20 +60,34 @@ const QS = new URLSearchParams(window.location.search);
 const DISABLE_TIMEOUT = QS.has('noTimeout');
 const TIMEOUT_OVERRIDE = Number(QS.get('timeout')) || null;
 
-// 브릿지 화면 진입 시 이미지가 늦게 뜨는 문제 방지 — 언어 선택 직후(코어 게임을 하는 동안)
-// 6개 브릿지 이미지를 미리 받아 브라우저 캐시에 올려둔다.
-function useBridgePreload(language: string) {
+// 디코딩까지 끝낸 Image를 모듈 스코프에 붙잡아둔다 — 참조가 없으면 GC가 디코드 캐시를
+// 회수해버려, 화면 전환 시 img 태그를 새로 꽂을 때 다시 디코딩하며 끊긴다(iPad에서 체감됨).
+const preloadedImages: HTMLImageElement[] = [];
+function preloadImage(src: string) {
+  const img = new Image();
+  img.src = src;
+  img.decode?.().catch(() => {});
+  preloadedImages.push(img);
+}
+
+// 화면 전환 중 이미지가 늦게 뜨며 끊기는(stutter) 문제 방지 — 언어 선택 직후(코어 게임을 하는 동안)
+// 브릿지·코어(VN 배경)·트렌드 카드 이미지를 모두 미리 받아 디코딩까지 끝내둔다.
+function useImagePreload(language: string) {
   useEffect(() => {
     BRIDGE_AXES.forEach((axis) => {
-      const src = language === 'vi' ? `/assets/ui/vn/bridge-${axis}-vn.png` : ASSET(`bridge-${axis}`, 'jpg');
-      new Image().src = src;
+      const src = language === 'vi' ? `/assets/ui/vn/bridge-${axis}-vn.webp` : ASSET(`bridge-${axis}`, 'jpg');
+      preloadImage(src);
     });
+    if (language === 'vi') {
+      CORE_ORDER.forEach(({ screen }) => preloadImage(`/assets/ui/vn/${screen}-vn.webp`));
+    }
+    TREND_CARDS.forEach((card) => preloadImage(ASSET(`trend-${card}`, 'webp')));
   }, [language]);
 }
 
 function Router() {
   const { s } = useStore();
-  useBridgePreload(s.language);
+  useImagePreload(s.language);
   const Screen = SCREENS[s.screen];
   const base = TIMEOUTS[s.screen];
   const timeout = DISABLE_TIMEOUT ? null : (base === null ? null : (TIMEOUT_OVERRIDE ?? base));
@@ -90,7 +105,8 @@ function Router() {
     <div className="stage">
       <OperatorGesture />
       {/* 전 화면 공통 브랜드 헤더 (대형 워드마크를 자체 표시하는 화면·이미지에 로고가 이미 포함된 화면 제외) */}
-      {s.screen !== 'attract' && s.screen !== 'intro' && s.screen !== 'bridge' && s.screen !== 'end' && (
+      {s.language !== 'vi'
+        && s.screen !== 'attract' && s.screen !== 'intro' && s.screen !== 'bridge' && s.screen !== 'end' && (
         <img src={ASSET('logo')} alt="aépick" className="brand-header" />
       )}
       {timeout !== null ? <TimeoutGuard seconds={timeout}>{body}</TimeoutGuard> : body}

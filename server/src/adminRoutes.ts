@@ -7,6 +7,11 @@ import { listBrands } from './catalog.js';
 
 const ok = (data: unknown) => ({ ok: true, data });
 
+// BE가 별도로 올린 Zalo 체크인 고객 명단 Excel 람다 (PIN 인증) — PIN은 비밀값이라
+// 커밋되지 않는 .env의 CNV_EXPORT_PIN으로만 받는다 (.env.example 참고).
+const CNV_EXPORT_URL = 'https://tzn2xfoo4i46lnnurtehukjd4m0cgbzj.lambda-url.ap-southeast-1.on.aws/';
+const CNV_EXPORT_PIN = process.env.CNV_EXPORT_PIN;
+
 export function registerAdminRoutes(app: FastifyInstance) {
   app.addHook('onRequest', async (req, reply) => {
     if (!req.url.startsWith('/api/admin')) return;
@@ -206,6 +211,25 @@ export function registerAdminRoutes(app: FastifyInstance) {
       .header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
       .header('Content-Disposition', `attachment; filename="aepick-survey-${todayPrefix().replace(/-/g, '')}.xlsx"`)
       .send(Buffer.from(buffer));
+  });
+
+  /* ── Zalo 체크인 고객 명단 Excel (BE가 별도로 올린 람다 — PIN 인증, CORS가 자기네 API Gateway
+   *    origin 하나만 허용해 브라우저에서 직접 못 부른다. 서버를 거쳐 대신 호출한다) ── */
+  app.get('/api/admin/export/registrations.xlsx', async (_req, reply) => {
+    if (!CNV_EXPORT_PIN)
+      return reply.code(500).send({ ok: false, error: { code: 'config_missing', message: 'CNV_EXPORT_PIN not set in .env' } });
+    let res: Awaited<ReturnType<typeof fetch>>;
+    try {
+      res = await fetch(CNV_EXPORT_URL, { headers: { 'x-admin-pin': CNV_EXPORT_PIN } });
+    } catch {
+      return reply.code(502).send({ ok: false, error: { code: 'lookup_failed', message: 'upstream unreachable' } });
+    }
+    if (!res.ok) return reply.code(502).send({ ok: false, error: { code: 'lookup_failed', message: `upstream HTTP ${res.status}` } });
+    const buffer = Buffer.from(await res.arrayBuffer());
+    return reply
+      .header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+      .header('Content-Disposition', res.headers.get('content-disposition') ?? 'attachment; filename="aepick-cnv-customers.xlsx"')
+      .send(buffer);
   });
 
   /* ── 17. Zalo 체크인 이벤트 등록 목록 (webhookRoutes.ts가 저장) ── */

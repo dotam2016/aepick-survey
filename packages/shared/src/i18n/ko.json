@@ -49,11 +49,13 @@
     "qrScanTitle": "QR 코드를 화면 안에 맞춰주세요",
     "qrScanCancel": "취소",
     "qrScanInvalid": "유효하지 않은 QR 코드입니다. 다시 시도해 주세요",
-    "qrScanCameraError": "카메라에 접근할 수 없습니다. 카메라 권한을 허용하거나 아래에 직접 입력해 주세요."
+    "qrScanNetworkError": "서버에 연결할 수 없습니다. 잠시 후 다시 시도해 주세요",
+    "qrScanCameraError": "카메라에 접근할 수 없습니다. 카메라 권한을 허용해 주세요."
   },
   "intro": {
     "title": "6번의 선택, 당신만을 위한 1개의 Beauty DNA",
-    "sub": "선택할 때마다 Beauty Gem이 하나씩 빛나요 — 6개의 gem, 당신만의 Beauty DNA"
+    "sub": "선택할 때마다 Beauty Gem이 하나씩 빛나요 — 6개의 gem, 당신만의 Beauty DNA",
+    "start": "시작하기"
   },
   "core1": {
     "title": "EMPTY BOTTLE CHALLENGE",

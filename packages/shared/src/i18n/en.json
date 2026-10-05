@@ -49,11 +49,13 @@
     "qrScanTitle": "Point the QR code at the frame",
     "qrScanCancel": "Cancel",
     "qrScanInvalid": "Invalid QR code, please try again",
-    "qrScanCameraError": "Couldn't access the camera. Please allow camera permission or fill in the fields below."
+    "qrScanNetworkError": "Couldn't reach the server, please try again in a few seconds",
+    "qrScanCameraError": "Couldn't access the camera. Please allow camera permission."
   },
   "intro": {
     "title": "6 Picks, 1 Beauty DNA made for you",
-    "sub": "Every pick lights up a Beauty Gem — 6 gems, 1 Beauty DNA made just for you"
+    "sub": "Every pick lights up a Beauty Gem — 6 gems, 1 Beauty DNA made just for you",
+    "start": "Start"
   },
   "core1": {
     "title": "EMPTY BOTTLE CHALLENGE",

@@ -5,7 +5,7 @@
  * `source`는 그 화면을 고칠 때 열어야 하는 파일이다 (갤러리 하단에 표시된다).
  */
 import React from 'react';
-import type { PersonaId, Scores } from '@aepick/shared';
+import { PERSONAS, type PersonaId, type Scores } from '@aepick/shared';
 import type { ScreenId, SessionState } from '../state';
 import { CompleteToast, TimeoutGuard } from '../components';
 import {
@@ -97,7 +97,7 @@ const bridge = (axis: string, label: string): ScreenEntry => ({
   id: `bridge-${axis}`,
   group: 'bridge',
   label,
-  note: 'Ảnh full-screen chèn giữa các game (3 giây rồi tự chuyển). Đổi ảnh: tiếng Việt dùng public/assets/ui/vn/bridge-*-vn.png, ngôn ngữ khác dùng public/assets/ui/bridge-*.jpg.',
+  note: 'Ảnh full-screen chèn giữa các game (3 giây rồi tự chuyển). Đổi ảnh: tiếng Việt dùng public/assets/ui/vn/bridge-*-vn.webp, ngôn ngữ khác dùng public/assets/ui/bridge-*.jpg.',
   source: FLOW,
   kind: 'kiosk',
   Comp: BridgeScreen,
@@ -132,12 +132,13 @@ export const SCREENS: ScreenEntry[] = [
     source: FLOW, kind: 'kiosk', Comp: AnalyzingScreen,
     state: { screen: 'analyzing', sessionId: MOCK_SESSION_ID },
   },
-  {
-    id: 'dnaResult', group: 'flow', code: 'S13', label: 'Kết quả Beauty DNA',
-    note: 'Persona + từ khoá + biểu đồ radar 6 trục. Persona mẫu: Trend Muse.',
-    source: FLOW, kind: 'kiosk', Comp: DnaResultScreen,
-    state: { ...RESULT_STATE, screen: 'dnaResult' },
-  },
+  /* 6개 persona별 VN 결과 시안 이미지 확인용 — 전부 같은 DnaResultScreen, persona만 다르다 */
+  ...(Object.keys(PERSONAS) as PersonaId[]).map((persona) => ({
+    id: `dnaResult-${persona}`, group: 'flow' as const, code: 'S13', label: `Kết quả — ${PERSONAS[persona].name}`,
+    note: 'Persona + từ khoá + biểu đồ radar 6 trục.',
+    source: FLOW, kind: 'kiosk' as const, Comp: DnaResultScreen,
+    state: { ...RESULT_STATE, screen: 'dnaResult' as const, persona },
+  })),
   {
     id: 'qr', group: 'flow', code: 'S15', label: 'Mã QR nhận kết quả',
     note: 'Mã QR trong bản test là ảnh giả (không quét được), đúng kích thước để canh layout.',
