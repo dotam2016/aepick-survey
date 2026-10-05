@@ -714,6 +714,13 @@ export function DnaResultScreen() {
   const { s, go } = useStore();
   const t = makeT(s.language);
   const tr = makeTr(s.language);
+  const [bgLoaded, setBgLoaded] = useState(false);
+  const bgImgRef = useRef<HTMLImageElement>(null);
+  // onLoad는 이미지가 이미 브라우저 캐시에 있으면 React가 리스너를 붙이기 전에
+  // 발생해버릴 수 있다 — 마운트 직후 complete를 한 번 더 확인해 놓친 경우를 잡는다.
+  useEffect(() => {
+    if (bgImgRef.current?.complete) setBgLoaded(true);
+  }, []);
   if (!s.persona || !s.scores) return null;
   const p = PERSONAS[s.persona];
   const keywords = tr<string[]>(`dna.personas.${s.persona}.keywords`) ?? [];
@@ -725,17 +732,20 @@ export function DnaResultScreen() {
     return (
       <div className="screen" style={{ padding: 0, justifyContent: 'center' }}>
         <div style={{ position: 'relative', height: '100%', aspectRatio: '3334 / 4634', maxWidth: '100%' }}>
-          <img src={`/assets/ui/vn/${RESULT_VN_IMAGE[s.persona]}.webp`} alt="" draggable={false}
+          <img ref={bgImgRef} src={`/assets/ui/vn/${RESULT_VN_IMAGE[s.persona]}.webp`} alt="" draggable={false}
+            onLoad={() => setBgLoaded(true)}
             style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} />
-          <div style={{ position: 'absolute', top: '62%', left: '50%', transform: 'translate(-50%,-50%)' }}>
-            <RadarChart
-              scores={s.scores} size={330} withIcons
-              color={PERSONA_CHART_COLORS[s.persona].solid}
-              dashedColor={PERSONA_CHART_COLORS[s.persona].dashed}
-              fillGradient={{ from: PERSONA_CHART_COLORS[s.persona].fillFrom, to: PERSONA_CHART_COLORS[s.persona].fillTo }}
-              outerGradient={{ from: PERSONA_CHART_COLORS[s.persona].outerFrom, to: PERSONA_CHART_COLORS[s.persona].outerTo }}
-            />
-          </div>
+          {bgLoaded && (
+            <div style={{ position: 'absolute', top: '62%', left: '50%', transform: 'translate(-50%,-50%)' }}>
+              <RadarChart
+                scores={s.scores} size={330} withIcons
+                color={PERSONA_CHART_COLORS[s.persona].solid}
+                dashedColor={PERSONA_CHART_COLORS[s.persona].dashed}
+                fillGradient={{ from: PERSONA_CHART_COLORS[s.persona].fillFrom, to: PERSONA_CHART_COLORS[s.persona].fillTo }}
+                outerGradient={{ from: PERSONA_CHART_COLORS[s.persona].outerFrom, to: PERSONA_CHART_COLORS[s.persona].outerTo }}
+              />
+            </div>
+          )}
           {/* 참여자 비율 배지 — 위치는 임시, 추후 스타일/좌표 조정 예정 */}
           {!s.offline && (
             <div style={{
