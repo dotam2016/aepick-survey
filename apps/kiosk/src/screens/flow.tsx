@@ -67,7 +67,7 @@ export function AttractScreen() {
   if (s.language === 'vi') {
     return (
       <div className="screen" style={{ padding: 0, justifyContent: 'center' }}>
-        <div style={{ position: 'relative', height: '100%', aspectRatio: '4500 / 6833', maxWidth: '100%' }}>
+        <div style={{ position: 'relative', height: '100%', maxWidth: '100%' }}>
           <img src="/assets/ui/vn/anh1.webp" alt="" draggable={false}
             style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} />
           <button
@@ -186,17 +186,26 @@ const LANGS: { code: Language; label: string; short: string; flag: string }[] = 
 export function LanguageScreen() {
   const { s, update, go } = useStore();
   const [selected, setSelected] = useState<Language>(s.language ?? 'vi');
+  const [scanning, setScanning] = useState(false);
 
   const pick = (code: Language) => {
     setSelected(code);
     update({ language: code }); // 선택 즉시 전체 UI 언어 반영
   };
 
+  // S02(동의 & 수동 입력)를 건너뛰고 NEXT를 누르면 바로 QR 스캔 카메라를 띄운다.
   const next = async () => {
-    go('consent');
+    setScanning(true);
     const res = await api.createSession(selected);
     if (res) update({ sessionId: res.sessionId, offline: false });
     else update({ offline: true });
+  };
+
+  const onQrResult = (profile: QrProfile) => {
+    setScanning(false);
+    update({ fullName: profile.fullName, gender: profile.gender, ageGroup: profile.ageGroup, phone: profile.phone });
+    if (s.sessionId) api.setProfile(s.sessionId, profile);
+    go('intro');
   };
 
   // VN 시안 이미지(s1-vn.png)에 로고·헤드라인·힌트가 이미 그려져 있어,
@@ -286,6 +295,7 @@ export function LanguageScreen() {
       <button className="btn" style={{ width: '72%', marginTop: '2.6vh', padding: '23px 0', letterSpacing: '0.14em' }} onClick={next}>
         NEXT
       </button>
+      {scanning && <QrScanOverlay onResult={onQrResult} onClose={() => setScanning(false)} />}
     </div>
   );
 }

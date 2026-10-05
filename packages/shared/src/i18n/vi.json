@@ -50,7 +50,8 @@
     "qrScanTitle": "Đưa mã QR vào khung hình",
     "qrScanCancel": "Hủy",
     "qrScanInvalid": "Mã QR không hợp lệ, vui lòng thử lại",
-    "qrScanCameraError": "Không thể truy cập camera. Vui lòng cho phép quyền camera hoặc nhập tay bên dưới."
+    "qrScanNetworkError": "Không kết nối được hệ thống, vui lòng thử lại sau ít giây",
+    "qrScanCameraError": "Không thể truy cập camera. Vui lòng cho phép quyền camera."
   },
   "intro": {
     "title": "6 lựa chọn, 1 Beauty DNA dành riêng cho bạn",
