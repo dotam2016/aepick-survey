@@ -293,7 +293,7 @@ input.text::placeholder { color: rgba(96, 61, 58, 0.4); }
 
 /* 타임아웃 모달 */
 .modal-backdrop { position: absolute; inset: 0; background: rgba(64, 29, 26, 0.4); display: grid; place-items: center; z-index: 90; }
-.modal { width: 78%; padding: 40px 30px; text-align: center; display: flex; flex-direction: column; gap: 50px; align-items: center; }
+.modal { width: 78%; padding: 45px 30px 40px; text-align: center; display: flex; flex-direction: column; gap: 20px; align-items: center; }
 
 /* 완료 토스트 */
 .complete-toast {
