@@ -55,6 +55,15 @@ export function AttractScreen() {
   const t = makeT(s.language);
   const tr = makeTr(s.language);
   const [stats, setStats] = useState<TodayStats | null>(null);
+  const [bgLoaded, setBgLoaded] = useState(false);
+  const bgImgRef = useRef<HTMLImageElement>(null);
+  // 로드 완료 후 100ms 더 기다렸다가 보여준다 (페인트 여유 확보용 안전 마진).
+  const markBgLoaded = () => setTimeout(() => setBgLoaded(true), 100);
+  // onLoad는 이미지가 이미 캐시에 있으면 리스너를 붙이기 전에 발생할 수 있어, 마운트 직후
+  // complete를 한 번 더 확인한다 (DnaResultScreen과 동일 패턴).
+  useEffect(() => {
+    if (bgImgRef.current?.complete) markBgLoaded();
+  }, []);
 
   useEffect(() => {
     api.todayStats().then(setStats);
@@ -68,8 +77,28 @@ export function AttractScreen() {
     return (
       <div className="screen" style={{ padding: 0, justifyContent: 'center' }}>
         <div style={{ position: 'relative', height: '100%', maxWidth: '100%' }}>
-          <img src="/assets/ui/vn/anh1.webp" alt="" draggable={false}
+          <img ref={bgImgRef} src="/assets/ui/vn/anh1.webp" alt="" draggable={false}
+            onLoad={markBgLoaded}
             style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} />
+          {/* 시안 이미지에 두 스탯 카드가 "—"/"···" placeholder로 이미 그려져 있어, 그 자리에 실 데이터만 겹쳐 그린다.
+              이미지 로드가 끝난 뒤에만 보여준다 (그 전엔 텍스트가 이미지보다 먼저 떠 보였음). */}
+          {bgLoaded && (
+            <>
+              <p style={{
+                position: 'absolute', top: '60.9%', left: '23.3%', margin: 0,
+                fontWeight: 800, fontSize: 'clamp(18px, 2.4vh, 20px)', color: 'var(--ink)',
+              }}>
+                {stats && stats.totalParticipants > 0 ? stats.totalParticipants.toLocaleString() : '—'}
+              </p>
+              <p style={{
+                position: 'absolute', top: '60.9%', left: '58%', margin: 0, maxWidth: '27%',
+                fontFamily: 'var(--wordmark-font)', fontStyle: 'italic', fontWeight: 900,
+                fontSize: 'clamp(15px, 1.8vh, 18px)', color: 'var(--accent)', letterSpacing: '-0.02em',
+              }}>
+                {stats?.topPersona ? PERSONAS[stats.topPersona].name : '· · ·'}
+              </p>
+            </>
+          )}
           <button
             onClick={() => go('language')}
             aria-label={t('common.start')}
