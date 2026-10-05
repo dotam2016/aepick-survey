@@ -68,7 +68,7 @@ export function AttractScreen() {
     return (
       <div className="screen" style={{ padding: 0, justifyContent: 'center' }}>
         <div style={{ position: 'relative', height: '100%', aspectRatio: '4500 / 6833', maxWidth: '100%' }}>
-          <img src="/assets/ui/vn/anh1.png" alt="" draggable={false}
+          <img src="/assets/ui/vn/anh1.webp" alt="" draggable={false}
             style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} />
           <button
             onClick={() => go('language')}
@@ -207,7 +207,7 @@ export function LanguageScreen() {
     <div className="screen" style={{
       justifyContent: 'center', gap: '2.4vh', paddingTop: viBg ? '36%' : '9%',
       ...(viBg ? {
-        backgroundImage: "url(/assets/ui/vn/s1-vn.png)",
+        backgroundImage: "url(/assets/ui/vn/s1-vn.webp)",
         backgroundSize: '100% 100%', backgroundPosition: 'top center', backgroundRepeat: 'no-repeat',
       } : {}),
     }}>
@@ -292,6 +292,9 @@ export function LanguageScreen() {
 
 /* ────────────────────── S02. 동의 ────────────────────── */
 
+/** 임시 조치 — 수동 입력 폼을 숨기고 QR 스캔만 남긴다. 다시 켤 땐 true로. */
+const SHOW_MANUAL_FORM = false;
+
 export function ConsentScreen() {
   const { s, update, go } = useStore();
   const t = makeT(s.language);
@@ -331,39 +334,38 @@ export function ConsentScreen() {
   };
 
   return (
-    <div className="screen" style={{ justifyContent: 'center', gap: 12 }}>
-      {/* 제목의 "Beauty DNA"는 대기화면과 같은 규칙으로 강조한다 */}
-      <h1 className="display" style={{ marginBottom: '2vh' }}>
-        {t('consent.title').split(/(Beauty DNA)/).map((p, i) =>
-          p === 'Beauty DNA'
-            ? <span key={i} className="accent">Beauty DNA</span>
-            : <React.Fragment key={i}>{p}</React.Fragment>,
-        )}
-      </h1>
-      <Row k="terms" label={t('consent.terms')} required />
-      <Row k="storage" label={t('consent.storage')} required />
-      <div style={{ height: 8 }} />
-      <input className="text" placeholder={t('consent.fullNamePlaceholder')}
-        value={fullName} onChange={(e) => setFullName(e.target.value)} />
-      <div style={{ display: 'flex', gap: 8, width: '100%', justifyContent: 'center' }}>
-        {(['male', 'female'] as const).map((g) => (
-          <button key={g} className="btn ghost small" style={{
-            border: gender === g ? '2px solid var(--pink)' : '1px solid var(--card-border)',
-          }} onClick={() => setGender(g)}>{t(`consent.genders.${g}`)}</button>
-        ))}
-      </div>
-      <p className="hint">{t('consent.ageShare')}</p>
-      <div style={{ display: 'flex', gap: 8, width: '100%', justifyContent: 'center', flexWrap: 'wrap' }}>
-        {(['teen', 'twenties', 'thirties', 'fortyPlus', 'skip'] as const).map((a) => (
-          <button key={a} className="btn ghost small" style={{
-            border: ageGroup === a ? '2px solid var(--pink)' : '1px solid var(--card-border)',
-          }} onClick={() => setAgeGroup(a)}>{t(`consent.ages.${a}`)}</button>
-        ))}
-      </div>
-      <button className="btn" style={{ marginTop: '2vh' }} disabled={!requiredOk} onClick={start}>
-        {t('consent.startExperience')}
-      </button>
-      <button className="btn ghost" style={{ marginTop: '1vh' }} onClick={() => setScanning(true)}>
+    <div className="screen" style={{
+      justifyContent: 'center', gap: 12,
+      backgroundImage: `url(${ASSET('background')})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat',
+    }}>
+      {SHOW_MANUAL_FORM && (
+        <>
+          <Row k="terms" label={t('consent.terms')} required />
+          <Row k="storage" label={t('consent.storage')} required />
+          <div style={{ height: 8 }} />
+          <input className="text" placeholder={t('consent.fullNamePlaceholder')}
+            value={fullName} onChange={(e) => setFullName(e.target.value)} />
+          <div style={{ display: 'flex', gap: 8, width: '100%', justifyContent: 'center' }}>
+            {(['male', 'female'] as const).map((g) => (
+              <button key={g} className="btn ghost small" style={{
+                border: gender === g ? '2px solid var(--pink)' : '1px solid var(--card-border)',
+              }} onClick={() => setGender(g)}>{t(`consent.genders.${g}`)}</button>
+            ))}
+          </div>
+          <p className="hint">{t('consent.ageShare')}</p>
+          <div style={{ display: 'flex', gap: 8, width: '100%', justifyContent: 'center', flexWrap: 'wrap' }}>
+            {(['teen', 'twenties', 'thirties', 'fortyPlus', 'skip'] as const).map((a) => (
+              <button key={a} className="btn ghost small" style={{
+                border: ageGroup === a ? '2px solid var(--pink)' : '1px solid var(--card-border)',
+              }} onClick={() => setAgeGroup(a)}>{t(`consent.ages.${a}`)}</button>
+            ))}
+          </div>
+          <button className="btn" style={{ marginTop: '2vh' }} disabled={!requiredOk} onClick={start}>
+            {t('consent.startExperience')}
+          </button>
+        </>
+      )}
+      <button className="btn" style={{ marginTop: '1vh' }} onClick={() => setScanning(true)}>
         {t('consent.qrScanBtn')}
       </button>
       {scanning && <QrScanOverlay onResult={onQrResult} onClose={() => setScanning(false)} />}
@@ -415,7 +417,7 @@ export function IntroScreen() {
     return (
       <div className="screen" style={{ padding: 0, justifyContent: 'center' }}>
         <div style={{ position: 'relative', height: '100%', aspectRatio: '3334 / 4634', maxWidth: '100%' }}>
-          <img src="/assets/ui/vn/a_05.png" alt="" draggable={false}
+          <img src="/assets/ui/vn/a_05.webp" alt="" draggable={false}
             style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} />
           <div style={{ position: 'absolute', top: '40%', left: '50%', transform: 'translate(-50%,-50%)' }}>
             {gemRing}
@@ -518,7 +520,7 @@ const BRIDGE_VN_ASPECT: Partial<Record<string, string>> = {
 /**
  * 게임 사이 브랜드 메시지 화면.
  * 디자인 시안이 문구까지 포함된 완성 이미지이므로 전체 화면으로 그대로 표시한다.
- * (문구가 이미지에 구워져 있어 언어별 이미지가 필요 — 베트남어는 public/assets/ui/vn/*-vn.png,
+ * (문구가 이미지에 구워져 있어 언어별 이미지가 필요 — 베트남어는 public/assets/ui/vn/*-vn.webp,
  *  그 외 언어는 한국어 고정 이미지로 폴백한다)
  */
 export function BridgeScreen() {
@@ -540,7 +542,7 @@ export function BridgeScreen() {
 
   if (!key) return null;
 
-  const src = s.language === 'vi' ? `/assets/ui/vn/bridge-${key}-vn.png` : ASSET(`bridge-${key}`, 'jpg');
+  const src = s.language === 'vi' ? `/assets/ui/vn/bridge-${key}-vn.webp` : ASSET(`bridge-${key}`, 'jpg');
 
   return (
     <div className="screen" style={{ padding: 0, justifyContent: 'center' }}>
@@ -713,7 +715,7 @@ export function DnaResultScreen() {
     return (
       <div className="screen" style={{ padding: 0, justifyContent: 'center' }}>
         <div style={{ position: 'relative', height: '100%', aspectRatio: '3334 / 4634', maxWidth: '100%' }}>
-          <img src={`/assets/ui/vn/${RESULT_VN_IMAGE[s.persona]}.png`} alt="" draggable={false}
+          <img src={`/assets/ui/vn/${RESULT_VN_IMAGE[s.persona]}.webp`} alt="" draggable={false}
             style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} />
           <div style={{ position: 'absolute', top: '62%', left: '50%', transform: 'translate(-50%,-50%)' }}>
             <RadarChart
@@ -888,7 +890,7 @@ export function EndScreen() {
   }, [resetSession, s.sessionId]);
   // 체험 마무리 화면 — 디자인 시안(문구 포함 완성 이미지)을 전체 화면으로 표시
   // VN 이미지는 문구가 구워져 있지 않아 중앙 오브 아래에 텍스트를 오버레이한다.
-  const src = s.language === 'vi' ? '/assets/ui/vn/end-final-vn.png' : ASSET('end-final', 'jpg');
+  const src = s.language === 'vi' ? '/assets/ui/vn/end-final-vn.webp' : ASSET('end-final', 'jpg');
   return (
     <div className="screen" style={{ padding: 0, justifyContent: 'center' }}>
       <div style={{ position: 'relative', height: '100%', aspectRatio: '1024 / 1536', maxWidth: '100%' }}>

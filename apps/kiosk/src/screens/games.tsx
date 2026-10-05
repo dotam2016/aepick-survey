@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   CARE_TIME_LIMIT_MS,
   SCENARIO_IDS,
@@ -72,13 +72,13 @@ function GameShell({ screen, title, question, hint, children, toast, onToastDone
   children: React.ReactNode; toast: string | null; onToastDone: () => void;
 }) {
   const { s } = useStore();
-  // VN 시안 이미지(coreN-vn.png)에 로고·타이틀·질문·힌트가 이미 그려져 있어,
+  // VN 시안 이미지(coreN-vn.webp)에 로고·타이틀·질문·힌트가 이미 그려져 있어,
   // 베트남어일 땐 그 부분은 이미지로 대체하고 인터랙션(게임 본문)만 코드로 유지한다.
   if (s.language === 'vi') {
     return (
       <div className="screen" style={{
         justifyContent: 'flex-start', paddingTop: screen === 'core5' ? '36%' : '30%',
-        backgroundImage: `url(/assets/ui/vn/${screen}-vn.png)`,
+        backgroundImage: `url(/assets/ui/vn/${screen}-vn.webp)`,
         backgroundSize: '100% 100%', backgroundPosition: 'top center', backgroundRepeat: 'no-repeat',
       }}>
         <div style={{ position: 'absolute', top: '11.8%', left: 0, right: 0 }}>
@@ -474,15 +474,59 @@ export function Core3Screen() {
 
 /* ────────────── CORE 4. NEXT BEAUTY WAVE ────────────── */
 
+/**
+ * 트렌드 카드. 6장을 전부 한 번만 마운트해두고 active 카드만 opacity로 보여준다 —
+ * next할 때마다 DOM을 새로 만들어 꽂으면(마운트/언마운트) 이미지가 매번 다시
+ * 디코딩되며 iPad에서 끊긴다. 순수 CSS transition만 사용해 motion.div도 필요 없다.
+ */
+function TrendCard({ card, idx, active, t }: {
+  card: TrendCardId; idx: number; active: boolean; t: (key: string, vars?: Record<string, string | number>) => string;
+}) {
+  return (
+    <div
+      style={{
+        position: 'absolute', inset: '2% 11%', zIndex: active ? 2 : 1,
+        borderRadius: 30, overflow: 'hidden',
+        background: 'linear-gradient(180deg, #fdefee, #fbe1df)',
+        border: '3px solid rgba(255,255,255,0.9)',
+        boxShadow: '0 18px 46px rgba(242,103,92,0.35), 0 0 0 6px rgba(255,255,255,0.35)',
+        display: 'flex', flexDirection: 'column',
+        opacity: active ? 1 : 0, transition: 'opacity 0.25s ease',
+        pointerEvents: active ? 'auto' : 'none',
+      }}>
+      {/* 인물 이미지 */}
+      <img src={ASSET(`trend-${card}`, 'webp')} alt="" style={{ width: '100%', flex: 1, minHeight: 0, objectFit: 'cover', objectPosition: 'top center' }} />
+      {/* TREND 배지 */}
+      <div style={{
+        position: 'absolute', top: 12, left: '50%', transform: 'translateX(-50%)',
+        padding: '6px 20px', borderRadius: 999, whiteSpace: 'nowrap',
+        background: 'linear-gradient(180deg, #fa9b93, var(--accent-deep))', color: '#fff',
+        fontSize: 12.5, fontWeight: 800, letterSpacing: '0.06em',
+        boxShadow: '0 4px 10px rgba(242,103,92,0.35)',
+      }}>{t('core4.trendBadge', { n: idx + 1 })}</div>
+      {/* 스타일 정보 */}
+      <div style={{ flex: 'none', padding: '10px 14px 14px', background: 'linear-gradient(180deg, rgba(253,239,238,0.8), #fdefee 45%)', textAlign: 'center' }}>
+        <div style={{ fontSize: 'clamp(22px, 3.2vh, 32px)', fontWeight: 800, color: 'var(--accent)', letterSpacing: '-0.01em' }}>
+          {t(`core4.styles.${card}.name`)}
+        </div>
+        <div style={{ fontSize: 'clamp(12px, 1.7vh, 15px)', marginTop: 4, fontWeight: 600, color: 'var(--ink)' }}>
+          {t(`core4.styles.${card}.desc`)}
+        </div>
+        <div style={{
+          display: 'inline-block', marginTop: 8, padding: '3px 16px', borderRadius: 999,
+          background: 'rgba(255,255,255,0.9)', fontSize: 12, fontWeight: 700, color: 'var(--accent)',
+        }}>{idx + 1} / {TREND_CARDS.length}</div>
+      </div>
+    </div>
+  );
+}
+
 export function Core4Screen() {
   const { s } = useStore();
   const t = makeT(s.language);
   const { toast, complete, advance } = useGameComplete('core4', 'trend');
   const [idx, setIdx] = useState(0);
   const [swipes, setSwipes] = useState<Partial<Record<TrendCardId, SwipeDir>>>({});
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-  const rotate = useTransform(x, [-200, 200], [-14, 14]);
 
   const card = TREND_CARDS[idx];
 
@@ -495,16 +539,7 @@ export function Core4Screen() {
       complete(result, payload, t(`core4.complete.${result.subtype}`));
     } else {
       setIdx(idx + 1);
-      x.set(0); y.set(0);
     }
-  };
-
-  const onDragEnd = () => {
-    const dx = x.get();
-    const dy = y.get();
-    if (dy < -110 && Math.abs(dy) > Math.abs(dx)) swipe('next');
-    else if (dx > 110) swipe('love');
-    else if (dx < -110) swipe('notme');
   };
 
   /** 좌우 스와이프 안내 (원형 버튼 + 점선) */
@@ -533,52 +568,10 @@ export function Core4Screen() {
         <SideHint dir="love" />
         {/* 뒤에 쌓인 카드 그림자 */}
         <div style={{ position: 'absolute', inset: '5% 13%', borderRadius: 30, background: 'rgba(255,255,255,0.45)', border: '1px solid rgba(255,255,255,0.7)', transform: 'scale(0.97) translateY(8px)' }} />
-        <AnimatePresence mode="popLayout">
-          <motion.div key={card} drag dragSnapToOrigin onDragEnd={onDragEnd}
-            style={{
-              position: 'absolute', inset: '2% 11%', x, y, rotate, zIndex: 2,
-              borderRadius: 30, overflow: 'hidden', cursor: 'grab',
-              background: 'linear-gradient(180deg, #fdefee, #fbe1df)',
-              border: '3px solid rgba(255,255,255,0.9)',
-              boxShadow: '0 18px 46px rgba(242,103,92,0.35), 0 0 0 6px rgba(255,255,255,0.35)',
-              display: 'flex', flexDirection: 'column',
-            }}
-            initial={{ scale: 0.92, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ opacity: 0, scale: 0.85 }}>
-            {/* 인물 이미지 */}
-            <img src={ASSET(`trend-${card}`)} alt="" style={{ width: '100%', flex: 1, minHeight: 0, objectFit: 'cover', objectPosition: 'top center' }} />
-            {/* TREND 배지 */}
-            <div style={{
-              position: 'absolute', top: 12, left: '50%', transform: 'translateX(-50%)',
-              padding: '6px 20px', borderRadius: 999, whiteSpace: 'nowrap',
-              background: 'linear-gradient(180deg, #fa9b93, var(--accent-deep))', color: '#fff',
-              fontSize: 12.5, fontWeight: 800, letterSpacing: '0.06em',
-              boxShadow: '0 4px 10px rgba(242,103,92,0.35)',
-            }}>{t('core4.trendBadge', { n: idx + 1 })}</div>
-            {/* 스타일 정보 */}
-            <div style={{ flex: 'none', padding: '10px 14px 14px', background: 'linear-gradient(180deg, rgba(253,239,238,0.8), #fdefee 45%)', textAlign: 'center' }}>
-              <div style={{ fontSize: 'clamp(22px, 3.2vh, 32px)', fontWeight: 800, color: 'var(--accent)', letterSpacing: '-0.01em' }}>
-                {t(`core4.styles.${card}.name`)}
-              </div>
-              <div style={{ fontSize: 'clamp(12px, 1.7vh, 15px)', marginTop: 4, fontWeight: 600, color: 'var(--ink)' }}>
-                {t(`core4.styles.${card}.desc`)}
-              </div>
-              <div style={{
-                display: 'inline-block', marginTop: 8, padding: '3px 16px', borderRadius: 999,
-                background: 'rgba(255,255,255,0.9)', fontSize: 12, fontWeight: 700, color: 'var(--accent)',
-              }}>{idx + 1} / {TREND_CARDS.length}</div>
-            </div>
-            {/* 드래그 방향 배지 */}
-            <motion.div className="dir-badge" style={{ left: 18, color: '#c97770', borderColor: '#c97770', opacity: useTransform(x, [-140, -40], [1, 0]) }}>
-              {t('core4.dirs.notme')}
-            </motion.div>
-            <motion.div className="dir-badge" style={{ right: 18, color: 'var(--accent-deep)', borderColor: 'var(--accent-deep)', opacity: useTransform(x, [40, 140], [0, 1]) }}>
-              {t('core4.dirs.love')} ♥
-            </motion.div>
-            <motion.div className="dir-badge" style={{ left: '50%', translateX: '-50%', color: '#e8a33f', borderColor: '#e8a33f', opacity: useTransform(y, [-140, -40], [1, 0]) }}>
-              ↑
-            </motion.div>
-          </motion.div>
-        </AnimatePresence>
+        {/* 6장 전부 미리 마운트 — 넘길 때 DOM을 새로 만들지 않고 opacity만 바꾼다 */}
+        {TREND_CARDS.map((c, i) => (
+          <TrendCard key={c} card={c} idx={i} active={i === idx} t={t} />
+        ))}
       </div>
 
       {/* 하단 3버튼 — 화살표(방향) + 라벨 2줄 구성 */}

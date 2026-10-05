@@ -6,7 +6,7 @@ import { makeT } from './i18n';
 import { api } from './api';
 
 /* ────────── 시안에서 슬라이스한 UI 에셋 (public/assets/ui) ────────── */
-export const ASSET = (name: string, ext: 'png' | 'jpg' = 'png') => `/assets/ui/${name}.${ext}`;
+export const ASSET = (name: string, ext: 'png' | 'jpg' | 'webp' = 'png') => `/assets/ui/${name}.${ext}`;
 
 /** 브랜드 워드마크 (시안 로고 이미지) */
 export function Logo({ height = 56, sub = true }: { height?: number; sub?: boolean }) {
