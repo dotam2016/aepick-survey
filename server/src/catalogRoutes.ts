@@ -165,13 +165,14 @@ function render(){
     <div class="tags">\${AXES.map(a=>\`<span class="aff">\${a}
       <input style="width:56px" type="number" step="0.05" min="0" max="1" value="\${(b.axisAffinity||{})[a]??''}" onchange="setAff(\${bi},'\${a}',this.value)"/></span>\`).join('')}</div>
     <table>
-      <tr><th>제품명 (ko / en / vi)</th><th style="width:100px">정가 (취소선)</th><th style="width:100px">판매가 (팝업 전용)</th><th style="width:150px">구매 링크</th><th style="width:60px">노출</th><th style="width:110px"></th></tr>
+      <tr><th>제품명 (ko / en / vi)</th><th style="width:100px">정가 (취소선)</th><th style="width:100px">판매가 (팝업 전용)</th><th style="width:150px">구매 링크</th><th style="width:60px">노출</th><th style="width:70px">추천노출</th><th style="width:110px"></th></tr>
       \${b.products.map((p,pi)=>\`<tr>
         <td>\${LANGS.map(l=>\`<input style="width:31%" value="\${esc((p.name||{})[l]||'')}" onchange="setP(\${bi},\${pi},'name.\${l}',this.value)" placeholder="\${l}"/>\`).join(' ')}</td>
         <td><input style="width:100%" value="\${esc(p.listPrice)}" oninput="setPrice(\${bi},\${pi},'listPrice',this)"/></td>
         <td><input style="width:100%" value="\${esc(p.price)}" oninput="setPrice(\${bi},\${pi},'price',this)"/></td>
         <td><input style="width:100%" value="\${esc(p.shopUrl)}" onchange="setP(\${bi},\${pi},'shopUrl',this.value)"/></td>
         <td><input type="checkbox" \${p.active?'checked':''} onchange="setP(\${bi},\${pi},'active',this.checked)"/></td>
+        <td><input type="checkbox" \${p.inPicks?'checked':''} onchange="setP(\${bi},\${pi},'inPicks',this.checked)"/></td>
         <td><button onclick="saveP(\${bi},\${pi})">저장</button> <button class="danger" onclick="delP(\${bi},\${pi})">×</button></td>
       </tr>\`).join('')}
     </table>
@@ -228,7 +229,7 @@ function addBrand(){
 function addProduct(bi){
   const b=DATA[bi];
   const id=b.id+'p'+(b.products.length+1);
-  b.products.push({id,brandId:b.id,name:{},price:'',listPrice:'',shopUrl:'',active:true,sortOrder:b.products.length});
+  b.products.push({id,brandId:b.id,name:{},price:'',listPrice:'',shopUrl:'',active:true,inPicks:false,sortOrder:b.products.length});
   render(); saveP(bi,b.products.length-1);
 }
 load();
