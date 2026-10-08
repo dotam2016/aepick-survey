@@ -47,6 +47,7 @@ export function QrScanOverlay({ onResult, onClose }: { onResult: (profile: QrPro
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [error, setError] = useState<'camera' | 'invalid' | 'network' | null>(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -69,13 +70,15 @@ export function QrScanOverlay({ onResult, onClose }: { onResult: (profile: QrPro
           // 조회 중엔(looking) 같은 QR을 계속 들이대도 매 프레임 재요청하지 않는다.
           if (code && code.data && !done && !looking) {
             looking = true;
+            setLoading(true);
             lookupProfileByPhone(code.data).then((result) => {
               if (cancelled) return;
               looking = false;
               if (result.ok) {
-                done = true;
+                done = true; // 로딩은 유지 — 부모가 오버레이를 닫으며 언마운트된다
                 onResult(result.profile);
               } else {
+                setLoading(false);
                 setError(result.reason);
               }
             });
@@ -126,6 +129,14 @@ export function QrScanOverlay({ onResult, onClose }: { onResult: (profile: QrPro
         }}
       >
         <video ref={videoRef} muted playsInline style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        {loading && (
+          <div style={{ position: 'absolute', inset: 0, background: 'rgba(10,6,10,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{
+              width: 56, height: 56, borderRadius: '50%', border: '6px solid rgba(255,255,255,0.25)',
+              borderTopColor: 'var(--pink)', animation: 'spin 0.8s linear infinite',
+            }} />
+          </div>
+        )}
       </div>
       <canvas ref={canvasRef} style={{ display: 'none' }} />
       {/* QR 형식 오류·미등록 번호는 카메라가 계속 돌며 자동 재시도되므로 가벼운 안내 문구만 */}
