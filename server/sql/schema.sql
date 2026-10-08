@@ -144,6 +144,7 @@ alter table sessions add column if not exists gender text;
 alter table sessions add column if not exists age_group text;
 alter table sessions add column if not exists phone text;
 alter table brand_products add column if not exists list_price text;
+alter table brand_products add column if not exists in_picks smallint not null default 1;
 
 -- gender 값 종류는 앱 코드(server/src/routes.ts)에서만 검증한다 — DB에 고정 목록으로
 -- 제약을 걸면 값 종류가 늘 때마다 매번 마이그레이션이 필요해진다.

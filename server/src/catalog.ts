@@ -26,6 +26,8 @@ export interface CatalogProduct {
   imageUrl: string | null;
   sortOrder: number;
   active: boolean;
+  /** true일 때만 결과 화면(Beauty Picks) 추천 대상. 투표 화면에는 항상 노출 */
+  inPicks: boolean;
 }
 
 export interface CatalogBrand {
@@ -52,7 +54,7 @@ interface BrandRow {
 }
 interface ProductRow {
   id: string; brand_id: string; name: string; price: string | null; list_price: string | null; shop_url: string | null;
-  image_url: string | null; sort_order: number; active: number;
+  image_url: string | null; sort_order: number; active: number; in_picks: number;
 }
 
 function toBrand(r: BrandRow, products: CatalogProduct[]): CatalogBrand {
@@ -81,6 +83,7 @@ function toProduct(r: ProductRow): CatalogProduct {
     imageUrl: r.image_url,
     sortOrder: r.sort_order,
     active: r.active === 1,
+    inPicks: r.in_picks === 1,
   };
 }
 
@@ -145,20 +148,21 @@ export interface ProductInput {
   imageUrl?: string | null;
   sortOrder?: number;
   active?: boolean;
+  inPicks?: boolean;
 }
 
 export async function upsertProduct(input: ProductInput): Promise<CatalogProduct | undefined> {
   await run(
-    `INSERT INTO brand_products (id, brand_id, name, price, list_price, shop_url, image_url, sort_order, active, updated_at)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+    `INSERT INTO brand_products (id, brand_id, name, price, list_price, shop_url, image_url, sort_order, active, in_picks, updated_at)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
      ON CONFLICT (id) DO UPDATE SET
        brand_id=excluded.brand_id, name=excluded.name, price=excluded.price, list_price=excluded.list_price,
-       shop_url=excluded.shop_url, image_url=excluded.image_url, sort_order=excluded.sort_order, active=excluded.active,
+       shop_url=excluded.shop_url, image_url=excluded.image_url, sort_order=excluded.sort_order, active=excluded.active, in_picks=excluded.in_picks,
        updated_at=excluded.updated_at`,
     [
       input.id, input.brandId, JSON.stringify(input.name ?? {}), input.price ?? '', input.listPrice ?? '',
       input.shopUrl ?? '', input.imageUrl ?? null, input.sortOrder ?? 0,
-      input.active === false ? 0 : 1, now(),
+      input.active === false ? 0 : 1, input.inPicks === false ? 0 : 1, now(),
     ],
   );
   const row = await one<ProductRow>(`SELECT * FROM brand_products WHERE id=$1`, [input.id]);
@@ -179,7 +183,11 @@ export const BRAND_PICK_COUNT = 4;
 
 /** 페르소나 태그 우선 → 상위 2축 친화도 순으로 브랜드 선정 */
 export async function recommendBrands(persona: PersonaId, topAxes: [Axis, Axis], count = BRAND_PICK_COUNT): Promise<CatalogBrand[]> {
-  const scored = (await listBrands(true)).map((b) => {
+  // 추천 체크가 꺼진 제품은 추천에서 제외하고, 남은 제품이 없는 브랜드는 후보에서 뺀다.
+  const candidates = (await listBrands(true))
+    .map((b) => ({ ...b, products: b.products.filter((p) => p.inPicks) }))
+    .filter((b) => b.products.length > 0);
+  const scored = candidates.map((b) => {
     const tagBonus = b.personaTags.includes(persona) ? 10 : 0;
     const affinity = (b.axisAffinity[topAxes[0]] ?? 0) * 1.4 + (b.axisAffinity[topAxes[1]] ?? 0);
     return { b, score: tagBonus + affinity };
