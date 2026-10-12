@@ -281,11 +281,14 @@ texts();
 
 /* 길게 누르기(1.2초)로만 열린다 — 고객의 우연한 터치 방지 */
 (function(){
-  const z=el('staff'); let timer=null;
-  const start=()=>{timer=setTimeout(()=>{el('sheet').classList.add('on')},1200)};
-  const stop=()=>{clearTimeout(timer)};
-  z.addEventListener('pointerdown',start);
-  ['pointerup','pointerleave','pointercancel'].forEach(e=>z.addEventListener(e,stop));
+  const z=el('staff');
+  // 1.2초가 되면 손을 떼기 전에 팝업을 먼저 띄운다(반응 없어 보이면 오류로 오해). 키보드용 focus()는
+  // iOS가 제스처 안에서만 허용하므로 손을 뗄 때(pointerup) 호출한다.
+  let tm=0,opened=false;
+  z.addEventListener('pointerdown',()=>{opened=false;clearTimeout(tm);
+    tm=setTimeout(()=>{opened=true;el('sheet').classList.add('on')},1200)});
+  z.addEventListener('pointerup',()=>{clearTimeout(tm);if(opened){opened=false;el('pin').focus()}});
+  ['pointerleave','pointercancel'].forEach(e=>z.addEventListener(e,()=>{clearTimeout(tm)}));
 })();
 
 function closeSheet(){el('sheet').classList.remove('on');el('sform').style.display='block';

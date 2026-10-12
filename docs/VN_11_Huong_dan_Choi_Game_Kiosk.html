@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hướng dẫn chơi game trên Kiosk</title>
+<style>
+  :root{--bg:#fff6f5;--card:#fff;--accent:#f2675c;--ink:#2b2b2b;--muted:#7a6f6e;--line:#f2e4e3;--soft:#fdf1f0}
+  @media (prefers-color-scheme:dark){
+    :root{--bg:#1d1716;--card:#2a2120;--ink:#f4eceb;--muted:#b9aaa8;--line:#3d2f2d;--soft:#33262a}
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 system-ui,-apple-system,'Segoe UI',sans-serif}
+  .wrap{max-width:880px;margin:0 auto;padding:32px 16px 64px}
+  h1{font-size:28px;margin:0 0 6px}
+  .lead{color:var(--muted);margin:0 0 24px}
+  .flow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:0 0 28px;padding:14px;background:var(--card);
+        border:1px solid var(--line);border-radius:14px;font-size:14px}
+  .flow b{background:var(--accent);color:#fff;border-radius:999px;padding:2px 11px;font-weight:700}
+  .flow i{color:var(--muted);font-style:normal}
+  .game{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px;margin:0 0 18px}
+  .game h2{margin:0 0 2px;font-size:20px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .num{background:var(--accent);color:#fff;border-radius:10px;padding:1px 10px;font-size:15px}
+  .axis{font-size:12.5px;color:var(--muted);margin:0 0 12px}
+  .goal{margin:0 0 12px;font-weight:600}
+  h3{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin:14px 0 4px}
+  ol,ul{margin:0;padding-left:22px}
+  li{margin:2px 0}
+  .note{margin-top:12px;padding:10px 14px;background:var(--soft);border-radius:12px;font-size:14px;color:var(--muted)}
+  .note b{color:var(--ink)}
+  table{width:100%;border-collapse:collapse;font-size:14px;margin-top:4px}
+  td,th{border-top:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+  th{color:var(--muted);font-weight:600}
+  .foot{color:var(--muted);font-size:13px;margin-top:28px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Hướng dẫn chơi game trên Kiosk</h1>
+  <p class="lead">6 mini game (Core 1–6) của Beauty DNA. Mỗi game đo một trục tính cách mua sắm; kết quả cả 6 trục quyết định persona cuối cùng.</p>
+
+  <div class="flow">
+    <b>Attract</b><i>→</i><b>Chọn ngôn ngữ</b><i>→</i><b>Quét QR</b><i>→</i><b>Intro</b><i>→</i>
+    <b>Core 1</b><i>→ bridge →</i><b>Core 2</b><i>→ bridge →</i><b>Core 3</b><i>→ bridge →</i>
+    <b>Core 4</b><i>→ bridge →</i><b>Core 5</b><i>→ bridge →</i><b>Core 6</b><i>→ bridge →</i>
+    <b>Phân tích DNA</b><i>→</i><b>Kết quả</b><i>→</i><b>QR</b><i>→</i><b>Kết thúc</b>
+  </div>
+  <p class="note" style="margin:-14px 0 24px"><b>Quy ước chung:</b> làm xong một game sẽ hiện thông báo hoàn tất ngắn, rồi tới <b>màn bridge</b> (ảnh thông điệp thương hiệu, tự chuyển sau 1,8 giây) và sang game kế tiếp. Không có nút bỏ qua, vì cần đủ dữ liệu 6 trục để ra DNA.</p>
+
+  <section class="game">
+    <h2><span class="num">Core 1</span> EMPTY BOTTLE CHALLENGE</h2>
+    <p class="axis">Trục Repick · mua lại</p>
+    <p class="goal">Câu hỏi: “Sản phẩm nào bạn sẽ dùng đến hết và mua lại?”</p>
+    <h3>Cách chơi</h3>
+    <ol>
+      <li>Màn hình có 3 thẻ sản phẩm: <b>A Viral Glow Serum</b> (món đang hot), <b>B Steady Barrier Cream</b> (món hiệu quả rõ rệt), <b>C Classic Daily Lotion</b> (món must-have).</li>
+      <li><b>Kéo thẻ bạn chọn thả vào vùng REPICK</b> (khung nét đứt hồng ở dưới). Kéo thẻ xuống đủ xa cũng được tính là chọn.</li>
+      <li>Thả xong là game hoàn tất ngay.</li>
+    </ol>
+    <h3>Kết quả (subtype)</h3>
+    <ul><li>Chọn B → <b>longterm</b> · Chọn C → <b>familiar</b> · Chọn A → <b>instant</b>.</li></ul>
+  </section>
+
+  <section class="game">
+    <h2><span class="num">Core 2</span> BEAUTY BUDGET</h2>
+    <p class="axis">Trục Value · giá trị</p>
+    <p class="goal">Câu hỏi: “10 Beauty Coin, bạn sẽ chọn đầu tư vào đâu?”</p>
+    <h3>Cách chơi</h3>
+    <ol>
+      <li>Bạn có <b>10 coin</b>. Có 8 mục: Hiệu quả, Thành phần, Giá hợp lý, Dung tích, Quà tặng, Thương hiệu, Bao bì, KOL gợi ý.</li>
+      <li>Bấm <b>＋</b> để thêm 1 coin vào mục, <b>−</b> để rút lại. Mỗi mục tối đa <b>4 coin</b>.</li>
+      <li>Thanh phía trên hiển thị “Còn lại n coin”.</li>
+      <li>Phải <b>dùng hết 10 coin</b> thì nút <b>Xong</b> mới bật. Bấm Xong để hoàn tất.</li>
+    </ol>
+    <h3>Kết quả</h3>
+    <ul><li>practical, premium, benefit hoặc balanced, tuỳ bạn dồn coin vào mục nào.</li></ul>
+  </section>
+
+  <section class="game">
+    <h2><span class="num">Core 3</span> BEAUTY SHIELD</h2>
+    <p class="axis">Trục Care · niềm tin vào thông tin</p>
+    <p class="goal">Câu hỏi: “Nhận diện những dấu hiệu đáng tin cậy.” Chọn <b>3</b> dấu hiệu trong <b>10 giây</b>.</p>
+    <h3>Cách chơi</h3>
+    <ol>
+      <li>Đồng hồ đếm ngược 10 giây chạy ngay khi vào màn.</li>
+      <li>Chạm vào <b>3 trong 8 thẻ</b> dấu hiệu (ví dụ: minh bạch bảng thành phần, được kiểm nghiệm thực tế, nhiều đánh giá 5 sao, được người nổi tiếng khuyên dùng…). Ba chấm phía trên sáng dần theo số thẻ đã chọn.</li>
+      <li>Chọn đủ 3 thẻ thì đồng hồ dừng. Bấm <b>Tiếp theo</b> để hoàn tất.</li>
+      <li>Hết 10 giây mà chưa đủ 3 thẻ vẫn bấm Tiếp theo được; hệ thống chấm theo những thẻ đã chọn.</li>
+    </ol>
+    <div class="note"><b>Lưu ý:</b> các thẻ rủi ro (“hiệu quả vượt trội theo quảng cáo”, “HOT bán chạy”, “người nổi tiếng khuyên dùng”) không được đánh dấu khác biệt, để người chơi tự nhận ra. Chọn nhanh còn được cộng thêm điểm.</div>
+  </section>
+
+  <section class="game">
+    <h2><span class="num">Core 4</span> NEXT BEAUTY WAVE</h2>
+    <p class="axis">Trục Trend · xu hướng</p>
+    <p class="goal">Câu hỏi: “Đâu là Beauty Wave dành cho bạn?”</p>
+    <h3>Cách chơi</h3>
+    <ol>
+      <li>Có <b>6 thẻ xu hướng</b>, hiện lần lượt từng thẻ: Glass Skin, Soft Matte, Natural Peach, Bold Color, Minimal Skin, Y2K Beauty.</li>
+      <li>Với mỗi thẻ, bấm <b>1 trong 3 nút</b> ở dưới (hiện chưa vuốt được):</li>
+    </ol>
+    <table>
+      <tr><th>Nút</th><th>Ý nghĩa</th><th>Điểm</th></tr>
+      <tr><td>← Không hợp gu</td><td>Không hợp phong cách của mình</td><td>2</td></tr>
+      <tr><td>↑ Sẽ thử sau</td><td>Muốn thử sớm, đón đầu xu hướng</td><td>16</td></tr>
+      <tr><td>→ Mê ngay</td><td>Rất thích</td><td>12</td></tr>
+    </table>
+    <ol start="3"><li>Bấm hết 6 thẻ thì game tự hoàn tất. Không có nút “Tiếp theo” riêng: bấm 1 trong 3 nút chính là cách đi tiếp.</li></ol>
+    <h3>Kết quả</h3>
+    <ul>
+      <li><b>pioneer</b>: chọn “Sẽ thử sau” từ 3 thẻ trở lên</li>
+      <li><b>stable</b>: chọn “Không hợp gu” từ 3 thẻ trở lên</li>
+      <li><b>experimental</b>: không từ chối Bold Color hoặc Y2K</li>
+      <li><b>mainstream</b>: các trường hợp còn lại</li>
+    </ul>
+  </section>
+
+  <section class="game">
+    <h2><span class="num">Core 5</span> HANOI BEAUTY WEATHER LAB</h2>
+    <p class="axis">Trục Local Fit · hợp với bối cảnh</p>
+    <p class="goal">Câu hỏi: “Combo nào hợp nhất với Hà Nội hôm nay?”</p>
+    <h3>Cách chơi</h3>
+    <ol>
+      <li>Hệ thống <b>chọn ngẫu nhiên 1 trong 6 tình huống</b> (nóng ẩm 34°C, đi làm ngày mưa, hẹn hò ngoài trời, ngồi điều hòa, du lịch cuối tuần, tiệc tối). Thẻ tình huống hiển thị thời tiết và các chip mô tả.</li>
+      <li>Có <b>5 cặp lựa chọn (VS)</b>, mỗi cặp chọn <b>1 bên</b>: kết cấu (mỏng nhẹ / đậm đặc), độ hoàn thiện (lì / căng bóng), ưu tiên (bền lâu / thoải mái), dưỡng ẩm (sâu / thấm nhanh), kích cỡ (nhỏ gọn / dung tích lớn).</li>
+      <li>Chọn đủ 5 cặp thì nút <b>Xong</b> mới bật. Bấm Xong, thanh “Độ phù hợp với hôm nay” chạy lên một số %, giữ khoảng 1,8 giây rồi tự sang màn tiếp theo.</li>
+    </ol>
+    <h3>Kết quả</h3>
+    <ul><li>weatherAdaptive, lasting, comfort hoặc portable. Độ phù hợp phụ thuộc combo bạn chọn so với tình huống.</li></ul>
+  </section>
+
+  <section class="game">
+    <h2><span class="num">Core 6</span> REVIEW DETECTIVE</h2>
+    <p class="axis">Trục Trust · niềm tin vào đánh giá</p>
+    <p class="goal">Câu hỏi: “Tìm review đáng tin cậy nhất.”</p>
+    <h3>Cách chơi</h3>
+    <ol>
+      <li>Có <b>3 review</b> (A, B, C): một cái 5 sao chung chung, một cái chi tiết có ảnh thật, một cái nhiều lượt thích nhưng không có chi tiết.</li>
+      <li>Mỗi review có <b>2 manh mối ẩn</b> (chip 🔍 “?”). Chạm vào chip để xem manh mối, ví dụ “Chưa xác minh mua hàng” hoặc “Có ảnh sử dụng thật”. Xem manh mối là tuỳ chọn, nhưng được ghi nhận khi chấm.</li>
+      <li>Bấm <b>Xác nhận</b> ở review bạn tin nhất. Chỉ chọn được <b>1 lần</b>, bấm xong game hoàn tất ngay.</li>
+    </ol>
+    <h3>Manh mối ẩn dùng để làm gì?</h3>
+    <ul>
+      <li>Mỗi review đại diện một kiểu tin tưởng: <b>A</b> tin điểm số, <b>B</b> tin trải nghiệm chi tiết và bằng chứng, <b>C</b> tin số đông.</li>
+      <li>Manh mối giúp khách <b>nhìn ra review nào thiếu căn cứ</b> trước khi chọn (ví dụ A: “5 sao nhưng không có trải nghiệm cụ thể”, “Chưa xác minh mua hàng”).</li>
+      <li>Hệ thống <b>ghi nhận những manh mối khách đã lật</b> và dùng khi chấm điểm (xem bên dưới).</li>
+      <li>Không bắt buộc bấm, khách vẫn xác nhận được ngay. Nhưng nếu bỏ qua thì mất điểm cộng và có thể không ra kết quả <b>media</b>.</li>
+    </ul>
+    <h3>Cách tính điểm</h3>
+    <table>
+      <tr><th>Thành phần</th><th>Quy tắc</th></tr>
+      <tr><td>Điểm gốc</td><td>Xác nhận A: 48 · B: 92 · C: 42</td></tr>
+      <tr><td>Điểm cộng</td><td>+8 nếu đã xem từ 2 manh mối trở lên (manh mối của review nào cũng được tính)</td></tr>
+    </table>
+    <h3>Kết quả (subtype)</h3>
+    <ul>
+      <li><b>rating</b>: xác nhận review A</li>
+      <li><b>popularity</b>: xác nhận review C</li>
+      <li><b>media</b>: xác nhận review B và đã xem manh mối “Có ảnh sử dụng thật”</li>
+      <li><b>detail</b>: xác nhận review B mà chưa xem manh mối ảnh</li>
+    </ul>
+  </section>
+
+  <section class="game">
+    <h2>Sau Core 6</h2>
+    <ol>
+      <li>Màn <b>phân tích DNA</b> chạy vài giây.</li>
+      <li>Màn <b>kết quả</b> hiện persona và biểu đồ radar 6 trục.</li>
+      <li>Màn <b>QR</b> để khách mang kết quả về điện thoại và bình chọn 3 sản phẩm yêu thích.</li>
+      <li>Màn <b>kết thúc</b> tự reset sau 8 giây để đón khách tiếp theo.</li>
+    </ol>
+    <div class="note"><b>Tự động reset:</b> nếu khách không thao tác, các màn Core tự reset sau 90 giây, màn chọn ngôn ngữ, đồng ý, intro, kết quả và QR sau 60 giây (có cảnh báo trước 10 giây). Nhân viên có thể reset thủ công bằng cách chạm 5 lần liên tiếp vào góc trên bên trái màn hình.</div>
+  </section>
+
+  <p class="foot">Tài liệu tạo từ code kiosk (<code>apps/kiosk/src/screens/games.tsx</code>) và <code>packages/shared</code>. Nếu logic game thay đổi, cần cập nhật lại file này.</p>
+</div>
+</body>
+</html>
