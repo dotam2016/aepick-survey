@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hướng dẫn trang Admin</title>
+<style>
+  :root{--bg:#fff6f5;--card:#fff;--accent:#f2675c;--ink:#2b2b2b;--muted:#7a6f6e;--line:#f2e4e3;--soft:#fdf1f0}
+  @media (prefers-color-scheme:dark){
+    :root{--bg:#1d1716;--card:#2a2120;--ink:#f4eceb;--muted:#b9aaa8;--line:#3d2f2d;--soft:#33262a}
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 system-ui,-apple-system,'Segoe UI',sans-serif}
+  .wrap{max-width:980px;margin:0 auto;padding:32px 16px 64px}
+  h1{font-size:28px;margin:0 0 6px}
+  .lead{color:var(--muted);margin:0 0 24px}
+  .game{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px;margin:0 0 18px}
+  .game h2{margin:0 0 6px;font-size:20px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .num{background:var(--accent);color:#fff;border-radius:10px;padding:1px 10px;font-size:15px}
+  h3{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin:14px 0 4px}
+  ol,ul{margin:0;padding-left:22px}
+  li{margin:2px 0}
+  code{background:var(--soft);padding:1px 6px;border-radius:6px;font-size:.92em}
+  .note{margin-top:12px;padding:10px 14px;background:var(--soft);border-radius:12px;font-size:14px;color:var(--muted)}
+  .note b{color:var(--ink)}
+  .warn{border:2px solid var(--accent);background:var(--soft)}
+  .scroll{overflow-x:auto}
+  table{width:100%;border-collapse:collapse;font-size:14px;margin-top:6px;min-width:620px}
+  td,th{border-top:1px solid var(--line);padding:7px 8px;text-align:left;vertical-align:top}
+  th{color:var(--muted);font-weight:600;white-space:nowrap}
+  td:first-child{font-weight:700;white-space:nowrap}
+  html{scroll-behavior:smooth}
+  .layout{max-width:1240px;margin:0 auto;display:flex;gap:28px;padding:0 16px;align-items:flex-start}
+  .layout .wrap{flex:1;min-width:0;margin:0;max-width:980px;padding-left:0;padding-right:0}
+  .toc{position:sticky;top:24px;flex:none;width:220px;margin-top:32px;max-height:calc(100vh - 48px);overflow:auto;
+       background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 8px;font-size:14px}
+  .toc b{display:block;padding:2px 10px 8px;color:var(--muted);font-size:12px;letter-spacing:.06em;text-transform:uppercase}
+  .toc a{display:block;padding:7px 10px;border-radius:8px;color:var(--ink);text-decoration:none;line-height:1.35}
+  .toc a:hover{background:var(--soft)}
+  .toc a.on{background:var(--accent);color:#fff}
+  .game{scroll-margin-top:16px}
+  @media (max-width:860px){
+    .layout{display:block;padding:0}
+    .toc{position:static;width:auto;max-height:none;margin:16px 16px 0}
+    .layout .wrap{padding:16px 16px 64px}
+  }
+  .foot{color:var(--muted);font-size:13px;margin-top:28px}
+</style>
+</head>
+<body>
+<div class="layout">
+<nav class="toc" id="toc"><b>Mục lục</b><a href="#s1">1. Vào trang và đăng nhập</a><a href="#s2">2. Thanh trên cùng</a><a href="#s3">3. Các ô chỉ số (KPI) hôm nay</a><a href="#s4">4. Persona distribution</a><a href="#s5">5. Core Value averages</a><a href="#s6">6. Recent sessions</a><a href="#s7">7. File Excel khi bấm "Export Excel"</a><a href="#s8">⚠ Lưu ý khi đọc số liệu</a></nav>
+<div class="wrap">
+  <h1>Hướng dẫn trang Admin (<code>/admin</code>)</h1>
+  <p class="lead">Trang theo dõi vận hành và số liệu của Beauty DNA. Tài liệu này giải thích từng mục, từng chỉ số và từng cột trong bảng.</p>
+
+  <section class="game" id="s1">
+    <h2><span class="num">1</span> Vào trang và đăng nhập</h2>
+    <ol>
+      <li>Mở địa chỉ <code>&lt;địa chỉ server&gt;/admin</code> bằng trình duyệt.</li>
+      <li>Lần đầu, trình duyệt hỏi <b>Admin key</b>. Nhập đúng khóa rồi bấm OK. Khóa được lưu trong trình duyệt, những lần sau không hỏi lại.</li>
+      <li>Nhập sai khóa: thanh trạng thái hiện <b>auth failed</b> và khóa đã lưu bị xóa. Tải lại trang để nhập lại.</li>
+    </ol>
+    <div class="note"><b>Khóa admin:</b> do quản lý cấu hình bằng biến môi trường <code>ADMIN_KEY</code> trên server. Khi chạy local/demo mà không đặt, khóa mặc định là <code>aepick-admin</code>. Khi server được công khai qua tunnel (<code>TUNNEL=1</code>) mà không đặt <code>ADMIN_KEY</code>, server tự sinh khóa ngẫu nhiên và in ra ở màn hình console. Không chia sẻ khóa cho người ngoài, vì trang chứa tên và số điện thoại của khách.</div>
+  </section>
+
+  <section class="game" id="s2">
+    <h2><span class="num">2</span> Thanh trên cùng</h2>
+    <div class="scroll"><table>
+      <tr><th>Mục</th><th>Ý nghĩa</th></tr>
+      <tr><td>Export Excel</td><td>Tải file Excel <code>aepick-survey-YYYYMMDD.xlsx</code> gồm 3 sheet: Sessions, Answers, Votes (chi tiết ở Phần 6). Dữ liệu là <b>toàn bộ</b> từ trước đến nay, không chỉ hôm nay.</td></tr>
+      <tr><td>Export Zalo Check-in</td><td>Tải danh sách khách đã check-in qua Zalo (<code>aepick-cnv-customers-YYYYMMDD.xlsx</code>). File này do hệ thống check-in của nhóm Zalo cung cấp, server chỉ chuyển tiếp. Cần server đã cấu hình <code>CNV_EXPORT_PIN</code>; nếu chưa cấu hình hoặc dịch vụ Zalo không phản hồi, trang báo <b>Export failed</b>.</td></tr>
+      <tr><td>Thanh trạng thái (chữ màu xanh)</td><td><b>connecting…</b>: đang kết nối lần đầu. <b>live · HH:MM:SS</b>: đang chạy bình thường, giờ là lần làm mới gần nhất. <b>auth failed</b>: sai khóa admin. <b>offline</b>: không kết nối được server hoặc server lỗi.</td></tr>
+    </table></div>
+    <div class="note"><b>Tự làm mới:</b> toàn bộ trang tự cập nhật <b>mỗi 10 giây</b>, không cần tải lại.</div>
+  </section>
+
+  <section class="game" id="s3">
+    <h2><span class="num">3</span> Các ô chỉ số (KPI) hôm nay</h2>
+    <p>7 ô lớn ở đầu trang. Chữ "hôm nay" ở đây tính theo <b>ngày UTC</b> (xem khung "Lưu ý khi đọc số liệu" ở cuối trang).</p>
+    <div class="scroll"><table>
+      <tr><th>Tên ô</th><th>Ý nghĩa</th><th>Cách tính</th></tr>
+      <tr><td>Started today</td><td>Số lượt khách bắt đầu chơi hôm nay.</td><td>Đếm các phiên được tạo hôm nay, <b>không tính</b> phiên có trạng thái <code>revisit</code> (khách quét lại để xem kết quả cũ).</td></tr>
+      <tr><td>Completed</td><td>Số lượt chơi xong cả 6 game và nhận kết quả DNA.</td><td>Đếm phiên có trạng thái <code>completed</code> bắt đầu hôm nay.</td></tr>
+      <tr><td>Completion rate</td><td>Tỷ lệ khách chơi hết. Đơn vị %.</td><td>Completed ÷ Started × 100, làm tròn. Hiện <code>—</code> khi chưa có phiên nào.</td></tr>
+      <tr><td>Active now</td><td>Số khách đang chơi lúc này.</td><td>Phiên có trạng thái <code>active</code> và bắt đầu trong <b>10 phút gần nhất</b>.</td></tr>
+      <tr><td>Avg duration</td><td>Thời gian chơi trung bình của một lượt hoàn thành. Đơn vị giây.</td><td>Trung bình (giờ hoàn thành − giờ bắt đầu) của các phiên <code>completed</code> hôm nay. Hiện <code>—</code> khi chưa có dữ liệu.</td></tr>
+      <tr><td>Abandoned</td><td>Số lần khách bỏ giữa chừng hôm nay.</td><td>Đếm sự kiện <code>session.abandoned</code>. Gồm: hết thời gian chờ, khách bấm "Bắt đầu lại", và nhân viên reset bằng 5 lần chạm (lý do <code>operator_reset</code>). Đây là số <b>sự kiện</b>, không phải số phiên.</td></tr>
+      <tr><td>QR scan rate</td><td>Tỷ lệ mã QR kết quả được khách quét bằng điện thoại. Đơn vị %.</td><td>Số lần mở trang kết quả (<code>result.scanned</code>, chỉ tính lần mở đầu tiên của mỗi mã) ÷ số lần phát QR (<code>qr.issued</code>) × 100.</td></tr>
+    </table></div>
+  </section>
+
+  <section class="game" id="s4">
+    <h2><span class="num">4</span> Persona distribution</h2>
+    <p>Biểu đồ thanh ngang cho biết <b>có bao nhiêu khách rơi vào mỗi nhóm persona</b> (loại tính cách mua sắm).</p>
+    <ul>
+      <li>Mỗi dòng: tên persona bên trái, <b>số lượt</b> in đậm bên phải, thanh màu ở dưới.</li>
+      <li>Độ dài thanh so với persona <b>nhiều nhất</b> (persona nhiều nhất luôn dài 100%).</li>
+      <li>Sắp xếp từ nhiều đến ít. Chưa có dữ liệu thì hiện "no data".</li>
+      <li>Dữ liệu là <b>toàn bộ từ trước đến nay</b>, chỉ tính phiên đã có persona (phiên chơi xong).</li>
+    </ul>
+    <h3>6 persona</h3>
+    <div class="scroll"><table>
+      <tr><th>Tên hiển thị</th><th>Mô tả hiển thị cho khách (tóm tắt)</th></tr>
+      <tr><td>loyalGlowKeeper</td><td>Loyal Glow Keeper: tìm sản phẩm mang lại sự hài lòng và giá trị lâu dài.</td></tr>
+      <tr><td>smartBeautyCurator</td><td>Smart Beauty Curator: chọn sau khi so sánh và kiểm chứng kỹ lưỡng.</td></tr>
+      <tr><td>trendMuse</td><td>Trend Muse: nắm bắt sớm các làn sóng làm đẹp mới.</td></tr>
+      <tr><td>localBeautyExpert</td><td>Local Beauty Expert: biết rõ sản phẩm nào hợp chính xác với cuộc sống hằng ngày.</td></tr>
+      <tr><td>trustGuardian</td><td>Trust Guardian: kiểm tra kỹ thông tin và trải nghiệm thực tế của sản phẩm.</td></tr>
+      <tr><td>beautyExplorer</td><td>Beauty Explorer: vừa khám phá cái mới vừa giữ sự lâu dài.</td></tr>
+    </table></div>
+    <div class="note">Persona được xác định từ <b>2 trục điểm cao nhất</b> trong 6 trục (xem Phần 5). Khi điểm bằng nhau, thứ tự ưu tiên là care &gt; trust &gt; repick &gt; localFit &gt; value &gt; trend.</div>
+  </section>
+
+  <section class="game" id="s5">
+    <h2><span class="num">5</span> Core Value averages</h2>
+    <p>Điểm <b>trung bình của toàn bộ khách</b> trên từng trong 6 trục tính cách, mỗi trục tương ứng một game trên kiosk. Mỗi dòng: tên trục, <b>điểm trung bình</b> (0–100) in đậm bên phải, và thanh dài theo điểm đó. Chưa có dữ liệu thì hiện <code>—</code>.</p>
+    <div class="scroll"><table>
+      <tr><th>Tên trục</th><th>Game</th><th>Trục đo điều gì</th></tr>
+      <tr><td>repick</td><td>Core 1 · Empty Bottle Challenge</td><td>Xu hướng mua lại sản phẩm quen (trung thành) hay thử cái mới.</td></tr>
+      <tr><td>value</td><td>Core 2 · Beauty Budget</td><td>Cách phân bổ ngân sách, độ nhạy cảm về giá trị và giá.</td></tr>
+      <tr><td>care</td><td>Core 3 · Beauty Shield</td><td>Mức quan tâm tới thành phần, an toàn và chăm sóc da.</td></tr>
+      <tr><td>trend</td><td>Core 4 · Next Beauty Wave</td><td>Độ nhạy với xu hướng mới.</td></tr>
+      <tr><td>localFit</td><td>Core 5 · Hanoi Beauty Weather Lab</td><td>Mức chọn sản phẩm hợp khí hậu Hà Nội.</td></tr>
+      <tr><td>trust</td><td>Core 6 · Review Detective</td><td>Mức tin vào đánh giá thật và bằng chứng.</td></tr>
+    </table></div>
+    <div class="note">Dữ liệu là <b>toàn bộ từ trước đến nay</b>, không chỉ hôm nay. Điểm cao không có nghĩa là "tốt hơn", chỉ cho biết khách thiên về hướng đó nhiều đến đâu.</div>
+  </section>
+
+  <section class="game" id="s6">
+    <h2><span class="num">6</span> Recent sessions (bảng phiên gần đây)</h2>
+    <p>Bảng cuộn được, liệt kê <b>50 phiên mới nhất</b> (mới nhất ở trên). Mỗi dòng là một lượt khách quét QR và vào chơi. Giờ ở cột <code>time</code> hiển thị theo giờ của máy đang mở trang admin.</p>
+    <div class="scroll"><table>
+      <tr><th>Cột</th><th>Ý nghĩa</th><th>Giá trị có thể gặp</th></tr>
+      <tr><td>time</td><td>Giờ khách bắt đầu phiên (lúc chọn ngôn ngữ).</td><td>Dạng giờ:phút:giây.</td></tr>
+      <tr><td>status</td><td>Trạng thái phiên.</td><td><ul>
+        <li><code>active</code>: đang chơi, hoặc đã bị bỏ dở/reset (xem lưu ý bên dưới).</li>
+        <li><code>completed</code>: chơi xong, đã có kết quả.</li>
+        <li><code>revisit</code>: khách đã có kết quả từ trước, quét QR lại và chỉ xem lại mã QR cũ, không chơi lại.</li>
+      </ul></td></tr>
+      <tr><td>persona</td><td>Nhóm tính cách của khách.</td><td>Một trong 6 persona ở Phần 4.<br><code>—</code> nếu chưa chơi xong.</td></tr>
+      <tr><td>lang</td><td>Ngôn ngữ khách đã chọn trên kiosk.</td><td><code>vi</code> (Tiếng Việt), <code>en</code> (English), <code>ko</code> (한국어).</td></tr>
+      <tr><td>name</td><td>Họ tên của khách, lấy từ dữ liệu check-in Zalo khi quét QR.</td><td>Tên, hoặc <code>—</code> nếu chưa có.</td></tr>
+      <tr><td>gender</td><td>Giới tính, lấy từ dữ liệu check-in.</td><td><code>male</code>, <code>female</code>, <code>other</code>, hoặc <code>—</code>.</td></tr>
+      <tr><td>dob</td><td>Ngày sinh của khách.</td><td>Hiển thị phần ngày (bỏ phần giờ). <code>—</code> nếu thiếu.</td></tr>
+      <tr><td>phone</td><td>Số điện thoại (có trong mã QR check-in). Dùng để nhận diện khách quay lại và để chặn khách đã nhận quà.</td><td>Số dạng <code>0xxxxxxxxx</code>, hoặc <code>—</code>.</td></tr>
+      <tr><td>voted</td><td>Khách đã bình chọn 3 sản phẩm yêu thích hay chưa.</td><td><code>✓ HH:MM:SS</code> (kèm giờ bình chọn) hoặc <code>—</code>.</td></tr>
+      <tr><td>reward</td><td>Khách đã nhận quà hay chưa. Nhân viên bấm "Xử lý tặng quà" trên trang xác nhận thì cột này mới có ✓.</td><td><code>✓ HH:MM:SS</code> (kèm giờ nhận quà) hoặc <code>—</code>.</td></tr>
+    </table></div>
+    <div class="note"><b>Lưu ý khi đọc cột voted và reward:</b>
+      <ul>
+        <li>Bình chọn và quà luôn được ghi vào dòng của lần chơi đã hoàn thành, tức dòng có cột <code>status</code> = <code>completed</code>.</li>
+        <li>Nếu cùng khách đó quét QR lại và có thêm một dòng <code>status</code> = <code>revisit</code>, dòng này sẽ không có ✓ ở cột <code>voted</code> và <code>reward</code>. Muốn biết khách đã bình chọn hay nhận quà chưa, hãy tìm dòng <code>completed</code> có cùng số điện thoại (cột <code>phone</code>).</li>
+        <li>Cột <code>status</code> không đổi khi nhân viên reset kiosk hoặc khách bỏ đi: dòng đó vẫn là <code>active</code> dù khách không còn chơi. Một dòng <code>active</code> đã cũ không có nghĩa khách vẫn đang chơi. Xem cột <code>time</code> và ô <b>Active now</b> ở phần KPI để phân biệt.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="game" id="s7">
+    <h2><span class="num">7</span> File Excel khi bấm "Export Excel"</h2>
+    <p>Dữ liệu toàn bộ từ trước đến nay, mới nhất ở trên. Giờ trong file được đổi sang <b>giờ Việt Nam</b>.</p>
+    <h3>Sheet Sessions (mỗi dòng một phiên)</h3>
+    <div class="scroll"><table>
+      <tr><th>Cột</th><th>Ý nghĩa</th></tr>
+      <tr><td>Session ID</td><td>Mã định danh phiên.</td></tr>
+      <tr><td>Started At</td><td>Giờ bắt đầu.</td></tr>
+      <tr><td>Completed At</td><td>Giờ hoàn thành (trống nếu chưa chơi xong).</td></tr>
+      <tr><td>Language</td><td>Ngôn ngữ đã chọn: vi, en, ko.</td></tr>
+      <tr><td>Full Name</td><td>Họ tên.</td></tr>
+      <tr><td>Gender</td><td>Giới tính.</td></tr>
+      <tr><td>DOB</td><td>Ngày sinh (chỉ phần ngày).</td></tr>
+      <tr><td>Phone</td><td>Số điện thoại.</td></tr>
+      <tr><td>Persona</td><td>Persona cuối cùng.</td></tr>
+      <tr><td>Status</td><td>active, completed hoặc revisit (như Phần 6).</td></tr>
+    </table></div>
+    <h3>Sheet Answers (mỗi dòng một câu trả lời game)</h3>
+    <div class="scroll"><table>
+      <tr><th>Cột</th><th>Ý nghĩa</th></tr>
+      <tr><td>Session ID</td><td>Phiên mà câu trả lời thuộc về.</td></tr>
+      <tr><td>Full Name</td><td>Họ tên khách.</td></tr>
+      <tr><td>Axis</td><td>Trục của game: repick, value, care, trend, localFit, trust (Phần 5).</td></tr>
+      <tr><td>Subtype</td><td>Kết quả nhóm nhỏ của game đó (ví dụ trong Core 1: instant, familiar, longterm).</td></tr>
+      <tr><td>Score</td><td>Điểm của trục này, thang 0–100.</td></tr>
+      <tr><td>Answered At</td><td>Giờ trả lời.</td></tr>
+    </table></div>
+    <h3>Sheet Votes (mỗi dòng một lượt bình chọn)</h3>
+    <div class="scroll"><table>
+      <tr><th>Cột</th><th>Ý nghĩa</th></tr>
+      <tr><td>Session ID</td><td>Phiên đã bình chọn.</td></tr>
+      <tr><td>Full Name</td><td>Họ tên khách.</td></tr>
+      <tr><td>Products</td><td>3 sản phẩm khách chọn (tên sản phẩm – thương hiệu), cách nhau bằng dấu phẩy.</td></tr>
+      <tr><td>Voted At</td><td>Giờ bình chọn.</td></tr>
+      <tr><td>Reward Claimed At</td><td>Giờ nhân viên xác nhận trao quà. Trống nếu chưa nhận quà.</td></tr>
+      <tr><td>Reward Staff</td><td>Tên nhân viên xử lý. Hiện tại thường để trống vì trang xác nhận chưa ghi tên nhân viên.</td></tr>
+    </table></div>
+  </section>
+
+  <section class="game warn" id="s8">
+    <h2><span class="num">!</span> Lưu ý khi đọc số liệu</h2>
+    <ul>
+      <li><b>"Hôm nay" tính theo giờ UTC, không phải giờ Việt Nam.</b> Các ô KPI chuyển sang ngày mới lúc <b>07:00 sáng</b> giờ Việt Nam. Vì vậy các ô Started/Completed/Abandoned có thể về 0 vào đầu buổi sáng và gồm cả những khách chơi tối hôm trước (sau 17:00 giờ UTC thì thuộc ngày hôm sau).</li>
+      <li><b>Persona distribution và Core Value averages là toàn bộ từ trước đến nay</b>, không phải hôm nay, nên không khớp với các ô KPI.</li>
+      <li><b>Abandoned là số sự kiện</b> bỏ giữa chừng, không phải số phiên. Reset bằng 5 lần chạm chỉ được ghi khi lúc đó đã có phiên.</li>
+      <li><b>Active now</b> chỉ đếm phiên <code>active</code> trong 10 phút gần nhất. Khách đứng yên trên một màn hơn 10 phút sẽ không được tính.</li>
+      <li>Tên máy (device) có trong dữ liệu nhưng <b>chưa hiện</b> trên bảng Recent sessions hoặc file Excel.</li>
+    </ul>
+  </section>
+
+  <p class="foot">Tài liệu tạo từ code server (<code>server/src/pages.ts</code>, <code>server/src/adminRoutes.ts</code>) và <code>packages/shared</code>. Nếu trang admin hoặc cách tính số liệu thay đổi, cần cập nhật lại file này.</p>
+</div>
+</div>
+<script>
+(function(){
+  var links=[].slice.call(document.querySelectorAll(".toc a"));
+  var secs=links.map(function(a){return document.querySelector(a.getAttribute("href"))});
+  function mark(){
+    var y=window.scrollY+120,cur=0;
+    secs.forEach(function(el,i){if(el&&el.offsetTop<=y)cur=i});
+    links.forEach(function(a,i){a.classList.toggle("on",i===cur)});
+  }
+  window.addEventListener("scroll",mark,{passive:true});mark();
+})();
+</script>
+</body>
+</html>

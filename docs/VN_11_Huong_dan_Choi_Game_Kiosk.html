@@ -20,6 +20,8 @@
   .flow i{color:var(--muted);font-style:normal}
   .game{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px;margin:0 0 18px}
   .game h2{margin:0 0 2px;font-size:20px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .game.alert{border:2px solid var(--accent);background:var(--soft)}
+  .game.alert h2{font-size:24px;color:var(--accent)}
   .num{background:var(--accent);color:#fff;border-radius:10px;padding:1px 10px;font-size:15px}
   .axis{font-size:12.5px;color:var(--muted);margin:0 0 12px}
   .goal{margin:0 0 12px;font-weight:600}
@@ -31,23 +33,40 @@
   table{width:100%;border-collapse:collapse;font-size:14px;margin-top:4px}
   td,th{border-top:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
   th{color:var(--muted);font-weight:600}
+  html{scroll-behavior:smooth}
+  .layout{max-width:1160px;margin:0 auto;display:flex;gap:28px;padding:0 16px;align-items:flex-start}
+  .layout .wrap{flex:1;min-width:0;margin:0;max-width:880px;padding-left:0;padding-right:0}
+  .toc{position:sticky;top:24px;flex:none;width:220px;margin-top:32px;max-height:calc(100vh - 48px);overflow:auto;
+       background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 8px;font-size:14px}
+  .toc b{display:block;padding:2px 10px 8px;color:var(--muted);font-size:12px;letter-spacing:.06em;text-transform:uppercase}
+  .toc a{display:block;padding:7px 10px;border-radius:8px;color:var(--ink);text-decoration:none;line-height:1.35}
+  .toc a:hover{background:var(--soft)}
+  .toc a.on{background:var(--accent);color:#fff}
+  .game,h1{scroll-margin-top:16px}
+  @media (max-width:860px){
+    .layout{display:block;padding:0}
+    .toc{position:static;width:auto;max-height:none;margin:16px 16px 0}
+    .layout .wrap{padding:16px 16px 64px}
+  }
   .foot{color:var(--muted);font-size:13px;margin-top:28px}
 </style>
 </head>
 <body>
+<div class="layout">
+<nav class="toc" id="toc"><b>Mục lục</b><a href="#top">Tổng quan &amp; luồng chơi</a><a href="#s1">Core 1 · EMPTY BOTTLE CHALLENGE</a><a href="#s2">Core 2 · BEAUTY BUDGET</a><a href="#s3">Core 3 · BEAUTY SHIELD</a><a href="#s4">Core 4 · NEXT BEAUTY WAVE</a><a href="#s5">Core 5 · HANOI BEAUTY WEATHER LAB</a><a href="#s6">Core 6 · REVIEW DETECTIVE</a><a href="#s7">Sau Core 6</a><a href="#s8">Phần A · MÀN SẢN PHẨM — Beauty Picks</a><a href="#s9">Phần B · MÀN BÌNH CHỌN SẢN PHẨM</a><a href="#s10">Phần C · MÀN CẢM ƠN &amp; XÁC NHẬN QUÀ</a><a href="#s11">⚠ Khi khách bỏ giữa chừng</a></nav>
 <div class="wrap">
-  <h1>Hướng dẫn chơi game trên Kiosk</h1>
+  <h1 id="top">Hướng dẫn chơi game trên Kiosk</h1>
   <p class="lead">6 mini game (Core 1–6) của Beauty DNA. Mỗi game đo một trục tính cách mua sắm; kết quả cả 6 trục quyết định persona cuối cùng.</p>
 
   <div class="flow">
     <b>Attract</b><i>→</i><b>Chọn ngôn ngữ</b><i>→</i><b>Quét QR</b><i>→</i><b>Intro</b><i>→</i>
     <b>Core 1</b><i>→ bridge →</i><b>Core 2</b><i>→ bridge →</i><b>Core 3</b><i>→ bridge →</i>
     <b>Core 4</b><i>→ bridge →</i><b>Core 5</b><i>→ bridge →</i><b>Core 6</b><i>→ bridge →</i>
-    <b>Phân tích DNA</b><i>→</i><b>Kết quả</b><i>→</i><b>QR</b><i>→</i><b>Kết thúc</b>
+    <b>Phân tích DNA</b><i>→</i><b>Kết quả</b><i>→</i><b>QR</b><i>→</i><b>Kết thúc</b><i>→ trên điện thoại →</i><b>Sản phẩm (A)</b><i>→</i><b>Bình chọn (B)</b><i>→</i><b>Nhân viên xác nhận quà (C)</b>
   </div>
   <p class="note" style="margin:-14px 0 24px"><b>Quy ước chung:</b> làm xong một game sẽ hiện thông báo hoàn tất ngắn, rồi tới <b>màn bridge</b> (ảnh thông điệp thương hiệu, tự chuyển sau 1,8 giây) và sang game kế tiếp. Không có nút bỏ qua, vì cần đủ dữ liệu 6 trục để ra DNA.</p>
 
-  <section class="game">
+  <section class="game" id="s1">
     <h2><span class="num">Core 1</span> EMPTY BOTTLE CHALLENGE</h2>
     <p class="axis">Trục Repick · mua lại</p>
     <p class="goal">Câu hỏi: “Sản phẩm nào bạn sẽ dùng đến hết và mua lại?”</p>
@@ -61,7 +80,7 @@
     <ul><li>Chọn B → <b>longterm</b> · Chọn C → <b>familiar</b> · Chọn A → <b>instant</b>.</li></ul>
   </section>
 
-  <section class="game">
+  <section class="game" id="s2">
     <h2><span class="num">Core 2</span> BEAUTY BUDGET</h2>
     <p class="axis">Trục Value · giá trị</p>
     <p class="goal">Câu hỏi: “10 Beauty Coin, bạn sẽ chọn đầu tư vào đâu?”</p>
@@ -76,7 +95,7 @@
     <ul><li>practical, premium, benefit hoặc balanced, tuỳ bạn dồn coin vào mục nào.</li></ul>
   </section>
 
-  <section class="game">
+  <section class="game" id="s3">
     <h2><span class="num">Core 3</span> BEAUTY SHIELD</h2>
     <p class="axis">Trục Care · niềm tin vào thông tin</p>
     <p class="goal">Câu hỏi: “Nhận diện những dấu hiệu đáng tin cậy.” Chọn <b>3</b> dấu hiệu trong <b>10 giây</b>.</p>
@@ -90,7 +109,7 @@
     <div class="note"><b>Lưu ý:</b> các thẻ rủi ro (“hiệu quả vượt trội theo quảng cáo”, “HOT bán chạy”, “người nổi tiếng khuyên dùng”) không được đánh dấu khác biệt, để người chơi tự nhận ra. Chọn nhanh còn được cộng thêm điểm.</div>
   </section>
 
-  <section class="game">
+  <section class="game" id="s4">
     <h2><span class="num">Core 4</span> NEXT BEAUTY WAVE</h2>
     <p class="axis">Trục Trend · xu hướng</p>
     <p class="goal">Câu hỏi: “Đâu là Beauty Wave dành cho bạn?”</p>
@@ -115,7 +134,7 @@
     </ul>
   </section>
 
-  <section class="game">
+  <section class="game" id="s5">
     <h2><span class="num">Core 5</span> HANOI BEAUTY WEATHER LAB</h2>
     <p class="axis">Trục Local Fit · hợp với bối cảnh</p>
     <p class="goal">Câu hỏi: “Combo nào hợp nhất với Hà Nội hôm nay?”</p>
@@ -129,7 +148,7 @@
     <ul><li>weatherAdaptive, lasting, comfort hoặc portable. Độ phù hợp phụ thuộc combo bạn chọn so với tình huống.</li></ul>
   </section>
 
-  <section class="game">
+  <section class="game" id="s6">
     <h2><span class="num">Core 6</span> REVIEW DETECTIVE</h2>
     <p class="axis">Trục Trust · niềm tin vào đánh giá</p>
     <p class="goal">Câu hỏi: “Tìm review đáng tin cậy nhất.”</p>
@@ -161,18 +180,110 @@
     </ul>
   </section>
 
-  <section class="game">
+  <section class="game" id="s7">
     <h2>Sau Core 6</h2>
     <ol>
       <li>Màn <b>phân tích DNA</b> chạy vài giây.</li>
       <li>Màn <b>kết quả</b> hiện persona và biểu đồ radar 6 trục.</li>
-      <li>Màn <b>QR</b> để khách mang kết quả về điện thoại và bình chọn 3 sản phẩm yêu thích.</li>
+      <li>Màn <b>QR</b> để khách mang kết quả về điện thoại (xem Phần A, B, C bên dưới).</li>
       <li>Màn <b>kết thúc</b> tự reset sau 8 giây để đón khách tiếp theo.</li>
     </ol>
     <div class="note"><b>Tự động reset:</b> nếu khách không thao tác, các màn Core tự reset sau 90 giây, màn chọn ngôn ngữ, đồng ý, intro, kết quả và QR sau 60 giây (có cảnh báo trước 10 giây). Nhân viên có thể reset thủ công bằng cách chạm 5 lần liên tiếp vào góc trên bên trái màn hình.</div>
   </section>
 
+  <section class="game" id="s8">
+    <h2><span class="num">Phần A</span> MÀN SẢN PHẨM — Beauty Picks (trên điện thoại khách)</h2>
+    <p class="axis">Không còn trên kiosk. Khách quét QR ở màn QR bằng điện thoại là mở trang kết quả.</p>
+    <h3>Khách thấy gì</h3>
+    <ul>
+      <li>Lời chào, persona, mô tả và các hashtag từ khóa của khách.</li>
+      <li>Thẻ <b>"Chọn sản phẩm bạn yêu thích"</b> với nút <b>Bình chọn ngay</b> (đổi thành "Bạn đã bình chọn xong" nếu đã bình chọn).</li>
+      <li>Danh sách <b>Beauty Picks</b> theo từng thương hiệu: logo, slogan, tên sản phẩm, giá niêm yết (gạch ngang nếu có) và giá ưu đãi.</li>
+      <li>Thời gian lưu còn lại (48 giờ) và nút <b>Xóa dữ liệu của tôi ngay</b>.</li>
+    </ul>
+    <h3>Nhân viên cần làm</h3>
+    <ul>
+      <li>Nhắc khách <b>quét QR trên màn kiosk</b> bằng camera điện thoại, giữ trang này để xem lại sản phẩm.</li>
+      <li>Nếu khách không quét được: xem lại QR có còn nằm trong khung không, tăng độ sáng, hoặc để khách nhờ nhân viên reset kiosk rồi chơi lại.</li>
+      <li>Giải thích: kết quả tự xóa sau 48 giờ, khách có thể xóa sớm bằng nút trên trang.</li>
+    </ul>
+  </section>
+
+  <section class="game" id="s9">
+    <h2><span class="num">Phần B</span> MÀN BÌNH CHỌN SẢN PHẨM (trên điện thoại khách)</h2>
+    <p class="axis">Mỗi khách chỉ bình chọn <b>1 lần</b>. Cần là khách đã quét QR đầu phiên (có hồ sơ), nếu không sẽ không bình chọn được.</p>
+    <h3>Cách chơi</h3>
+    <ol>
+      <li>Ở trang kết quả, khách chạm <b>Bình chọn ngay →</b>.</li>
+      <li>Trang hiện toàn bộ sản phẩm theo thương hiệu. Khách chạm để <b>chọn đúng 3 sản phẩm</b> yêu thích nhất, trong những sản phẩm đã trải nghiệm.</li>
+      <li>Chạm lại sản phẩm đã chọn để bỏ chọn. Cố chọn thêm sản phẩm thứ 4 sẽ hiện thông báo "chỉ được chọn tối đa 3".</li>
+      <li>Thanh dưới cùng đếm <b>0/3</b>. Nút <b>Bình chọn ngay</b> chỉ sáng khi đủ 3 sản phẩm.</li>
+      <li>Gửi xong, trang tự chuyển sang màn <b>"Cảm ơn bạn đã tham gia bình chọn"</b> (Phần C).</li>
+    </ol>
+    <div class="note"><b>Lưu ý:</b> khách đã bình chọn mà mở lại link thì vào thẳng màn cảm ơn, không bình chọn lần hai được. Lỗi mạng hoặc gửi thất bại sẽ có thông báo và khách bấm gửi lại được.</div>
+    <h3>Nhân viên cần làm</h3>
+    <ul>
+      <li>Hướng dẫn khách <b>chọn đúng 3 sản phẩm</b> và nhấn gửi.</li>
+      <li>Nhắc khách <b>giữ nguyên màn hình sau khi gửi</b>, không tắt trang, vì màn cảm ơn là nơi nhân viên xác nhận quà.</li>
+      <li>Nếu khách báo lỗi tải ("Không tải được thông tin bình chọn"): kiểm tra mạng của khách, tải lại trang; nếu vẫn lỗi, báo quản lý.</li>
+    </ul>
+  </section>
+
+  <section class="game" id="s10">
+    <h2><span class="num">Phần C</span> MÀN CẢM ƠN &amp; XÁC NHẬN QUÀ (nhân viên thao tác)</h2>
+    <p class="axis">Khách đưa điện thoại cho nhân viên. Màn này có một vùng ẩn dành riêng cho nhân viên.</p>
+    <h3>Khách thấy gì</h3>
+    <p>Lời cảm ơn, danh sách 3 sản phẩm đã chọn và dòng "Sau khi nhân viên xác nhận, bạn sẽ nhận được quà tặng". Khi quà đã trao, dòng này đổi thành "Đã hoàn tất tặng quà".</p>
+    <h3>Nhân viên cần làm</h3>
+    <ol>
+      <li>Nhận điện thoại của khách ở màn "Cảm ơn bạn đã tham gia bình chọn".</li>
+      <li><b>Nhấn giữ ~1,2 giây ở góc dưới bên phải</b> màn hình (vùng ẩn, không có nút). Khi đủ thời gian, popup <b>"Xác nhận nhân viên"</b> sẽ hiện. Lưu ý: bàn phím bật lên sau khi nhả tay.</li>
+      <li>Nhập <b>mã PIN nhân viên</b> (do quản lý cấp) rồi bấm <b>Xác nhận</b>. PIN sai sẽ báo "PIN không đúng".</li>
+      <li>Popup hiện <b>"Đây là lượt ghé thứ N của khách này"</b> và trạng thái quà (chưa tặng, hoặc đã tặng lúc mấy giờ).</li>
+      <li>Nếu <b>chưa tặng</b>: trao quà và dấu lên thẻ hành trình cho khách, rồi bấm <b>Xử lý tặng quà</b>. Hiện "Đã xử lý tặng quà" là xong.</li>
+      <li>Bấm <b>Đóng</b> và trả điện thoại cho khách.</li>
+    </ol>
+    <div class="note"><b>Quy tắc:</b> mỗi khách chỉ nhận quà <b>1 lần</b>. Nếu popup báo "Khách này đã được tặng quà rồi" thì không trao thêm. Số lượt ghé chỉ nhân viên xem được, đừng đọc to hay đưa màn hình khách xem. Vùng nhấn giữ được thiết kế để khách không chạm nhầm.</div>
+    <h3>Khi gặp sự cố</h3>
+    <ul>
+      <li>Giữ lâu mà không thấy popup: thả tay, thử lại, giữ đúng góc dưới bên phải, cách mép màn hình một chút.</li>
+      <li>Quên PIN hoặc PIN báo sai nhiều lần: liên hệ quản lý.</li>
+      <li>Bấm xác nhận bị lỗi "Xử lý thất bại": kiểm tra mạng rồi thử lại; không trao quà trước khi hệ thống xác nhận thành công, để tránh trao hai lần.</li>
+    </ul>
+  </section>
+
+  <section class="game alert" id="s11">
+    <h2><span class="num">⚠</span> Khi khách bỏ giữa chừng</h2>
+    <p class="axis">Áp dụng cho mọi màn. Reset là xóa phiên đang chơi, khách phải bắt đầu lại từ đầu.</p>
+    <h3>Nhân viên cần làm</h3>
+    <ol>
+      <li><b>Chạm nhanh 5 lần liên tiếp (trong 3 giây) vào góc trên bên trái</b> màn hình (vùng ẩn, khoảng 90×90 px).</li>
+      <li>Hộp thoại <b>"Operator: reset session?"</b> hiện lên, bấm <b>OK</b>. Kiosk về màn khởi tạo (Attract) để đón khách mới.</li>
+      <li>Hệ thống tự ghi lại lượt chơi dở này với <code>session.abandoned</code> và lý do <code>operator_reset</code> (kèm màn khách đang dừng), để phân biệt với khách tự bỏ hoặc hết giờ.</li>
+    </ol>
+    <h3>Các cách khác</h3>
+    <ul>
+      <li><b>Tự reset khi không ai chạm màn hình:</b> 90 giây ở các màn Core; 60 giây ở màn chọn ngôn ngữ, đồng ý, intro, kết quả và QR. 10 giây trước khi reset có hộp thoại cảnh báo đếm ngược. Khách chạm vào màn hình hoặc bấm "Tiếp tục" để chơi tiếp. Hết giờ mà không ai chạm: ghi <code>session.abandoned</code> không kèm lý do.</li>
+      <li><b>Khách tự bấm "Bắt đầu lại ↺":</b> nút này nằm trong hộp thoại cảnh báo ở trên và reset ngay, không cần chờ hết giờ. Lý do ghi lại: <code>user_restart</code>.</li>
+      <li><b>Màn kết thúc</b> tự về màn khởi tạo sau 8 giây.</li>
+    </ul>
+    <div class="note"><b>Lưu ý:</b> nếu khách chỉ tạm dừng và muốn chơi tiếp thì đừng reset; chỉ reset khi khách đã rời đi hoặc muốn làm lại từ đầu.</div>
+  </section>
+
   <p class="foot">Tài liệu tạo từ code kiosk (<code>apps/kiosk/src/screens/games.tsx</code>) và <code>packages/shared</code>. Nếu logic game thay đổi, cần cập nhật lại file này.</p>
 </div>
+</div>
+<script>
+(function(){
+  var links=[].slice.call(document.querySelectorAll(".toc a"));
+  var secs=links.map(function(a){return document.querySelector(a.getAttribute("href"))});
+  function mark(){
+    var y=window.scrollY+120,cur=0;
+    secs.forEach(function(el,i){if(el&&el.offsetTop<=y)cur=i});
+    links.forEach(function(a,i){a.classList.toggle("on",i===cur)});
+  }
+  window.addEventListener("scroll",mark,{passive:true});mark();
+})();
+</script>
 </body>
 </html>
