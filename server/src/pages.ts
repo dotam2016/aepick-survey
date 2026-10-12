@@ -155,6 +155,10 @@ th{color:var(--dim);font-weight:600}
 .bar{height:10px;border-radius:5px;background:linear-gradient(90deg,var(--mint),var(--pink))}
 .muted{color:var(--dim);font-size:12px}
 #status{font-size:12px;color:var(--mint)}
+.row{display:flex;flex-wrap:wrap;gap:14px;margin-top:14px}
+.w600{width:600px;max-width:100%}
+.w1214{width:1214px;max-width:100%}
+#sessions th{position:sticky;top:0;z-index:1;background:#221b33;box-shadow:inset 0 -1px 0 var(--border)}
 </style>
 </head>
 <body>
@@ -169,10 +173,12 @@ th{color:var(--dim);font-weight:600}
   </div>
 </div>
 <div class="grid" id="kpis"></div>
-<div class="grid">
-  <div class="card"><h2>Persona distribution</h2><div id="personas"></div></div>
-  <div class="card"><h2>Core Value averages</h2><div id="axes"></div></div>
-  <div class="card"><h2>Recent sessions</h2><div id="sessions" style="max-height:280px;overflow:auto"></div></div>
+<div class="row">
+  <div class="card w600"><h2>Persona distribution</h2><div id="personas"></div></div>
+  <div class="card w600"><h2>Core Value averages</h2><div id="axes"></div></div>
+</div>
+<div class="row">
+  <div class="card w1214"><h2>Recent sessions</h2><div id="sessions" style="max-height:340px;overflow:auto"></div></div>
 </div>
 <script>
 let KEY=localStorage.getItem('adminKey')||prompt('Admin key:',${JSON.stringify(ADMIN_KEY_IS_DEFAULT ? 'aepick-admin' : '')});
