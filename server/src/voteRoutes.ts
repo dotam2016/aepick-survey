@@ -13,14 +13,14 @@ interface VoteRow {
   product_ids: string; voted_at: string; reward_claimed_at: string | null; reward_staff: string | null;
 }
 
-async function visitorOfToken(token: string): Promise<{ visitorId: string; sessionId: string } | undefined> {
-  const row = await one<{ session_id: string; visitor_id: string | null }>(
-    `SELECT r.session_id, s.visitor_id FROM results r JOIN sessions s ON s.id = r.session_id
+async function visitorOfToken(token: string): Promise<{ visitorId: string; sessionId: string; language: string } | undefined> {
+  const row = await one<{ session_id: string; visitor_id: string | null; language: string | null }>(
+    `SELECT r.session_id, s.visitor_id, s.language FROM results r JOIN sessions s ON s.id = r.session_id
      WHERE r.token=$1 AND r.deleted_at IS NULL`,
     [token],
   );
   if (!row?.visitor_id) return undefined;
-  return { visitorId: row.visitor_id, sessionId: row.session_id };
+  return { visitorId: row.visitor_id, sessionId: row.session_id, language: row.language ?? 'vi' };
 }
 
 export function registerVoteRoutes(app: FastifyInstance) {
@@ -36,6 +36,7 @@ export function registerVoteRoutes(app: FastifyInstance) {
       products: b.products.map((p) => ({ id: p.id, name: p.name, price: p.price, imageUrl: p.imageUrl })),
     }));
     return ok({
+      language: who.language,
       pickCount: VOTE_PICK_COUNT,
       brands,
       alreadyVoted: !!existing,
@@ -82,12 +83,13 @@ export function registerVoteRoutes(app: FastifyInstance) {
     if (!who) return reply.code(404).send(err('not_found', 'unknown result token'));
 
     const vote = await one<VoteRow>(`SELECT * FROM votes WHERE visitor_id=$1`, [who.visitorId]);
-    if (!vote) return ok({ voted: false });
+    if (!vote) return ok({ voted: false, language: who.language });
 
     const picked = JSON.parse(vote.product_ids) as string[];
     const all = await listBrands(false);
     const byId = new Map(all.flatMap((b) => b.products.map((p) => [p.id, { p, b }] as const)));
     return ok({
+      language: who.language,
       voted: true,
       votedAt: vote.voted_at,
       rewardClaimedAt: vote.reward_claimed_at,

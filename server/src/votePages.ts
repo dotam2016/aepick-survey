@@ -61,7 +61,7 @@ const SHELL_CSS = `
 /** 클라이언트 스크립트에서 쓰는 다국어 조회 헬퍼 (server/src/pages.ts와 동일 규약). */
 const I18N_HELPERS = `
 const DICTS=${JSON.stringify(dicts)};
-const LANG=(navigator.language||'vi').slice(0,2);
+let LANG=(navigator.language||'vi').slice(0,2); // 서버가 내려주는 세션 언어(data.language)로 덮어쓴다
 const lookup=(d,p)=>p.split('.').reduce((n,k)=>n&&typeof n==='object'?n[k]:undefined,d);
 const t=(k,v)=>{let r=lookup(DICTS[LANG],k)??lookup(DICTS.en,k);if(typeof r!=='string')return k;
   if(v)for(const[a,b]of Object.entries(v))r=r.replaceAll('{'+a+'}',b);return r};
@@ -104,17 +104,21 @@ const el=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const nameOf=o=>esc((o&&(o[LANG]||o.vi||o.en||o.ko))||'');
 
+function texts(){
 document.title=t('vote.pageTitle');
 el('h1').innerHTML=t('vote.pickTitle',{n:NEED});
 el('sub').innerHTML=t('vote.pickSub');
-el('loadingMsg').textContent=t('vote.loading');
+el('loadingMsg')&&(el('loadingMsg').textContent=t('vote.loading'));
 el('go').textContent=t('vote.voteBtn');
 el('limitOk').textContent=t('vote.staff.closeBtn');
+}
+texts();
 
 async function load(){
   const r=await fetch(ROOT+'/api/vote/'+TOKEN+'/options');
   if(!r.ok){el('list').innerHTML='<div class="msg">'+t('vote.loadError')+'</div>';return}
   const d=(await r.json()).data;
+  if(d.language&&d.language!==LANG){LANG=d.language;texts()}
   if(d.alreadyVoted){location.replace(ROOT+'/v/'+TOKEN+'/done');return}
   el('list').innerHTML=d.brands.map(b=>\`
     <div class="brand">
@@ -202,10 +206,11 @@ export function voteDonePageHtml(token: string): string {
   .staff{position:fixed;right:max(4px,env(safe-area-inset-right));
          bottom:max(4px,env(safe-area-inset-bottom));width:96px;height:96px;opacity:0;cursor:default;z-index:5;
          -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
-  .sbox input{width:100%;padding:12px;font-size:16px;border:1.5px solid var(--line);border-radius:10px;
+  .sbox input{-webkit-user-select:text;user-select:text;width:100%;padding:12px;font-size:16px;border:1.5px solid var(--line);border-radius:10px;
               text-align:center;margin-bottom:10px}
   .visit{font-size:15px;line-height:1.7}
   .visit .n{font-size:40px;font-weight:900;color:var(--accent);display:block;margin:6px 0}
+  .sub.ok{color:var(--accent);font-weight:800;font-size:16px}
   .serr{color:#c33;font-size:13px;min-height:18px}
 </style>
 </head>
@@ -248,6 +253,7 @@ const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&g
 const nameOf=o=>esc((o&&(o[LANG]||o.vi||o.en||o.ko))||'');
 let PIN='';
 
+function texts(){
 document.title=t('vote.donePageTitle');
 el('doneH1').textContent=t('vote.doneTitle');
 el('doneSub').innerHTML=t('vote.doneSub');
@@ -258,11 +264,14 @@ el('confirmBtn').textContent=t('vote.staff.confirmBtn');
 el('closeBtn1').textContent=t('vote.staff.closeBtn');
 el('closeBtn2').textContent=t('vote.staff.closeBtn');
 el('rewardBtn').textContent=t('vote.staff.rewardBtn');
+}
+texts();
 
 (async function(){
   const r=await fetch(ROOT+'/api/vote/'+TOKEN+'/status');
   if(!r.ok)return;
   const d=(await r.json()).data;
+  if(d.language&&d.language!==LANG){LANG=d.language;texts()}
   if(!d.voted){location.replace(ROOT+'/v/'+TOKEN);return}
   el('picks').innerHTML=d.picks.map(p=>
     '<div class="pick"><span class="e">'+esc(p.emoji)+'</span><span>'+nameOf(p.name)+
@@ -273,14 +282,14 @@ el('rewardBtn').textContent=t('vote.staff.rewardBtn');
 /* 길게 누르기(1.2초)로만 열린다 — 고객의 우연한 터치 방지 */
 (function(){
   const z=el('staff'); let timer=null;
-  const start=()=>{timer=setTimeout(()=>{el('sheet').classList.add('on');el('pin').focus()},1200)};
+  const start=()=>{timer=setTimeout(()=>{el('sheet').classList.add('on')},1200)};
   const stop=()=>{clearTimeout(timer)};
   z.addEventListener('pointerdown',start);
   ['pointerup','pointerleave','pointercancel'].forEach(e=>z.addEventListener(e,stop));
 })();
 
 function closeSheet(){el('sheet').classList.remove('on');el('sform').style.display='block';
-  el('sres').style.display='none';el('pin').value='';el('serr').textContent='';PIN=''}
+  el('sres').style.display='none';el('vsub').classList.remove('ok');el('pin').value='';el('serr').textContent='';PIN=''}
 
 async function staffLookup(){
   PIN=el('pin').value.trim();
@@ -305,7 +314,7 @@ async function claim(){
       ? t('vote.staff.alreadyClaimed') : t('vote.staff.claimFail');
     el('rewardBtn').disabled=true; return;
   }
-  el('vsub').textContent=t('vote.staff.claimSuccess');
+  el('vsub').textContent=t('vote.staff.claimSuccess');el('vsub').classList.add('ok');
   el('rewardBtn').disabled=true;
   el('note').textContent=t('vote.rewardDone');
 }

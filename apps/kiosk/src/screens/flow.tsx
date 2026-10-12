@@ -12,7 +12,7 @@ import {
 import { screenAfterBridge, useStore } from '../state';
 import { makeT, makeTr } from '../i18n';
 import { api, type TodayStats } from '../api';
-import { ASSET, Deco, Logo, RadarChart, personaColors, PERSONA_CHART_COLORS } from '../components';
+import { ASSET, uiDir, Deco, Logo, RadarChart, personaColors, PERSONA_CHART_COLORS } from '../components';
 import { QrScanOverlay, type QrProfile } from './QrScan';
 
 /* ────────────────────── S00. Attract ────────────────────── */
@@ -73,11 +73,11 @@ export function AttractScreen() {
 
   // VN 시안 이미지에 문구·버튼까지 모두 포함돼 있어, 베트남어일 땐 이 이미지 한 장만 보여준다
   // (START 버튼이 그려진 영역에만 클릭 히트박스를 겹쳐 다음 화면으로 진행한다).
-  if (s.language === 'vi') {
+  if (s.language) { // ponytail: 3개 언어 모두 시안 이미지 사용 — 아래 기존 코드는 폴백(추후 삭제)
     return (
       <div className="screen" style={{ padding: 0, justifyContent: 'center' }}>
         <div style={{ position: 'relative', height: '100%', maxWidth: '100%' }}>
-          <img ref={bgImgRef} src="/assets/ui/vn/anh1.webp" alt="" draggable={false}
+          <img ref={bgImgRef} src={`${uiDir(s.language)}/anh1.webp`} alt="" draggable={false}
             onLoad={markBgLoaded}
             style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} />
           {/* 시안 이미지에 두 스탯 카드가 "—"/"···" placeholder로 이미 그려져 있어, 그 자리에 실 데이터만 겹쳐 그린다.
@@ -237,15 +237,15 @@ export function LanguageScreen() {
     go('intro');
   };
 
-  // VN 시안 이미지(s1-vn.png)에 로고·헤드라인·힌트가 이미 그려져 있어,
+  // VN 시안 이미지(s1.png)에 로고·헤드라인·힌트가 이미 그려져 있어,
   // 베트남어일 땐 그 부분은 이미지로 대체하고 언어 카드·NEXT 버튼만 코드로 유지한다.
-  const viBg = s.language === 'vi';
+  const viBg = true;
 
   return (
     <div className="screen" style={{
       justifyContent: 'center', gap: '2.4vh', paddingTop: viBg ? '36%' : '9%',
       ...(viBg ? {
-        backgroundImage: "url(/assets/ui/vn/s1-vn.webp)",
+        backgroundImage: `url(/assets/ui/s1.webp)`,
         backgroundSize: '100% 100%', backgroundPosition: 'top center', backgroundRepeat: 'no-repeat',
       } : {}),
     }}>
@@ -452,11 +452,11 @@ export function IntroScreen() {
 
   // VN 시안 이미지(a_05.png)에 로고·헤드라인·슬로건·START 버튼이 이미 그려져 있어,
   // 베트남어일 땐 그 부분은 이미지로 대체하고 6개 젬 원형 아이콘만 그 위에 겹쳐 그린다.
-  if (s.language === 'vi') {
+  if (s.language) { // ponytail: 3개 언어 모두 시안 이미지 사용 — 아래 기존 코드는 폴백(추후 삭제)
     return (
       <div className="screen" style={{ padding: 0, justifyContent: 'center' }}>
         <div style={{ position: 'relative', height: '100%', aspectRatio: '3334 / 4634', maxWidth: '100%' }}>
-          <img src="/assets/ui/vn/a_05.webp" alt="" draggable={false}
+          <img src={`${uiDir(s.language)}/a_05.webp`} alt="" draggable={false}
             style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} />
           <div style={{ position: 'absolute', top: '40%', left: '50%', transform: 'translate(-50%,-50%)' }}>
             {gemRing}
@@ -507,7 +507,7 @@ export function IntroScreen() {
 /* ────────── 게임 사이 브랜드 메시지 (브릿지) ────────── */
 
 /** 브릿지 자동 전환 시간 */
-const BRIDGE_MS = 3000;
+const BRIDGE_MS = 1800;
 
 /**
  * VN 브릿지 이미지는 문구가 아직 구워져 있지 않은 축들이 있어 텍스트를 오버레이한다.
@@ -559,7 +559,7 @@ const BRIDGE_VN_ASPECT: Partial<Record<string, string>> = {
 /**
  * 게임 사이 브랜드 메시지 화면.
  * 디자인 시안이 문구까지 포함된 완성 이미지이므로 전체 화면으로 그대로 표시한다.
- * (문구가 이미지에 구워져 있어 언어별 이미지가 필요 — 베트남어는 public/assets/ui/vn/*-vn.webp,
+ * (문구가 이미지에 구워져 있어 언어별 이미지가 필요 — 베트남어는 public/assets/ui/vn/*.webp,
  *  그 외 언어는 한국어 고정 이미지로 폴백한다)
  */
 export function BridgeScreen() {
@@ -581,14 +581,13 @@ export function BridgeScreen() {
 
   if (!key) return null;
 
-  const src = s.language === 'vi' ? `/assets/ui/vn/bridge-${key}-vn.webp` : ASSET(`bridge-${key}`, 'jpg');
+  const src = `${uiDir(s.language)}/bridge-${key}.webp`;
 
   return (
     <div className="screen" style={{ padding: 0, justifyContent: 'center' }}>
       <div style={{ position: 'relative', height: '100%', maxWidth: '100%' }}>
-        <motion.img key={key} src={src} alt="" draggable={false}
+        <img key={key} src={src} alt="" draggable={false}
           onLoad={() => setImgLoaded(true)}
-          initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.35 }}
           style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} />
       </div>
     </div>
@@ -730,7 +729,7 @@ export function AnalyzingScreen() {
 /* ────────────────────── S13. DNA 결과 ────────────────────── */
 
 /** 페르소나별 VN 결과 시안 이미지 (public/assets/ui/vn) */
-const RESULT_VN_IMAGE: Record<PersonaId, string> = {
+export const RESULT_VN_IMAGE: Record<PersonaId, string> = {
   loyalGlowKeeper: 'local-glow',
   smartBeautyCurator: 'smart-beauty',
   trendMuse: 'trend-muse',
@@ -757,11 +756,11 @@ export function DnaResultScreen() {
   // VN 시안 이미지(persona별 1장)에 로고·배지·페르소나명·키워드·설명·CTA 버튼이 이미 그려져 있어,
   // 베트남어일 땐 그 이미지 한 장 위에 레이더 차트만 겹쳐 그린다 (차트는 결과마다 모양이 달라 코드로 유지).
   // TODO: 확정되면 아래 주석 처리된 기존 글래스 카드 코드는 완전히 삭제한다.
-  if (s.language === 'vi') {
+  if (s.language) { // ponytail: 3개 언어 모두 시안 이미지 사용 — 아래 기존 코드는 폴백(추후 삭제)
     return (
       <div className="screen" style={{ padding: 0, justifyContent: 'center' }}>
         <div style={{ position: 'relative', height: '100%', aspectRatio: '3334 / 4634', maxWidth: '100%' }}>
-          <img ref={bgImgRef} src={`/assets/ui/vn/${RESULT_VN_IMAGE[s.persona]}.webp`} alt="" draggable={false}
+          <img ref={bgImgRef} src={`${uiDir(s.language)}/${RESULT_VN_IMAGE[s.persona]}.webp`} alt="" draggable={false}
             onLoad={() => setBgLoaded(true)}
             style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} />
           {bgLoaded && (
@@ -939,12 +938,11 @@ export function EndScreen() {
   }, [resetSession, s.sessionId]);
   // 체험 마무리 화면 — 디자인 시안(문구 포함 완성 이미지)을 전체 화면으로 표시
   // VN 이미지는 문구가 구워져 있지 않아 중앙 오브 아래에 텍스트를 오버레이한다.
-  const src = s.language === 'vi' ? '/assets/ui/vn/end-final-vn.webp' : ASSET('end-final', 'jpg');
+  const src = `${uiDir(s.language)}/end-final.webp`;
   return (
     <div className="screen" style={{ padding: 0, justifyContent: 'center' }}>
       <div style={{ position: 'relative', height: '100%', aspectRatio: '1024 / 1536', maxWidth: '100%' }}>
-        <motion.img src={src} alt={t('end.thanks')} draggable={false}
-          initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6 }}
+        <img src={src} alt={t('end.thanks')} draggable={false}
           style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} />
         {false && s.language === 'vi' && (
           <motion.p

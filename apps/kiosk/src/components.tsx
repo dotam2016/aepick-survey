@@ -6,6 +6,8 @@ import { makeT } from './i18n';
 import { api } from './api';
 
 /* ────────── 시안에서 슬라이스한 UI 에셋 (public/assets/ui) ────────── */
+/** 언어별 이미지 폴더 (문구가 구워진 시안 이미지) */
+export const uiDir = (lang: string) => `/assets/ui/${lang === 'vi' ? 'vn' : lang}`;
 export const ASSET = (name: string, ext: 'png' | 'jpg' | 'webp' = 'png') => `/assets/ui/${name}.${ext}`;
 
 /** 브랜드 워드마크 (시안 로고 이미지) */

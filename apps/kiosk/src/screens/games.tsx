@@ -27,7 +27,7 @@ import {
 import { BRIDGE_AXES, nextCoreScreen, useStore, type ScreenId } from '../state';
 import { makeT, makeTr } from '../i18n';
 import { api } from '../api';
-import { ASSET, CompleteToast, Deco, ProgressGems } from '../components';
+import { ASSET, uiDir, CompleteToast, Deco, ProgressGems } from '../components';
 
 /** 게임 완료 공통 처리: 로컬 채점 → 서버 전송(비동기) → 토스트 → 다음 화면 */
 function useGameComplete(screen: ScreenId, axis: Axis) {
@@ -72,13 +72,13 @@ function GameShell({ screen, title, question, hint, children, toast, onToastDone
   children: React.ReactNode; toast: string | null; onToastDone: () => void;
 }) {
   const { s } = useStore();
-  // VN 시안 이미지(coreN-vn.webp)에 로고·타이틀·질문·힌트가 이미 그려져 있어,
+  // VN 시안 이미지(coreN.webp)에 로고·타이틀·질문·힌트가 이미 그려져 있어,
   // 베트남어일 땐 그 부분은 이미지로 대체하고 인터랙션(게임 본문)만 코드로 유지한다.
-  if (s.language === 'vi') {
+  if (s.language) { // ponytail: 3개 언어 모두 시안 이미지 사용 — 아래 기존 코드는 폴백(추후 삭제)
     return (
       <div className="screen" style={{
         justifyContent: 'flex-start', paddingTop: screen === 'core5' ? '36%' : '30%',
-        backgroundImage: `url(/assets/ui/vn/${screen}-vn.webp)`,
+        backgroundImage: `url(${uiDir(s.language)}/${screen}.webp)`,
         backgroundSize: '100% 100%', backgroundPosition: 'top center', backgroundRepeat: 'no-repeat',
       }}>
         <div style={{ position: 'absolute', top: '11.8%', left: 0, right: 0 }}>
@@ -176,7 +176,9 @@ export function Core1Screen() {
                 boxShadow: '0 10px 26px rgba(242,103,92,0.16)',
                 display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
               }}
-              onClick={() => { if (!dragging.current) openProduct(p); }}>
+              // 클릭으로 팝업 열기 비활성화 — 다시 켜려면 아래 줄 주석 해제
+              // onClick={() => { if (!dragging.current) openProduct(p); }}
+              >
               <ProductArt id={p} />
               <div style={{ fontWeight: 600, fontSize: 'clamp(11px, 1.6vh, 13px)', color: 'var(--ink-dim)', lineHeight: 1.3 }}>
                 {t(`core1.products.${p}.persona`)}
