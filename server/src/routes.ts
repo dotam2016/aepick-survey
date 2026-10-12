@@ -113,9 +113,16 @@ export function registerRoutes(app: FastifyInstance) {
 
   /* 1c. QR로 읽은 전화번호로 체크인 정보(이름·성별·생년월일) 조회 — 동의 화면 QR 스캔 전용 */
   app.get('/api/qr-lookup', async (req, reply) => {
-    const { phone } = (req.query ?? {}) as { phone?: string };
+    const { phone, sessionId } = (req.query ?? {}) as { phone?: string; sessionId?: string };
     if (!phone || !PHONE_RE.test(phone.trim()))
       return reply.code(400).send(err('bad_request', 'phone must be 8-11 digits'));
+
+    // 이미 선물을 받아간 번호는 다시 참여시키지 않는다. 세션마다 visitor_id 가 새로 발급되므로
+    // visitor 가 아니라 세션에 저장된 전화번호로 votes 의 수령 여부를 조회한다.
+    const claimed = await one(
+      `SELECT 1 FROM votes v JOIN sessions s ON s.id = v.session_id
+       WHERE s.phone = $1 AND v.reward_claimed_at IS NOT NULL LIMIT 1`, [phone.trim()]);
+    if (claimed) return reply.code(409).send(err('reward_claimed', 'this phone already claimed the reward'));
 
     let json: PhoneLookupResponse;
     try {
@@ -135,7 +142,22 @@ export function registerRoutes(app: FastifyInstance) {
     // 별도 컬럼을 늘리지 않고, 기존 age_group 컬럼에 생년월일 원본 문자열을 그대로 저장한다
     // (수동 입력 폼에서만 teen/twenties 같은 버킷 값이 들어간다 — QR 스캔 값과 포맷이 다르다).
     const ageGroup = d.data?.dob ?? d.dob ?? null;
-    return ok({ fullName, gender, ageGroup, phone: phone.trim() });
+
+    // 이 번호로 이미 체험을 마쳤고 결과가 아직 유효하면(48h·미삭제) 같은 결과 링크/QR을 돌려줘
+    // 키오스크가 게임을 건너뛰고 QR 화면으로 바로 가게 한다.
+    const prev = await one<{ token: string }>(
+      `SELECT r.token FROM results r JOIN sessions s ON s.id = r.session_id
+       WHERE s.phone = $1 AND r.deleted_at IS NULL AND r.expires_at > $2
+       ORDER BY r.expires_at DESC LIMIT 1`, [phone.trim(), now()]);
+    // 재방문 세션은 status='revisit' 로 표시 — 관리자 목록에서 구분되고 started/active 집계에서 빠진다.
+    if (prev && sessionId) await run(`UPDATE sessions SET status='revisit' WHERE id=$1 AND status='active'`, [sessionId]);
+    let existingResult: { resultToken: string; resultUrl: string; qrPngUrl: string } | null = null;
+    if (prev) {
+      const base = PUBLIC_BASE || `${req.protocol}://${req.headers.host ?? `localhost:${process.env.PORT ?? 8787}`}`;
+      const resultUrl = `${base}/r/${prev.token}`;
+      existingResult = { resultToken: prev.token, resultUrl, qrPngUrl: await QRCode.toDataURL(resultUrl, { width: 480, margin: 1 }) };
+    }
+    return ok({ fullName, gender, ageGroup, phone: phone.trim(), existingResult });
   });
 
   /* 4. 게임 답변 */

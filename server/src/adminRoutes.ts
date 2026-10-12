@@ -24,7 +24,7 @@ export function registerAdminRoutes(app: FastifyInstance) {
     const prefix = `${todayPrefix()}%`;
     const count = async (sql: string, ...args: string[]) => Number((await one<{ n: string }>(sql, args))?.n ?? 0);
 
-    const started = await count(`SELECT COUNT(*) n FROM sessions WHERE started_at LIKE $1`, prefix);
+    const started = await count(`SELECT COUNT(*) n FROM sessions WHERE status<>'revisit' AND started_at LIKE $1`, prefix);
     const completed = await count(`SELECT COUNT(*) n FROM sessions WHERE status='completed' AND started_at LIKE $1`, prefix);
     const abandoned = await count(`SELECT COUNT(*) n FROM events WHERE type='session.abandoned' AND ts LIKE $1`, prefix);
     const active = await count(`SELECT COUNT(*) n FROM sessions WHERE status='active' AND started_at > $1`,
@@ -113,10 +113,13 @@ export function registerAdminRoutes(app: FastifyInstance) {
   app.get('/api/admin/sessions', async (req) => {
     const { status, page } = (req.query ?? {}) as { status?: string; page?: string };
     const p = Math.max(1, Number(page ?? 1));
-    const cols = `id, device_id, language, status, full_name, gender, age_group, phone, persona, started_at, completed_at`;
+    // 투표·선물 수령 여부는 투표한 세션(votes.session_id)에만 붙는다 — 재방문(revisit) 세션 행은 비어 있다.
+    const cols = `s.id, s.device_id, s.language, s.status, s.full_name, s.gender, s.age_group, s.phone, s.persona, s.started_at, s.completed_at,
+      v.voted_at, v.reward_claimed_at`;
+    const from = `FROM sessions s LEFT JOIN votes v ON v.session_id = s.id`;
     const rows = status
-      ? await many(`SELECT ${cols} FROM sessions WHERE status=$1 ORDER BY started_at DESC LIMIT 50 OFFSET $2`, [status, (p - 1) * 50])
-      : await many(`SELECT ${cols} FROM sessions ORDER BY started_at DESC LIMIT 50 OFFSET $1`, [(p - 1) * 50]);
+      ? await many(`SELECT ${cols} ${from} WHERE s.status=$1 ORDER BY s.started_at DESC LIMIT 50 OFFSET $2`, [status, (p - 1) * 50])
+      : await many(`SELECT ${cols} ${from} ORDER BY s.started_at DESC LIMIT 50 OFFSET $1`, [(p - 1) * 50]);
     return ok({ sessions: rows, page: p });
   });
 
@@ -180,8 +183,8 @@ export function registerAdminRoutes(app: FastifyInstance) {
     answersSheet.addRows(answers.map((a) => ({ ...a, answered_at: toVNTime(a.answered_at) })));
     styleHeader(answersSheet);
 
-    const votes = await many<{ session_id: string | null; full_name: string | null; product_ids: string; voted_at: string }>(
-      `SELECT v.session_id, s.full_name, v.product_ids, v.voted_at
+    const votes = await many<{ session_id: string | null; full_name: string | null; product_ids: string; voted_at: string; reward_claimed_at: string | null; reward_staff: string | null }>(
+      `SELECT v.session_id, s.full_name, v.product_ids, v.voted_at, v.reward_claimed_at, v.reward_staff
        FROM votes v LEFT JOIN sessions s ON s.id = v.session_id
        ORDER BY v.voted_at DESC`,
     );
@@ -195,6 +198,8 @@ export function registerAdminRoutes(app: FastifyInstance) {
       { header: 'Full Name', key: 'full_name', width: 24 },
       { header: 'Products', key: 'products', width: 60 },
       { header: 'Voted At', key: 'voted_at', width: 22 },
+      { header: 'Reward Claimed At', key: 'reward_claimed_at', width: 22 },
+      { header: 'Reward Staff', key: 'reward_staff', width: 16 },
     ];
     votesSheet.addRows(
       votes.map((v) => ({
@@ -202,6 +207,8 @@ export function registerAdminRoutes(app: FastifyInstance) {
         full_name: v.full_name,
         products: (JSON.parse(v.product_ids) as string[]).map((id) => productLabel.get(id) ?? id).join(', '),
         voted_at: toVNTime(v.voted_at),
+        reward_claimed_at: v.reward_claimed_at ? toVNTime(v.reward_claimed_at) : '',
+        reward_staff: v.reward_staff ?? '',
       })),
     );
     styleHeader(votesSheet);

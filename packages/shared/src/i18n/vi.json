@@ -50,6 +50,7 @@
     "qrScanTitle": "Đưa mã QR vào khung hình",
     "qrScanCancel": "Hủy",
     "qrScanInvalid": "Mã QR không hợp lệ, vui lòng thử lại",
+    "qrScanClaimed": "Số điện thoại này đã tham gia và nhận quà rồi, nên không thể chơi lại.",
     "qrScanNetworkError": "Không kết nối được hệ thống, vui lòng thử lại sau ít giây",
     "qrScanCameraError": "Không thể truy cập camera. Vui lòng cho phép quyền camera."
   },

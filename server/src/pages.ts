@@ -220,16 +220,14 @@ async function refresh(){
       kpi('Active now',o.today.active)+
       kpi('Avg duration',o.avgDurationSec,'sec')+
       kpi('Abandoned',o.today.abandoned)+
-      kpi('QR scan rate',o.qr.scanRate,'%')+
-      kpi('Downloads',o.downloads)+
-      kpi('Retake rate',o.retakeRate,'%');
+      kpi('QR scan rate',o.qr.scanRate,'%');
     const maxP=Math.max(1,...a.personaDistribution.map(p=>p.n));
     el('personas').innerHTML=a.personaDistribution.length?a.personaDistribution.map(p=>
       '<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:12px"><span>'+p.persona+'</span><b>'+p.n+'</b></div><div class="bar" style="width:'+(p.n/maxP*100)+'%"></div></div>').join(''):'<p class="muted">no data</p>';
     el('axes').innerHTML=Object.entries(a.axisAverages).map(([k,v])=>
       '<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:12px"><span>'+k+'</span><b>'+(v??'—')+'</b></div><div class="bar" style="width:'+(v||0)+'%"></div></div>').join('');
-    el('sessions').innerHTML='<table><tr><th>time</th><th>status</th><th>persona</th><th>lang</th><th>name</th><th>gender</th><th>dob</th><th>phone</th></tr>'+
-      se.data.sessions.map(s=>'<tr><td>'+new Date(s.started_at).toLocaleTimeString()+'</td><td>'+s.status+'</td><td>'+(s.persona||'—')+'</td><td>'+s.language+'</td><td>'+esc(s.full_name||'—')+'</td><td>'+esc(s.gender||'—')+'</td><td>'+esc((s.age_group||'—').split('T')[0])+'</td><td>'+esc(s.phone||'—')+'</td></tr>').join('')+'</table>';
+    el('sessions').innerHTML='<table><tr><th>time</th><th>status</th><th>persona</th><th>lang</th><th>name</th><th>gender</th><th>dob</th><th>phone</th><th>voted</th><th>reward</th></tr>'+
+      se.data.sessions.map(s=>'<tr><td>'+new Date(s.started_at).toLocaleTimeString()+'</td><td>'+s.status+'</td><td>'+(s.persona||'—')+'</td><td>'+s.language+'</td><td>'+esc(s.full_name||'—')+'</td><td>'+esc(s.gender||'—')+'</td><td>'+esc((s.age_group||'—').split('T')[0])+'</td><td>'+esc(s.phone||'—')+'</td><td>'+(s.voted_at?'✓ '+new Date(s.voted_at).toLocaleTimeString():'—')+'</td><td>'+(s.reward_claimed_at?'✓ '+new Date(s.reward_claimed_at).toLocaleTimeString():'—')+'</td></tr>').join('')+'</table>';
   }catch(e){el('status').textContent='offline'}
 }
 refresh();setInterval(refresh,10000);
