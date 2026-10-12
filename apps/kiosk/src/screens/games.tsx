@@ -544,12 +544,13 @@ export function Core4Screen() {
     }
   };
 
-  /** 좌우 스와이프 안내 (원형 버튼 + 점선) */
+  /** 좌우 스와이프 버튼 (원형 버튼) — 하단 '안 맞아요/좋아요' 버튼과 동일하게 카드를 넘긴다 */
   const SideHint = ({ dir }: { dir: 'notme' | 'love' }) => (
-    <div style={{
+    <button type="button" onClick={() => swipe(dir)} aria-label={t(`core4.dirs.${dir}`)} style={{
       position: 'absolute', top: '50%', transform: 'translateY(-50%)',
       [dir === 'notme' ? 'left' : 'right']: dir === 'notme' ? '-15px' : 0, zIndex: 3,
-      display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, pointerEvents: 'none',
+      display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
+      background: 'none', border: 'none', padding: '8px 4px', font: 'inherit', cursor: 'pointer',
     }}>
       <div style={{
         width: 46, height: 46, borderRadius: '50%', display: 'grid', placeItems: 'center',
@@ -559,7 +560,7 @@ export function Core4Screen() {
       <span style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: '0.06em', color: dir === 'notme' ? 'var(--ink-dim)' : 'var(--accent)' }}>
         {t(`core4.dirs.${dir}`)}
       </span>
-    </div>
+    </button>
   );
 
   return (
