@@ -1,11 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { motion } from 'framer-motion';
 import { TREND_CARDS } from '@aepick/shared';
 import { BRIDGE_AXES, CORE_ORDER, StateProvider, useStore, type ScreenId } from './state';
-import { ASSET, TimeoutGuard } from './components';
+import { ASSET, TimeoutGuard, uiDir } from './components';
 import {
   AttractScreen, LanguageScreen, ConsentScreen, IntroScreen, BridgeScreen,
-  AnalyzingScreen, DnaResultScreen, QrScreen, EndScreen,
+  AnalyzingScreen, DnaResultScreen, QrScreen, EndScreen, RESULT_VN_IMAGE,
 } from './screens/flow';
 import { Core1Screen, Core2Screen, Core3Screen, Core4Screen, Core5Screen, Core6Screen } from './screens/games';
 
@@ -75,12 +74,12 @@ function preloadImage(src: string) {
 function useImagePreload(language: string) {
   useEffect(() => {
     BRIDGE_AXES.forEach((axis) => {
-      const src = language === 'vi' ? `/assets/ui/vn/bridge-${axis}-vn.webp` : ASSET(`bridge-${axis}`, 'jpg');
+      const src = `${uiDir(language)}/bridge-${axis}.webp`;
       preloadImage(src);
     });
-    if (language === 'vi') {
-      CORE_ORDER.forEach(({ screen }) => preloadImage(`/assets/ui/vn/${screen}-vn.webp`));
-    }
+    CORE_ORDER.forEach(({ screen }) => preloadImage(`${uiDir(language)}/${screen}.webp`));
+    ['anh1', 'a_05', 'end-final', ...Object.values(RESULT_VN_IMAGE)].forEach((n) => preloadImage(`${uiDir(language)}/${n}.webp`));
+    preloadImage('/assets/ui/s1.webp');
     TREND_CARDS.forEach((card) => preloadImage(ASSET(`trend-${card}`, 'webp')));
   }, [language]);
 }
@@ -93,22 +92,15 @@ function Router() {
   const timeout = DISABLE_TIMEOUT ? null : (base === null ? null : (TIMEOUT_OVERRIDE ?? base));
   // AnimatePresence 미사용 — exit 애니메이션이 완료되지 않으면 이전 화면이
   // 언마운트되지 않고 DOM에 누적된다(타이머·토스트가 살아남아 오작동).
-  // key 변경으로 즉시 교체하고 진입 애니메이션만 유지한다.
+  // key 변경으로 즉시 교체한다. 진입 페이드(opacity 0→1)는 전체화면 이미지 전환 때 배경이 비쳐 깜빡여 제거.
   const body = (
-    <motion.div key={s.screen} style={{ position: 'absolute', inset: 0 }}
-      initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3, ease: 'easeOut' }}>
+    <div key={s.screen} style={{ position: 'absolute', inset: 0 }}>
       <Screen />
-    </motion.div>
+    </div>
   );
   return (
     <div className="stage">
       <OperatorGesture />
-      {/* 전 화면 공통 브랜드 헤더 (대형 워드마크를 자체 표시하는 화면·이미지에 로고가 이미 포함된 화면 제외) */}
-      {s.language !== 'vi'
-        && s.screen !== 'attract' && s.screen !== 'intro' && s.screen !== 'bridge' && s.screen !== 'end' && (
-        <img src={ASSET('logo')} alt="aépick" className="brand-header" />
-      )}
       {timeout !== null ? <TimeoutGuard seconds={timeout}>{body}</TimeoutGuard> : body}
     </div>
   );

@@ -105,7 +105,7 @@ function Lazy({ height, children }: { height: number; children: React.ReactNode 
 function StageBody({ entry, lang, autoplay }: { entry: ScreenEntry; lang: Language; autoplay: boolean }) {
   const { s } = useStore();
   const Comp = autoplay ? (APP_SCREENS[s.screen] ?? entry.Comp!) : entry.Comp!;
-  const header = lang !== 'vi' && (autoplay
+  const header = false && (autoplay
     ? s.screen !== 'attract' && s.screen !== 'intro'
     : showsHeader(entry));
   return (
