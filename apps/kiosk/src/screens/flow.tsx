@@ -232,8 +232,11 @@ export function LanguageScreen() {
 
   const onQrResult = (profile: QrProfile) => {
     setScanning(false);
-    update({ fullName: profile.fullName, gender: profile.gender, ageGroup: profile.ageGroup, phone: profile.phone });
-    if (s.sessionId) api.setProfile(s.sessionId, profile);
+    const { existingResult, ...info } = profile;
+    update({ fullName: info.fullName, gender: info.gender, ageGroup: info.ageGroup, phone: info.phone });
+    if (s.sessionId) api.setProfile(s.sessionId, info);
+    // 이미 결과가 있는 번호: 게임을 다시 하지 않고 이전 결과 QR을 다시 보여준다.
+    if (existingResult) { update(existingResult); go('qr'); return; }
     go('intro');
   };
 
@@ -902,9 +905,7 @@ export function DnaResultScreen() {
 export function QrScreen() {
   const { s, go } = useStore();
   const t = makeT(s.language);
-  useEffect(() => {
-    if (s.resultToken) api.sendEvent('qr.issued', s.sessionId);
-  }, [s.resultToken, s.sessionId]);
+  // qr.issued 는 서버가 결과 산출(/complete) 시 이미 기록한다 — 여기서 또 보내면 이중 집계된다.
   return (
     <div className="screen" style={{ justifyContent: 'center', gap: 28 }}>
       <h1 className="display" style={{ fontSize: 'clamp(22px,3.2vh,34px)' }}>{t('qr.scanTitle')}</h1>

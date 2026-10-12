@@ -163,6 +163,8 @@ th{color:var(--dim);font-weight:600}
   <div style="display:flex;align-items:center;gap:12px">
     <button id="exportBtn" style="padding:6px 14px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--ink);cursor:pointer;font:inherit">Export Excel</button>
     <button id="exportRegBtn" style="padding:6px 14px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--ink);cursor:pointer;font:inherit">Export Zalo Check-in</button>
+    <!-- TEST-ONLY: 오픈 전에 이 버튼과 아래 resetBtn 핸들러만 지우면 된다 (API 는 유지) -->
+    <button id="resetBtn" style="padding:6px 14px;border-radius:8px;border:1px solid #ff5d5d;background:transparent;color:#ff5d5d;cursor:pointer;font:inherit">Delete test data</button>
     <div id="status">connecting…</div>
   </div>
 </div>
@@ -201,6 +203,15 @@ el('exportRegBtn').onclick=async()=>{
   a.href=url; a.download='aepick-cnv-customers-'+ymd+'.xlsx'; a.click();
   URL.revokeObjectURL(url);
 };
+// TEST-ONLY: 테스트 데이터 전체 삭제 버튼 (API: POST /api/admin/reset-data)
+el('resetBtn').onclick=async()=>{
+  if(prompt('This permanently deletes ALL sessions, answers, results, votes and events.\\nExport Excel first if you need a backup.\\nType DELETE to continue:')!=='DELETE')return;
+  const r=await fetch(ROOT+'/api/admin/reset-data',{method:'POST',headers:{...H,'Content-Type':'application/json'},body:JSON.stringify({confirm:'DELETE'})});
+  if(!r.ok){alert('Delete failed');return}
+  const d=(await r.json()).data.deleted;
+  alert('Deleted: '+Object.entries(d).map(([k,v])=>k+' '+v).join(', '));
+  refresh();
+};
 const kpi=(label,value,suffix)=>'<div class="card"><h2>'+label+'</h2><div class="kpi">'+(value??'—')+'<small> '+(suffix||'')+'</small></div></div>';
 
 async function refresh(){
@@ -220,16 +231,14 @@ async function refresh(){
       kpi('Active now',o.today.active)+
       kpi('Avg duration',o.avgDurationSec,'sec')+
       kpi('Abandoned',o.today.abandoned)+
-      kpi('QR scan rate',o.qr.scanRate,'%')+
-      kpi('Downloads',o.downloads)+
-      kpi('Retake rate',o.retakeRate,'%');
+      kpi('QR scan rate',o.qr.scanRate,'%');
     const maxP=Math.max(1,...a.personaDistribution.map(p=>p.n));
     el('personas').innerHTML=a.personaDistribution.length?a.personaDistribution.map(p=>
       '<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:12px"><span>'+p.persona+'</span><b>'+p.n+'</b></div><div class="bar" style="width:'+(p.n/maxP*100)+'%"></div></div>').join(''):'<p class="muted">no data</p>';
     el('axes').innerHTML=Object.entries(a.axisAverages).map(([k,v])=>
       '<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:12px"><span>'+k+'</span><b>'+(v??'—')+'</b></div><div class="bar" style="width:'+(v||0)+'%"></div></div>').join('');
-    el('sessions').innerHTML='<table><tr><th>time</th><th>status</th><th>persona</th><th>lang</th><th>name</th><th>gender</th><th>dob</th><th>phone</th></tr>'+
-      se.data.sessions.map(s=>'<tr><td>'+new Date(s.started_at).toLocaleTimeString()+'</td><td>'+s.status+'</td><td>'+(s.persona||'—')+'</td><td>'+s.language+'</td><td>'+esc(s.full_name||'—')+'</td><td>'+esc(s.gender||'—')+'</td><td>'+esc((s.age_group||'—').split('T')[0])+'</td><td>'+esc(s.phone||'—')+'</td></tr>').join('')+'</table>';
+    el('sessions').innerHTML='<table><tr><th>time</th><th>status</th><th>persona</th><th>lang</th><th>name</th><th>gender</th><th>dob</th><th>phone</th><th>voted</th><th>reward</th></tr>'+
+      se.data.sessions.map(s=>'<tr><td>'+new Date(s.started_at).toLocaleTimeString()+'</td><td>'+s.status+'</td><td>'+(s.persona||'—')+'</td><td>'+s.language+'</td><td>'+esc(s.full_name||'—')+'</td><td>'+esc(s.gender||'—')+'</td><td>'+esc((s.age_group||'—').split('T')[0])+'</td><td>'+esc(s.phone||'—')+'</td><td>'+(s.voted_at?'✓ '+new Date(s.voted_at).toLocaleTimeString():'—')+'</td><td>'+(s.reward_claimed_at?'✓ '+new Date(s.reward_claimed_at).toLocaleTimeString():'—')+'</td></tr>').join('')+'</table>';
   }catch(e){el('status').textContent='offline'}
 }
 refresh();setInterval(refresh,10000);

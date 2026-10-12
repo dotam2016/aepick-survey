@@ -16,22 +16,26 @@ export interface QrProfile {
   gender: 'male' | 'female' | 'other' | null;
   ageGroup: string | null;
   phone: string;
+  /** 이 번호로 이미 완료한 유효한 결과가 있으면 채워진다 — 게임 없이 QR 화면으로 이동 */
+  existingResult?: { resultToken: string; resultUrl: string; qrPngUrl: string } | null;
 }
 
 export type QrLookupResult =
   | { ok: true; profile: QrProfile }
   // invalid: QR 자체가 잘못됨(형식 불일치·미등록 번호) — 다른 QR을 시도해야 한다.
+  // claimed: 이미 선물을 수령한 번호 — 더 이상 참여 불가.
   // network: 서버/네트워크 문제 — QR은 정상이니 잠시 후 같은 QR로 재시도하면 된다.
-  | { ok: false; reason: 'invalid' | 'network' };
+  | { ok: false; reason: 'invalid' | 'network' | 'claimed' };
 
 /** QR에서 읽은 문자열이 전화번호 형태가 아니면 조회 없이 바로 무효 처리한다. */
-export async function lookupProfileByPhone(raw: string): Promise<QrLookupResult> {
+export async function lookupProfileByPhone(raw: string, sessionId?: string | null): Promise<QrLookupResult> {
   const phone = raw.trim();
   if (!PHONE_RE.test(phone)) return { ok: false, reason: 'invalid' };
-  const url = `${API_BASE}/api/qr-lookup?phone=${encodeURIComponent(phone)}`;
+  const url = `${API_BASE}/api/qr-lookup?phone=${encodeURIComponent(phone)}${sessionId ? `&sessionId=${encodeURIComponent(sessionId)}` : ''}`;
   try {
     const res = await fetch(url, { headers: { 'X-Device-Id': DEVICE_ID } });
     // 400/404 = 번호 형식 오류·미등록 번호(QR 문제), 그 외(5xx 등)만 서버/네트워크 문제로 본다.
+    if (res.status === 409) return { ok: false, reason: 'claimed' };
     if (res.status === 400 || res.status === 404) return { ok: false, reason: 'invalid' };
     if (!res.ok) return { ok: false, reason: 'network' };
     const json = await res.json();
@@ -81,7 +85,7 @@ export function QrScanOverlay({ onResult, onClose }: { onResult: (profile: QrPro
   const t = makeT(s.language);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [error, setError] = useState<'camera' | 'invalid' | 'network' | null>(null);
+  const [error, setError] = useState<'camera' | 'invalid' | 'network' | 'claimed' | null>(null);
   const [loading, setLoading] = useState(false);
   // 오류 팝업이 떠 있는 동안·"다시 시도"를 누르기 전까지는 같은 QR을 다시 조회하지 않는다.
   const blockedRef = useRef(false);
@@ -105,7 +109,7 @@ export function QrScanOverlay({ onResult, onClose }: { onResult: (profile: QrPro
           if (!data || cancelled || done || looking || blockedRef.current) return;
           looking = true;
           setLoading(true);
-          lookupProfileByPhone(data).then((result) => {
+          lookupProfileByPhone(data, s.sessionId).then((result) => {
             if (cancelled) return;
             looking = false;
             if (result.ok) {
@@ -186,11 +190,12 @@ export function QrScanOverlay({ onResult, onClose }: { onResult: (profile: QrPro
             <motion.div className="modal card" initial={{ y: 60 }} animate={{ y: 0 }}>
               <p style={{ fontSize: 16, lineHeight: 1.5 }}>
                 {error === 'camera' ? t('consent.qrScanCameraError')
-                  : error === 'invalid' ? t('consent.qrScanInvalid') : t('consent.qrScanNetworkError')}
+                  : error === 'invalid' ? t('consent.qrScanInvalid')
+                  : error === 'claimed' ? t('consent.qrScanClaimed') : t('consent.qrScanNetworkError')}
               </p>
               <button className="btn small"
-                onClick={error === 'camera' ? onClose : () => { blockedRef.current = false; setError(null); }}>
-                {error === 'camera' ? t('consent.qrScanCancel') : t('common.retry')}
+                onClick={error === 'camera' || error === 'claimed' ? onClose : () => { blockedRef.current = false; setError(null); }}>
+                {error === 'camera' || error === 'claimed' ? t('consent.qrScanCancel') : t('common.retry')}
               </button>
             </motion.div>
           </motion.div>

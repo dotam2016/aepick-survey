@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { TREND_CARDS } from '@aepick/shared';
 import { BRIDGE_AXES, CORE_ORDER, StateProvider, useStore, type ScreenId } from './state';
 import { ASSET, TimeoutGuard, uiDir } from './components';
+import { api } from './api';
 import {
   AttractScreen, LanguageScreen, ConsentScreen, IntroScreen, BridgeScreen,
   AnalyzingScreen, DnaResultScreen, QrScreen, EndScreen, RESULT_VN_IMAGE,
@@ -37,14 +38,17 @@ const TIMEOUTS: Record<ScreenId, number | null> = {
 
 /** 운영자 히든 제스처: 좌상단 5회 연속 탭 → 세션 초기화 */
 function OperatorGesture() {
-  const { resetSession } = useStore();
+  const { s, resetSession } = useStore();
   const taps = useRef<number[]>([]);
   const onTap = () => {
     const now = Date.now();
     taps.current = [...taps.current.filter((t) => now - t < 3000), now];
     if (taps.current.length >= 5) {
       taps.current = [];
-      if (window.confirm('Operator: reset session?')) resetSession();
+      if (window.confirm('Operator: reset session?')) {
+        if (s.sessionId) api.sendEvent('session.abandoned', s.sessionId, { screen: s.screen, reason: 'operator_reset' });
+        resetSession();
+      }
     }
   };
   return <div style={{ position: 'absolute', top: 0, left: 0, width: 90, height: 90, zIndex: 100 }} onPointerDown={onTap} />;
