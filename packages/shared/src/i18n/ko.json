@@ -381,6 +381,7 @@
   },
   "qr": {
     "scanTitle": "QR을 스캔해 Beauty DNA를 저장하세요",
+    "revisitNotice": "전화번호 {phone}은(는) 이전에 Beauty DNA에 참여하셨습니다.",
     "retention": "결과 페이지는 48시간 동안 열람할 수 있어요",
     "deleteNotice": "결과 페이지에서 언제든 즉시 삭제할 수 있어요",
     "productsTitle": "{persona}를 위한 추천",
