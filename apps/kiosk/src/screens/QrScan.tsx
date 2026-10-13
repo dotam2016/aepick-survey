@@ -187,7 +187,7 @@ export function QrScanOverlay({ onResult, onClose }: { onResult: (profile: QrPro
       <AnimatePresence>
         {error && (
           <motion.div className="modal-backdrop" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <motion.div className="modal card" initial={{ y: 60 }} animate={{ y: 0 }}>
+            <motion.div className="modal card" style={{ maxWidth: 420 }} initial={{ y: 60 }} animate={{ y: 0 }}>
               <p style={{ fontSize: 16, lineHeight: 1.5, whiteSpace: 'pre-line' }}>
                 {error === 'camera' ? t('consent.qrScanCameraError')
                   : error === 'invalid' ? t('consent.qrScanInvalid')
