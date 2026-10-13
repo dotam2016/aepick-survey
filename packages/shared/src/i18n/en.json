@@ -381,6 +381,7 @@
   },
   "qr": {
     "scanTitle": "Scan to keep your Beauty DNA",
+    "revisitNotice": "Phone number {phone} has already joined Beauty DNA.",
     "retention": "Your result page stays available for 48 hours",
     "deleteNotice": "You can delete it instantly anytime on the result page",
     "productsTitle": "Picked for a {persona}",

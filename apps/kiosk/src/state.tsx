@@ -30,6 +30,8 @@ export interface SessionState {
   ageGroup: string | null;
   /** QR 스캔으로만 채워진다 — 수동 입력 폼에는 없음 */
   phone: string;
+  /** QR 스캔 시 이전 결과가 있어 게임을 건너뛰고 QR 화면으로 온 경우 */
+  revisit: boolean;
   results: Partial<Record<Axis, GameResult>>;
   scores: Scores | null;
   persona: PersonaId | null;
@@ -51,6 +53,7 @@ const initial: SessionState = {
   gender: null,
   ageGroup: null,
   phone: '',
+  revisit: false,
   results: {},
   scores: null,
   persona: null,

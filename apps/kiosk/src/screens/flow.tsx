@@ -236,7 +236,7 @@ export function LanguageScreen() {
     update({ fullName: info.fullName, gender: info.gender, ageGroup: info.ageGroup, phone: info.phone });
     if (s.sessionId) api.setProfile(s.sessionId, info);
     // 이미 결과가 있는 번호: 게임을 다시 하지 않고 이전 결과 QR을 다시 보여준다.
-    if (existingResult) { update(existingResult); go('qr'); return; }
+    if (existingResult) { update({ ...existingResult, revisit: true }); go('qr'); return; }
     go('intro');
   };
 
@@ -908,6 +908,12 @@ export function QrScreen() {
   // qr.issued 는 서버가 결과 산출(/complete) 시 이미 기록한다 — 여기서 또 보내면 이중 집계된다.
   return (
     <div className="screen" style={{ justifyContent: 'center', gap: 28 }}>
+      {s.revisit && s.phone && (
+        // 038****123 형태: 앞 3자리·뒤 3자리만 노출
+        <p className="hint" style={{ margin: 0, color: '#ea554a', fontSize: 'clamp(20px, 2vh, 24px)' }}>
+          {t('qr.revisitNotice', { phone: s.phone.slice(0, 3) + '*'.repeat(Math.max(s.phone.length - 6, 0)) + s.phone.slice(-3) })}
+        </p>
+      )}
       <h1 className="display" style={{ fontSize: 'clamp(22px,3.2vh,34px)' }}>{t('qr.scanTitle')}</h1>
       {s.qrPngUrl ? (
         <div className="card" style={{ padding: 22, background: '#fff', borderRadius: 24 }}>

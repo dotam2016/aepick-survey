@@ -382,6 +382,7 @@
   },
   "qr": {
     "scanTitle": "Quét mã để lưu Beauty DNA của bạn",
+    "revisitNotice": "Số điện thoại {phone} đã tham gia Beauty DNA trước đó.",
     "retention": "Kết quả được lưu trong 48 giờ",
     "deleteNotice": "Bạn có thể xóa kết quả bất cứ lúc nào",
     "productsTitle": "Dành riêng cho {persona}",
