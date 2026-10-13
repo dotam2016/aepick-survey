@@ -12,6 +12,10 @@ const ok = (data: unknown) => ({ ok: true, data });
 const CNV_EXPORT_URL = 'https://tzn2xfoo4i46lnnurtehukjd4m0cgbzj.lambda-url.ap-southeast-1.on.aws/';
 const CNV_EXPORT_PIN = process.env.CNV_EXPORT_PIN;
 
+// 원본 세션이 있는 번호의 revisit 행은 중복이므로 목록·Excel 에서 숨긴다 (s = sessions 별칭 필요).
+const DEDUPE_REVISIT = `NOT (s.status='revisit' AND s.phone IS NOT NULL AND EXISTS (
+  SELECT 1 FROM sessions o WHERE o.phone = s.phone AND o.status <> 'revisit'))`;
+
 export function registerAdminRoutes(app: FastifyInstance) {
   app.addHook('onRequest', async (req, reply) => {
     if (!req.url.startsWith('/api/admin')) return;
@@ -116,10 +120,11 @@ export function registerAdminRoutes(app: FastifyInstance) {
     // 투표·선물 수령 여부는 투표한 세션(votes.session_id)에만 붙는다 — 재방문(revisit) 세션 행은 비어 있다.
     const cols = `s.id, s.device_id, s.language, s.status, s.full_name, s.gender, s.age_group, s.phone, s.persona, s.started_at, s.completed_at,
       v.voted_at, v.reward_claimed_at`;
+    // status=revisit 로 직접 조회할 때는 중복 제거 없이 그대로 노출.
     const from = `FROM sessions s LEFT JOIN votes v ON v.session_id = s.id`;
     const rows = status
-      ? await many(`SELECT ${cols} ${from} WHERE s.status=$1 ORDER BY s.started_at DESC LIMIT 50 OFFSET $2`, [status, (p - 1) * 50])
-      : await many(`SELECT ${cols} ${from} ORDER BY s.started_at DESC LIMIT 50 OFFSET $1`, [(p - 1) * 50]);
+      ? await many(`SELECT ${cols} ${from} WHERE s.status=$1 ${status === 'revisit' ? '' : `AND ${DEDUPE_REVISIT}`} ORDER BY s.started_at DESC LIMIT 50 OFFSET $2`, [status, (p - 1) * 50])
+      : await many(`SELECT ${cols} ${from} WHERE ${DEDUPE_REVISIT} ORDER BY s.started_at DESC LIMIT 50 OFFSET $1`, [(p - 1) * 50]);
     return ok({ sessions: rows, page: p });
   });
 
@@ -130,8 +135,8 @@ export function registerAdminRoutes(app: FastifyInstance) {
       full_name: string | null; gender: string | null; age_group: string | null; phone: string | null;
       persona: string | null; status: string;
     }>(
-      `SELECT id, started_at, completed_at, language, full_name, gender, age_group, phone, persona, status
-       FROM sessions ORDER BY started_at DESC`,
+      `SELECT s.id, s.started_at, s.completed_at, s.language, s.full_name, s.gender, s.age_group, s.phone, s.persona, s.status
+       FROM sessions s WHERE ${DEDUPE_REVISIT} ORDER BY s.started_at DESC`,
     );
 
     const workbook = new ExcelJS.Workbook();
