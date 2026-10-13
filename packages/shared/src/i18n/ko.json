@@ -49,7 +49,8 @@
     "qrScanTitle": "QR 코드를 화면 안에 맞춰주세요",
     "qrScanCancel": "취소",
     "qrScanInvalid": "유효하지 않은 QR 코드입니다. 다시 시도해 주세요",
-    "qrScanClaimed": "이미 참여하여 선물을 받은 번호입니다. 다시 참여할 수 없습니다",
+    "qrScanClaimed": "이미 참여하여 선물을 받은 번호입니다.\n다시 참여할 수 없습니다.",
+    "qrScanClose": "닫기",
     "qrScanNetworkError": "서버에 연결할 수 없습니다. 잠시 후 다시 시도해 주세요",
     "qrScanCameraError": "카메라에 접근할 수 없습니다. 카메라 권한을 허용해 주세요."
   },
@@ -465,7 +466,7 @@
     "errors": {
       "not_found": "유효하지 않은 QR입니다. 패드의 QR을 다시 찍어주세요.",
       "expired": "QR이 만료되었습니다. 패드의 새 QR을 찍어주세요.",
-      "already_claimed": "이미 사용된 QR입니다. 패드의 새 QR을 찍어주세요."
+      "already_claimed": "이미 사용된 QR입니다.\n패드의 새 QR을 찍어주세요."
     }
   }
 }

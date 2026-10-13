@@ -188,14 +188,15 @@ export function QrScanOverlay({ onResult, onClose }: { onResult: (profile: QrPro
         {error && (
           <motion.div className="modal-backdrop" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
             <motion.div className="modal card" initial={{ y: 60 }} animate={{ y: 0 }}>
-              <p style={{ fontSize: 16, lineHeight: 1.5 }}>
+              <p style={{ fontSize: 16, lineHeight: 1.5, whiteSpace: 'pre-line' }}>
                 {error === 'camera' ? t('consent.qrScanCameraError')
                   : error === 'invalid' ? t('consent.qrScanInvalid')
                   : error === 'claimed' ? t('consent.qrScanClaimed') : t('consent.qrScanNetworkError')}
               </p>
               <button className="btn small"
                 onClick={error === 'camera' || error === 'claimed' ? onClose : () => { blockedRef.current = false; setError(null); }}>
-                {error === 'camera' || error === 'claimed' ? t('consent.qrScanCancel') : t('common.retry')}
+                {error === 'claimed' ? t('consent.qrScanClose')
+                  : error === 'camera' ? t('consent.qrScanCancel') : t('common.retry')}
               </button>
             </motion.div>
           </motion.div>

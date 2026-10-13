@@ -50,7 +50,8 @@
     "qrScanTitle": "Đưa mã QR vào khung hình",
     "qrScanCancel": "Hủy",
     "qrScanInvalid": "Mã QR không hợp lệ, vui lòng thử lại",
-    "qrScanClaimed": "Số điện thoại này đã tham gia và nhận quà rồi, nên không thể chơi lại.",
+    "qrScanClaimed": "Số điện thoại này đã tham gia và nhận quà.\nBạn không thể chơi lại.",
+    "qrScanClose": "Đóng",
     "qrScanNetworkError": "Không kết nối được hệ thống, vui lòng thử lại sau ít giây",
     "qrScanCameraError": "Không thể truy cập camera. Vui lòng cho phép quyền camera."
   },
@@ -466,7 +467,7 @@
     "errors": {
       "not_found": "Mã QR không hợp lệ. Vui lòng quét lại mã QR trên máy.",
       "expired": "Mã QR đã hết hạn. Vui lòng quét mã QR mới trên máy.",
-      "already_claimed": "Mã QR này đã được sử dụng. Vui lòng quét mã QR mới trên máy."
+      "already_claimed": "Mã QR này đã được sử dụng.\nVui lòng quét mã QR mới trên máy."
     }
   }
 }

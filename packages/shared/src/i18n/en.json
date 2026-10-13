@@ -49,7 +49,8 @@
     "qrScanTitle": "Point the QR code at the frame",
     "qrScanCancel": "Cancel",
     "qrScanInvalid": "Invalid QR code, please try again",
-    "qrScanClaimed": "This phone number has already played and received the gift, so it cannot play again.",
+    "qrScanClaimed": "This phone number has already played and received the gift.\nYou cannot play again.",
+    "qrScanClose": "Close",
     "qrScanNetworkError": "Couldn't reach the server, please try again in a few seconds",
     "qrScanCameraError": "Couldn't access the camera. Please allow camera permission."
   },
@@ -465,7 +466,7 @@
     "errors": {
       "not_found": "Invalid QR. Please scan the kiosk's QR again.",
       "expired": "QR expired. Please scan a new QR on the kiosk.",
-      "already_claimed": "This QR was already used. Please scan a new QR on the kiosk."
+      "already_claimed": "This QR was already used.\nPlease scan a new QR on the kiosk."
     }
   }
 }

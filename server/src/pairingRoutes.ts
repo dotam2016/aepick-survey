@@ -135,7 +135,7 @@ export function pairingPageHtml(code: string): string {
   .done{display:none}
   .done h1{color:var(--accent);font-size:24px}
   .big{font-size:40px;margin:8px 0}
-  .msg{min-height:20px;color:#d33;font-size:13px;margin-bottom:8px}
+  .msg{min-height:20px;color:#d33;font-size:13px;margin-bottom:8px;white-space:pre-line}
 </style>
 </head>
 <body>
