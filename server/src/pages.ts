@@ -158,6 +158,8 @@ th{color:var(--dim);font-weight:600}
 .row{display:flex;flex-wrap:wrap;gap:14px;margin-top:14px}
 .w600{width:600px;max-width:100%}
 .w1214{width:1214px;max-width:100%}
+#sessions table{font-size:14px}
+#sessions td,#sessions th{padding:10px 8px}
 #sessions th{position:sticky;top:0;z-index:1;background:#221b33;box-shadow:inset 0 -1px 0 var(--border)}
 </style>
 </head>
@@ -178,7 +180,7 @@ th{color:var(--dim);font-weight:600}
   <div class="card w600"><h2>Core Value averages</h2><div id="axes"></div></div>
 </div>
 <div class="row">
-  <div class="card w1214"><h2>Recent sessions</h2><div id="sessions" style="max-height:340px;overflow:auto"></div></div>
+  <div class="card w1214"><h2>Recent sessions</h2><div id="sessions" style="max-height:438px;overflow:auto"></div></div>
 </div>
 <script>
 let KEY=localStorage.getItem('adminKey')||prompt('Admin key:',${JSON.stringify(ADMIN_KEY_IS_DEFAULT ? 'aepick-admin' : '')});

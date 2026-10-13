@@ -225,6 +225,44 @@ export function registerAdminRoutes(app: FastifyInstance) {
       .send(Buffer.from(buffer));
   });
 
+  /* ── 관리자 화면 + Excel 에 들어가는 모든 데이터를 한 번에 JSON 으로 ──
+   * overview/analytics 는 기존 핸들러를 inject 로 재사용하고(?from=&to= 는 analytics 에 전달),
+   * 목록류(sessions/answers/votes/registrations)는 페이징 없이 전부 내려준다. 시각은 DB 원본(UTC ISO). */
+  app.get('/api/admin/export/all', async (req) => {
+    const { from, to } = (req.query ?? {}) as { from?: string; to?: string };
+    const qs = new URLSearchParams(Object.entries({ from, to }).filter(([, v]) => v) as [string, string][]).toString();
+    const call = async (url: string) =>
+      (await app.inject({ method: 'GET', url, headers: { 'x-admin-key': ADMIN_KEY } })).json().data;
+
+    const productLabel = new Map<string, string>();
+    for (const b of await listBrands(false)) {
+      for (const p of b.products) productLabel.set(p.id, `${p.name.vi || p.name.en || p.id} – ${b.name}`);
+    }
+    const votes = (await many<{ product_ids: string } & Record<string, unknown>>(
+      `SELECT v.session_id, s.full_name, v.product_ids, v.voted_at, v.reward_claimed_at, v.reward_staff
+       FROM votes v LEFT JOIN sessions s ON s.id = v.session_id ORDER BY v.voted_at DESC`,
+    )).map((v) => {
+      const ids = JSON.parse(v.product_ids) as string[];
+      return { ...v, product_ids: ids, products: ids.map((id) => productLabel.get(id) ?? id) };
+    });
+
+    return ok({
+      generatedAt: now(),
+      overview: await call('/api/admin/overview'),
+      analytics: await call(`/api/admin/analytics${qs ? `?${qs}` : ''}`),
+      sessions: await many(
+        `SELECT s.id, s.device_id, s.language, s.status, s.full_name, s.gender, s.age_group, s.phone, s.persona, s.started_at, s.completed_at,
+           v.voted_at, v.reward_claimed_at
+         FROM sessions s LEFT JOIN votes v ON v.session_id = s.id WHERE ${DEDUPE_REVISIT} ORDER BY s.started_at DESC`),
+      answers: await many(
+        `SELECT a.session_id, s.full_name, a.core_key, a.subtype, a.score, a.answered_at
+         FROM answers a JOIN sessions s ON s.id = a.session_id ORDER BY a.session_id, a.answered_at`),
+      votes,
+      registrations: await many(
+        `SELECT id, external_id, qr_code, full_name, phone, dob, gender, received_at FROM event_registrations ORDER BY received_at DESC`),
+    });
+  });
+
   /* ── Zalo 체크인 고객 명단 Excel (BE가 별도로 올린 람다 — PIN 인증, CORS가 자기네 API Gateway
    *    origin 하나만 허용해 브라우저에서 직접 못 부른다. 서버를 거쳐 대신 호출한다) ── */
   app.get('/api/admin/export/registrations.xlsx', async (_req, reply) => {
