@@ -24,7 +24,7 @@ const L = (ko: string, en: string, vi: string) => ({ ko, en, vi });
 /** 카탈로그(브랜드·제품) — 결과·투표·어드민 화면이 모두 이 목록을 쓴다 */
 export const MOCK_BRANDS = [
   {
-    id: 'b04-wavemuse', name: 'WAVE MUSE', emoji: '🌊', logoUrl: '/assets/ui/Logo/tambeauty.png',
+    id: 'b04-wavemuse', name: 'WAVE MUSE', emoji: '🌊', logoUrl: '/assets/ui/logo/tambeauty.png',
     tagline: L('가장 빠른 컬러 트렌드를 담은 메이크업', 'Makeup that catches the color wave first', 'Trang điểm bắt trọn xu hướng màu mới'),
     personaTags: ['trendMuse', 'beautyExplorer'], axisAffinity: { trend: 0.97 },
     sortOrder: 1, active: true,
@@ -35,7 +35,7 @@ export const MOCK_BRANDS = [
     ],
   },
   {
-    id: 'b03-hanoifit', name: 'HANOI FIT', emoji: '🌤', logoUrl: '/assets/ui/Logo/kitschcatch.png',
+    id: 'b03-hanoifit', name: 'HANOI FIT', emoji: '🌤', logoUrl: '/assets/ui/logo/kitschcatch.png',
     tagline: L('하노이 기후에 맞춘 가벼운 제형', 'Light textures tuned for Hanoi weather', 'Kết cấu nhẹ hợp khí hậu Hà Nội'),
     personaTags: ['localBeautyExpert'], axisAffinity: { localFit: 0.98, value: 0.5 },
     sortOrder: 2, active: true,
@@ -46,7 +46,7 @@ export const MOCK_BRANDS = [
     ],
   },
   {
-    id: 'b02-glowdaily', name: 'GLOW DAILY', emoji: '✨', logoUrl: '/assets/ui/Logo/ksecret.png',
+    id: 'b02-glowdaily', name: 'GLOW DAILY', emoji: '✨', logoUrl: '/assets/ui/logo/ksecret.png',
     tagline: L('매일 쓰기 좋은 데일리 글로우 라인', 'Everyday glow you can keep up with', 'Dòng dưỡng sáng dùng mỗi ngày'),
     personaTags: ['loyalGlowKeeper', 'smartBeautyCurator'], axisAffinity: { repick: 0.9, value: 0.6 },
     sortOrder: 3, active: true,
@@ -57,7 +57,7 @@ export const MOCK_BRANDS = [
     ],
   },
   {
-    id: 'b01-purelab', name: 'PURE LAB', emoji: '🧪', logoUrl: '/assets/ui/Logo/peachc.png',
+    id: 'b01-purelab', name: 'PURE LAB', emoji: '🧪', logoUrl: '/assets/ui/logo/peachc.png',
     tagline: L('성분을 공개하는 저자극 스킨케어', 'Low-irritation skincare with full disclosure', 'Skincare dịu nhẹ, công khai thành phần'),
     personaTags: ['trustGuardian', 'loyalGlowKeeper'], axisAffinity: { care: 0.95, trust: 0.7 },
     sortOrder: 4, active: true,
@@ -67,7 +67,7 @@ export const MOCK_BRANDS = [
     ],
   },
   {
-    id: 'b05-provenkit', name: 'PROVEN KIT', emoji: '🏅', logoUrl: '/assets/ui/Logo/hayejin.png',
+    id: 'b05-provenkit', name: 'PROVEN KIT', emoji: '🏅', logoUrl: '/assets/ui/logo/hayejin.png',
     tagline: L('리뷰와 임상으로 검증된 스테디셀러', 'Steady sellers proven by reviews and trials', 'Sản phẩm bán chạy được kiểm chứng'),
     personaTags: ['smartBeautyCurator', 'trustGuardian'], axisAffinity: { trust: 0.95, value: 0.7 },
     sortOrder: 5, active: true,
@@ -84,7 +84,7 @@ export const MOCK_BRANDS = [
     ['b09-soonding', 'SOONDING', '🌸', 'soonding.png'],
     ['b10-waytoskin', 'WAY TO SKIN', '💧', 'waytoskin.png'],
   ] as const).map(([id, name, emoji, logo], i) => ({
-    id, name, emoji, logoUrl: `/assets/ui/Logo/${logo}`,
+    id, name, emoji, logoUrl: `/assets/ui/logo/${logo}`,
     tagline: L('로고 확인용 더미 브랜드', 'Dummy brand for logo check', 'Thương hiệu mẫu để kiểm tra logo'),
     personaTags: [], axisAffinity: {},
     sortOrder: 6 + i, active: true,
