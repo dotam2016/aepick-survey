@@ -82,7 +82,7 @@ async function main(){
   try{ const vs=await fetch(ROOT+'/api/vote/'+TOKEN+'/status'); if(vs.ok) voted=(await vs.json()).data.voted; }catch(e){}
 
   app.innerHTML=\`
-    <div class="brand"><img src="/assets/ui/logo-orange.png" alt="aépick" style="height:40px;display:block;margin:0 auto"/></div>
+    <div class="brand"><img src="https://aepick-survey.pages.dev/assets/ui/logo-orange.png" alt="aépick" style="height:40px;display:block;margin:0 auto"/></div>
     <h1>\${t('resultWeb.greeting',{name:data.fullName||''})}</h1>
     <p class="dim center">\${t('resultWeb.subtitle')}</p>
     <div class="card center">
