@@ -38,7 +38,8 @@ h2{font-size:17px;color:var(--accent);font-weight:800;letter-spacing:.02em}
 .brand{padding:14px 0;border-bottom:1px solid var(--border)}
 .brand:last-child{border-bottom:none}
 .brand-head{display:flex;align-items:center;gap:10px}
-.brand-logo{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;font-size:22px;background:#fdf2f1;border:1px solid var(--border);flex:none}
+.brand-logo{width:96px;display:grid;align-items:center;justify-items:start;font-size:22px;flex:none}
+.brand-logo img{max-width:100%;object-fit:contain}
 .brand-name{font-weight:800;font-size:15px;letter-spacing:.02em}
 .brand-items{display:flex;flex-direction:column;gap:6px;margin-top:10px;padding-left:10px}
 .brand-item{display:flex;align-items:center;gap:12px;font-size:13px}
@@ -81,7 +82,7 @@ async function main(){
   try{ const vs=await fetch(ROOT+'/api/vote/'+TOKEN+'/status'); if(vs.ok) voted=(await vs.json()).data.voted; }catch(e){}
 
   app.innerHTML=\`
-    <div class="brand">aépick</div>
+    <div class="brand"><img src="/assets/ui/logo-orange.png" alt="aépick" style="height:40px;display:block;margin:0 auto"/></div>
     <h1>\${t('resultWeb.greeting',{name:data.fullName||''})}</h1>
     <p class="dim center">\${t('resultWeb.subtitle')}</p>
     <div class="card center">
@@ -102,7 +103,7 @@ async function main(){
       \${(data.brands||[]).map(b=>\`
         <div class="brand">
           <div class="brand-head">
-            <div class="brand-logo">\${b.logoUrl?'<img src="'+b.logoUrl+'" alt="" style="width:100%;height:100%;border-radius:14px;object-fit:cover"/>':b.emoji}</div>
+            <div class="brand-logo">\${b.logoUrl?'<img src="'+b.logoUrl+'" alt="" style="height:17px"/>':b.emoji}</div>
             <div style="flex:1">
               <div class="brand-name">\${b.name}</div>
               <div class="dim" style="font-size:12px">\${b.tagline[LANG]||b.tagline.en||''}</div>

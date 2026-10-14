@@ -1,3 +1,6 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { one, many, run, now } from './db.js';
 import type { Axis, Language, PersonaId } from '@aepick/shared';
 
@@ -57,13 +60,24 @@ interface ProductRow {
   image_url: string | null; sort_order: number; active: number; in_picks: number;
 }
 
+const LOGO_DIRS = ['dist', 'public'].map((d) =>
+  path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../apps/kiosk', d, 'assets/ui/logo'));
+
+/** logo_url이 비어 있으면 브랜드명(소문자·공백 제거)과 같은 이름의 파일을 ui/logo에서 찾는다. */
+function autoLogo(name: string): string | null {
+  const slug = name.toLowerCase().replace(/\s+/g, '');
+  for (const ext of ['png', 'jpg', 'jpeg', 'webp', 'svg'])
+    if (LOGO_DIRS.some((d) => fs.existsSync(path.join(d, `${slug}.${ext}`)))) return `/assets/ui/logo/${slug}.${ext}`;
+  return null;
+}
+
 function toBrand(r: BrandRow, products: CatalogProduct[]): CatalogBrand {
   return {
     id: r.id,
     name: r.name,
     tagline: parse(r.tagline, { ko: '', en: '', vi: '' } as Record<Language, string>),
     emoji: r.emoji ?? '🏷',
-    logoUrl: r.logo_url,
+    logoUrl: r.logo_url || autoLogo(r.name),
     personaTags: parse(r.persona_tags, [] as PersonaId[]),
     axisAffinity: parse(r.axis_affinity, {} as Partial<Record<Axis, number>>),
     sortOrder: r.sort_order,

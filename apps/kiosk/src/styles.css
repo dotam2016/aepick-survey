@@ -296,8 +296,12 @@ input.text::placeholder { color: rgba(96, 61, 58, 0.4); }
 .modal { width: 78%; padding: 45px 30px 40px; text-align: center; display: flex; flex-direction: column; gap: 20px; align-items: center; }
 
 /* 완료 토스트 */
+.complete-toast-backdrop {
+  position: absolute; inset: 0; z-index: 80; display: grid; place-items: center; padding: 0 6%;
+  background: rgba(255, 252, 252, 0.35); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+}
 .complete-toast {
-  position: absolute; left: 6%; right: 6%; bottom: 8%; z-index: 80;
+  width: 100%;
   padding: 26px 24px; text-align: center; font-size: clamp(16px, 2.3vh, 22px); font-weight: 700; line-height: 1.45;
   color: var(--ink);
   background: #fffcfc;

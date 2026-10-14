@@ -20,9 +20,15 @@ const SHELL_CSS = `
   .sub{color:var(--muted);font-size:13.5px;line-height:1.6;margin:0}
   .wrap{padding:0 16px}
   .brand{background:var(--card);border-radius:16px;padding:14px;margin-bottom:12px;border:1px solid var(--line)}
-  .bh{display:flex;align-items:center;gap:9px;margin-bottom:10px}
-  .bh .logo{width:34px;height:34px;border-radius:9px;object-fit:cover;flex:none}
-  .bh .emoji{font-size:22px;width:34px;text-align:center;flex:none}
+  .bh{display:flex;align-items:center;gap:9px;cursor:pointer}
+  .bh::after{content:'';margin-left:auto;flex:none;width:10px;height:10px;transition:.14s;
+             background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10' fill='none' stroke='%238a8a8a' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2 3.5 5 6.5 8 3.5'/%3E%3C/svg%3E") center/contain no-repeat}
+  .brand.open .bh{margin-bottom:10px}
+  .brand.open .bh::after{transform:rotate(180deg)}
+  .pl{display:none}
+  .brand.open .pl{display:block}
+  .bh .logo{width:96px;height:17px;object-fit:contain;object-position:left center;flex:none;margin-right:5px}
+  .bh .emoji{font-size:22px;width:96px;text-align:left;flex:none;margin-right:5px}
   .bh .nm{font-weight:800;font-size:15px}
   .bh .tl{font-size:11.5px;color:var(--muted);margin-top:1px}
   .p{display:flex;align-items:center;gap:10px;padding:10px;border:1.5px solid var(--line);
@@ -122,17 +128,17 @@ async function load(){
   if(d.alreadyVoted){location.replace(ROOT+'/v/'+TOKEN+'/done');return}
   el('list').innerHTML=d.brands.map(b=>\`
     <div class="brand">
-      <div class="bh">
+      <div class="bh" onclick="this.parentNode.classList.toggle('open')">
         \${b.logoUrl?\`<img class="logo" src="\${esc(b.logoUrl)}" alt=""/>\`:\`<span class="emoji">\${esc(b.emoji)}</span>\`}
         <div><div class="nm">\${esc(b.name)}</div><div class="tl">\${nameOf(b.tagline)}</div></div>
       </div>
-      \${b.products.map(p=>\`
+      <div class="pl">\${b.products.map(p=>\`
         <div class="p" data-id="\${esc(p.id)}" onclick="tog(this)">
           <span class="box">✓</span>
           \${p.imageUrl?\`<img src="\${esc(p.imageUrl)}" alt=""/>\`:''}
           <span class="pn">\${nameOf(p.name)}</span>
           <span class="pp">\${esc(p.price)}</span>
-        </div>\`).join('')}
+        </div>\`).join('')}</div>
     </div>\`).join('');
   el('bar').style.display='flex';
 }
