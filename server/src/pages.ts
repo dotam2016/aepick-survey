@@ -39,7 +39,8 @@ h2{font-size:17px;color:var(--accent);font-weight:800;letter-spacing:.02em}
 .brand:last-child{border-bottom:none}
 .brand-head{display:flex;align-items:center;gap:10px}
 .brand-logo{width:96px;display:grid;align-items:center;justify-items:start;font-size:22px;flex:none}
-.brand-logo img{max-width:100%;object-fit:contain}
+.brand-logo img{height:17px;max-width:100%;object-fit:contain}
+.brand-logo img[src$="tambeauty.png"]{height:40px}
 .brand-name{font-weight:800;font-size:15px;letter-spacing:.02em}
 .brand-items{display:flex;flex-direction:column;gap:6px;margin-top:10px;padding-left:10px}
 .brand-item{display:flex;align-items:center;gap:12px;font-size:13px}
@@ -103,7 +104,7 @@ async function main(){
       \${(data.brands||[]).map(b=>\`
         <div class="brand">
           <div class="brand-head">
-            <div class="brand-logo">\${b.logoUrl?'<img src="'+b.logoUrl+'" alt="" style="height:17px"/>':b.emoji}</div>
+            <div class="brand-logo">\${b.logoUrl?'<img src="'+b.logoUrl+'" alt=""/>':b.emoji}</div>
             <div style="flex:1">
               <div class="brand-name">\${b.name}</div>
               <div class="dim" style="font-size:12px">\${b.tagline[LANG]||b.tagline.en||''}</div>
