@@ -111,12 +111,18 @@ export function CompleteToast({ message, onDone }: { message: string; onDone: ()
   return (
     <AnimatePresence>
       <motion.div
-        className="complete-toast"
-        initial={{ opacity: 0, y: 40 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ type: 'spring', damping: 20 }}
+        className="complete-toast-backdrop"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
       >
-        ✨ {message}
+        <motion.div
+          className="complete-toast"
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ type: 'spring', damping: 20 }}
+        >
+          ✨ {message}
+        </motion.div>
       </motion.div>
     </AnimatePresence>
   );
