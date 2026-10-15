@@ -294,22 +294,6 @@ export function registerAdminRoutes(app: FastifyInstance) {
     return ok({ registrations: rows, page: p });
   });
 
-  /* ── 테스트 데이터 전체 삭제 ──
-   * 세션·답변·결과·투표·이벤트·페어링·방문자를 모두 지운다(되돌릴 수 없음). 상품/브랜드 카탈로그,
-   * 기기 하트비트, Zalo 체크인 명단(event_registrations)은 건드리지 않는다.
-   * 실수 호출 방지로 body 에 {"confirm":"DELETE"} 가 있어야 하며, 관리자 키 인증은 공통 훅이 처리한다.
-   * 오픈 전에 admin 화면의 버튼(pages.ts 'TEST-ONLY')만 지우고 이 API 는 남겨 두면 된다. */
-  app.post('/api/admin/reset-data', async (req, reply) => {
-    const { confirm } = (req.body ?? {}) as { confirm?: string };
-    if (confirm !== 'DELETE')
-      return reply.code(400).send({ ok: false, error: { code: 'bad_request', message: 'body must be {"confirm":"DELETE"}' } });
-    const tables = ['answers', 'results', 'votes', 'events', 'pairings', 'sessions', 'visitors'];
-    const deleted: Record<string, number> = {};
-    for (const t of tables) deleted[t] = Number((await one<{ n: string }>(`SELECT COUNT(*) n FROM ${t}`))?.n ?? 0);
-    await run(`TRUNCATE ${tables.join(', ')}`); // 한 문장이라 원자적
-    return ok({ deleted });
-  });
-
   /* ── 16. 기기 하트비트 ── */
   app.post('/api/admin/devices/:id/heartbeat', async (req) => {
     const { id } = req.params as { id: string };
