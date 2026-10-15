@@ -41,6 +41,7 @@ h2{font-size:17px;color:var(--accent);font-weight:800;letter-spacing:.02em}
 .brand-logo{width:96px;display:grid;align-items:center;justify-items:start;font-size:22px;flex:none}
 .brand-logo img{height:17px;max-width:100%;object-fit:contain}
 .brand-logo img[src$="tambeauty.png"]{height:40px}
+.brand-logo img[src$="eqqualberry.png"]{height:30px}
 .brand-name{font-weight:800;font-size:15px;letter-spacing:.02em}
 .brand-items{display:flex;flex-direction:column;gap:6px;margin-top:10px;padding-left:10px}
 .brand-item{display:flex;align-items:center;gap:12px;font-size:13px}

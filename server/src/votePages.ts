@@ -29,6 +29,7 @@ const SHELL_CSS = `
   .brand.open .pl{display:block}
   .bh .logo{width:96px;height:17px;object-fit:contain;object-position:left center;flex:none;margin-right:5px}
   .bh .logo[src$="tambeauty.png"]{height:40px}
+  .bh .logo[src$="eqqualberry.png"]{height:30px}
   .bh .emoji{font-size:22px;width:96px;text-align:left;flex:none;margin-right:5px}
   .bh .nm{font-weight:800;font-size:15px}
   .bh .tl{font-size:11.5px;color:var(--muted);margin-top:1px}
