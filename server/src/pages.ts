@@ -171,7 +171,7 @@ th{color:var(--dim);font-weight:600}
   <h1>AEPICK BEAUTY DNA <span>· OPERATIONS</span></h1>
   <div style="display:flex;align-items:center;gap:12px">
     <button id="exportBtn" style="padding:6px 14px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--ink);cursor:pointer;font:inherit">Export Excel</button>
-    <button id="exportRegBtn" style="padding:6px 14px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--ink);cursor:pointer;font:inherit">Export Zalo Check-in</button>
+    <button id="exportRegBtn" hidden style="padding:6px 14px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--ink);cursor:pointer;font:inherit">Export Zalo Check-in</button>
     <div id="status">connecting…</div>
   </div>
 </div>
